@@ -167,8 +167,6 @@ safepass --help
 - 🌐 Website: [barancelaltonyali.com](https://barancelaltonyali.com/)
 - 💼 LinkedIn: [linkedin.com/in/baran-celal-tonyali](https://www.linkedin.com/in/baran-celal-tonyali/)
 - 📧 Email: tonyalibarancelal@gmail.com
-- 💻 GitHub: [github.com/barancll/safepass](https://github.com/Barancll/safepass-cli)
-
 ---
 
 Made with ❤️ by Baran Celal Tonyalı
