@@ -4,14 +4,14 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
-    name="safepass",
+    name="safepass-cli",
     version="1.0.0",
-    author="SafePass Team",
-    author_email="info@safepass.local",
+    author="Baran Celal Tonyalı",
+    author_email="tonyalibarancelal@gmail.com",
     description="Offline password manager with strong encryption",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/safepass",
+    url="https://github.com/barancll/safepass",
     packages=find_packages(),
     classifiers=[
         "Development Status :: 4 - Beta",

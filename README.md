@@ -1,67 +1,17 @@
-# 🔐 SafePass - Offline Password Manager
+# SafePass - Offline Password Manager
 
-<div align="center">
+SafePass, şifrelerinizi güvenli bir şekilde yerel bilgisayarınızda saklayan offline bir şifre yöneticisidir.
 
-![SafePass](https://img.shields.io/badge/SafePass-v1.0-6366f1?style=for-the-badge&logo=lock&logoColor=white)
-![Python](https://img.shields.io/badge/Python-3.10+-blue?style=for-the-badge&logo=python&logoColor=white)
-![Django](https://img.shields.io/badge/Django-5.1.15-092e20?style=for-the-badge&logo=django&logoColor=white)
-![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
+## 🔐 Özellikler
 
-**Şifrelerinizi dış tehditlere kapalı, güvenle koruyun.**
-
-</div>
-
----
-
-## 📋 İçindekiler
-
-- [Özellikler](#-özellikler)
-- [Güvenlik Analizi](#-güvenlik-analizi)
-- [Kurulum](#-kurulum)
-- [Kullanım](#-kullanım)
-- [Teknik Detaylar](#-teknik-detaylar)
-- [Güvenlik](#-güvenlik)
-- [Önemli Notlar](#️-önemli-notlar)
-
----
-
-## ✨ Özellikler
-
-### 🔒 Güvenlik
-- ✅ **Offline Çalışma**: Tüm veriler yerel bilgisayarınızda, hiçbir sunucuya gönderilmez
-- ✅ **AES-256-GCM Şifreleme**: Bankalar ve askeri kurumlar tarafından kullanılan şifreleme standardı
-- ✅ **PBKDF2 Key Derivation**: 100,000 iterasyon ile güçlendirilmiş anahtar türetme
-- ✅ **Master Password**: Ana şifre hiçbir yerde saklanmaz, sadece siz bilirsiniz
-- ✅ **Session Timeout**: 1 saat inaktivite sonrası otomatik çıkış
-
-### 💼 Yönetim
-- ✅ **Şifre Kartları**: Her hesap için ayrı kart (uygulama adı, kullanıcı adı, şifre, URL, notlar)
-- ✅ **Kategori Sistemi**: Şifrelerinizi kategorilere ayırın (Genel, İş, Sosyal Medya, vb.)
-- ✅ **Şifre Üretici**: Özelleştirilebilir güçlü şifre üretimi (uzunluk, karakter tipleri)
-- ✅ **Arama ve Filtreleme**: Şifrelerinizi hızlıca bulun
-- ✅ **Düzenleme ve Silme**: Kartlarınızı kolayca güncelleyin
-
-### 📊 Analiz ve Raporlama
+- ✅ **Offline Çalışma**: Tüm veriler yerel bilgisayarınızda
+- ✅ **Güçlü Şifreleme**: AES-256-GCM ile şifreleme
+- ✅ **Ana Şifre**: Master password ile tüm verilerinizi koruyun
+- ✅ **Şifre Üretici**: Güçlü şifreler otomatik oluşturun
+- ✅ **Güvenlik Analizi**: Şifrelerinizi otomatik değerlendirin
 - ✅ **Dashboard**: Gerçek zamanlı güvenlik skoru ve istatistikler
-- ✅ **Güvenlik Analizi**: Her şifre otomatik olarak değerlendirilir (Güçlü/Orta/Zayıf)
-- ✅ **Tekrar Eden Şifre Tespiti**: Aynı şifreyi kullanan hesapları gösterir
-- ✅ **Şifre Gücü Göstergesi**: Canlı güç hesaplama ve renk kodlu gösterim
-
-### 💾 Yedekleme ve Taşıma
-- ✅ **Veri Dışa Aktarma**: Tüm şifrelerinizi JSON formatında dışa aktarın
-- ✅ **Veri İçe Aktarma**: Backup dosyalarınızı geri yükleyin
-- ✅ **Duplicate Kontrolü**: İçe aktarma sırasında tekrar eden kayıtları atlar
-
-### ⚙️ Profil Yönetimi
-- ✅ **Master Şifre Değiştirme**: Ana şifrenizi güvenle değiştirin (tüm şifreler otomatik yeniden şifrelenir)
-- ✅ **Hesap İstatistikleri**: Toplam şifre, ortalama güvenlik skoru
-- ✅ **Hesap Silme**: Onaylı hesap silme (üç aşamalı güvenlik)
-
-### 🎨 Arayüz
-- ✅ **Modern Tasarım**: Gradient renkler, blur efektleri, animasyonlar
-- ✅ **Responsive**: 13-14" laptop optimizasyonu dahil tüm ekran boyutları
-- ✅ **Dark Theme**: Gözleri yormayan karanlık tema
-- ✅ **Kolay Navigasyon**: Sidebar menü ile hızlı erişim
+- ✅ **Oturum Timeout**: 1 saat inaktivite sonrası otomatik çıkış
+- ✅ **Modern Arayüz**: Responsive tasarım
 
 ## 📊 Güvenlik Analizi
 
@@ -175,11 +125,3 @@ safepass --help
 
 - **Ana şifrenizi unutmayın!** Unutursanız verileriniz kurtarılamaz.
 - Düzenli olarak verilerinizi yedekleyin (Profil > Veri Dışa Aktar)
-
-## 📝 Lisans
-
-MIT License
-
-## 🤝 Katkıda Bulunma
-
-Pull request'ler kabul edilir. Büyük değişiklikler için lütfen önce bir issue açın.
