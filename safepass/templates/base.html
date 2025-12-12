@@ -35,7 +35,7 @@
                 </div>
                 <div class="dev-info-item">
                     <span class="dev-label">Versiyon</span>
-                    <span class="dev-value">1.0.0</span>
+                    <span class="dev-value">1.0.3</span>
                 </div>
                 <div class="dev-info-item">
                     <span class="dev-label">GitHub</span>
@@ -64,6 +64,39 @@
     
     <!-- Scripts -->
     <script src="{% static 'js/app.js' %}"></script>
+    <script>
+        // Developer Info Modal - Inline to ensure it works
+        document.addEventListener('DOMContentLoaded', function() {
+            const devBtn = document.getElementById('devInfoBtn');
+            const devModal = document.getElementById('devModal');
+            const closeBtn = document.getElementById('closeModal');
+            
+            if (devBtn && devModal) {
+                devBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    devModal.style.display = 'flex';
+                    setTimeout(() => devModal.classList.add('show'), 10);
+                });
+                
+                if (closeBtn) {
+                    closeBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        devModal.classList.remove('show');
+                        setTimeout(() => devModal.style.display = 'none', 300);
+                    });
+                }
+                
+                devModal.addEventListener('click', function(e) {
+                    if (e.target === devModal) {
+                        devModal.classList.remove('show');
+                        setTimeout(() => devModal.style.display = 'none', 300);
+                    }
+                });
+            }
+        });
+    </script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

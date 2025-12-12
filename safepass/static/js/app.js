@@ -67,19 +67,39 @@ document.addEventListener('DOMContentLoaded', function() {
     const devModal = document.getElementById('devModal');
     const closeBtn = document.getElementById('closeModal');
     
+    console.log('Dev Info Elements:', { devBtn, devModal, closeBtn });
+    
     if (devBtn && devModal) {
-        devBtn.addEventListener('click', () => {
+        devBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Dev button clicked!');
             devModal.classList.add('show');
+            devModal.style.display = 'flex';
         });
         
-        closeBtn.addEventListener('click', () => {
-            devModal.classList.remove('show');
-        });
+        if (closeBtn) {
+            closeBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Close button clicked!');
+                devModal.classList.remove('show');
+                setTimeout(() => {
+                    devModal.style.display = 'none';
+                }, 300);
+            });
+        }
         
         devModal.addEventListener('click', (e) => {
             if (e.target === devModal) {
+                console.log('Modal background clicked!');
                 devModal.classList.remove('show');
+                setTimeout(() => {
+                    devModal.style.display = 'none';
+                }, 300);
             }
         });
+    } else {
+        console.error('Dev Info elements not found!', { devBtn, devModal, closeBtn });
     }
 });
