@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="safepass-cli",
-    version="1.0.3",
+    version="1.0.4",
     author="Baran Celal Tonyalı",
     author_email="tonyalibarancelal@gmail.com",
     description="Offline password manager with strong encryption",
