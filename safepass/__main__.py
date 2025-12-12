@@ -162,6 +162,19 @@ def reset_data():
         print("ℹ️  Silinecek veri bulunamadı.")
 
 
+def clean_data():
+    """Remove all user data and database"""
+    import shutil
+    data_dir = get_data_dir()
+    
+    if data_dir.exists():
+        print(f"🗑️  Cleaning user data from: {data_dir}")
+        shutil.rmtree(data_dir)
+        print("✅ All user data removed successfully!")
+    else:
+        print("ℹ️  No user data found.")
+
+
 def main():
     """Main CLI handler"""
     parser = argparse.ArgumentParser(
@@ -173,6 +186,7 @@ Komutlar:
   start     Web sunucusunu başlat (varsayılan port: 8000)
   stop      Çalışan sunucuyu durdur
   reset     Tüm verileri sil ve sıfırla (UYARI: geri alınamaz!)
+  clean     Tüm kullanıcı verilerini ve veritabanını kaldır
 
 Örnekler:
   safepass init
@@ -180,11 +194,12 @@ Komutlar:
   safepass start --port 8080
   safepass stop
   safepass reset
+  safepass clean
         """
     )
     
     parser.add_argument('command', 
-                       choices=['init', 'start', 'stop', 'reset'],
+                       choices=['init', 'start', 'stop', 'reset', 'clean'],
                        help='Çalıştırılacak komut')
     parser.add_argument('--port', 
                        type=int, 
@@ -205,6 +220,13 @@ Komutlar:
         stop_server()
     elif args.command == 'reset':
         reset_data()
+    elif args.command == 'clean':
+        print("⚠️  WARNING: This will delete all your passwords and data!")
+        confirm = input("Type 'yes' to confirm: ")
+        if confirm.lower() == 'yes':
+            clean_data()
+        else:
+            print("❌ Operation cancelled.")
 
 
 if __name__ == '__main__':

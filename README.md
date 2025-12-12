@@ -88,20 +88,54 @@ Ana sayfada şu bilgileri görebilirsiniz:
 ## 📦 Kurulum
 
 ```bash
-pip install safepass
+pip install safepass-cli
 ```
 
 ## 🚀 Kullanım
 
-### İlk Kurulum
+## 💡 Kullanım
+
+### Komutlar
+
 ```bash
+# Veritabanını manuel başlat (opsiyonel)
 safepass init
+
+# Web sunucusunu başlat
+safepass start
+
+# Farklı portta başlat
+safepass start --port 3000
+
+# Çalışan sunucuyu durdur
+safepass stop
+
+# Tüm verileri sıfırla (GERİ ALINAMAZ!)
+safepass reset
 ```
 
-### Uygulamayı Başlatma
+## 🗑️ Kaldırma
+
+### Veritabanını Temizle (Şifreleri Sil)
+
 ```bash
-safepass start
+# Tüm şifrelerinizi ve veritabanını sil
+safepass clean
 ```
+
+⚠️ **Uyarı:** Bu komut tüm şifrelerinizi kalıcı olarak siler!
+
+### Uygulamayı Tamamen Kaldır
+
+```bash
+# 1. Önce veritabanını temizle (opsiyonel)
+safepass clean
+
+# 2. Uygulamayı kaldır
+pip uninstall safepass-cli
+```
+
+**Not:** `pip uninstall` sadece uygulamayı kaldırır, verilerinizi silmez. Verilerinizi de silmek için önce `safepass clean` komutunu çalıştırın.
 
 Tarayıcınızda `http://localhost:8000` adresine gidin.
 
@@ -125,3 +159,16 @@ safepass --help
 
 - **Ana şifrenizi unutmayın!** Unutursanız verileriniz kurtarılamaz.
 - Düzenli olarak verilerinizi yedekleyin (Profil > Veri Dışa Aktar)
+
+## 👨‍💻 Geliştirici
+
+**Baran Celal Tonyalı**
+
+- 🌐 Website: [barancelaltonyali.com](https://barancelaltonyali.com/)
+- 💼 LinkedIn: [linkedin.com/in/baran-celal-tonyali](https://www.linkedin.com/in/baran-celal-tonyali/)
+- 📧 Email: tonyalibarancelal@gmail.com
+- 💻 GitHub: [github.com/barancll/safepass](https://github.com/barancll/safepass)
+
+---
+
+Made with ❤️ by Baran Celal Tonyalı
