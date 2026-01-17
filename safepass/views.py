@@ -188,14 +188,38 @@ def api_register(request):
     username = data.get('username', '').strip()
     master_password = data.get('master_password', '')
     
-    if not username or not master_password:
-        return JsonResponse({'error': 'Kullanıcı adı ve ana şifre gerekli'}, status=400)
+    # Validation with specific error messages
+    if not username:
+        return JsonResponse({'error': 'Kullanıcı adı boş bırakılamaz', 'field': 'username'}, status=400)
+    
+    if not master_password:
+        return JsonResponse({'error': 'Ana şifre boş bırakılamaz', 'field': 'master_password'}, status=400)
+    
+    if len(username) < 3:
+        return JsonResponse({'error': 'Kullanıcı adı en az 3 karakter olmalı', 'field': 'username'}, status=400)
+    
+    if len(username) > 30:
+        return JsonResponse({'error': 'Kullanıcı adı en fazla 30 karakter olabilir', 'field': 'username'}, status=400)
     
     if len(master_password) < 8:
-        return JsonResponse({'error': 'Ana şifre en az 8 karakter olmalı'}, status=400)
+        return JsonResponse({'error': 'Ana şifre en az 8 karakter olmalı', 'field': 'master_password'}, status=400)
+    
+    if len(master_password) > 128:
+        return JsonResponse({'error': 'Ana şifre en fazla 128 karakter olabilir', 'field': 'master_password'}, status=400)
+    
+    # Check password strength
+    has_upper = any(c.isupper() for c in master_password)
+    has_lower = any(c.islower() for c in master_password)
+    has_digit = any(c.isdigit() for c in master_password)
+    
+    if not (has_upper and has_lower and has_digit):
+        return JsonResponse({
+            'error': 'Zayıf şifre! Büyük harf, küçük harf ve rakam içermelidir',
+            'field': 'master_password'
+        }, status=400)
     
     if User.objects.filter(username=username).exists():
-        return JsonResponse({'error': 'Bu kullanıcı adı zaten kullanılıyor'}, status=400)
+        return JsonResponse({'error': 'Bu kullanıcı adı zaten kullanılıyor! Bu bilgisayarda daha önce aynı kullanıcı adıyla hesap oluşturmuş olabilirsiniz. Farklı bir kullanıcı adı deneyin veya mevcut hesabınızla giriş yapın', 'field': 'username'}, status=400)
     
     salt = generate_salt()
     master_hash = hash_master_password(master_password, salt)
@@ -227,16 +251,26 @@ def api_login(request):
     username = data.get('username', '').strip()
     master_password = data.get('master_password', '')
     
-    if not username or not master_password:
-        return JsonResponse({'error': 'Kullanıcı adı ve ana şifre gerekli'}, status=400)
+    # Validation
+    if not username:
+        return JsonResponse({'error': 'Kullanıcı adı boş bırakılamaz', 'field': 'username'}, status=400)
+    
+    if not master_password:
+        return JsonResponse({'error': 'Şifre boş bırakılamaz', 'field': 'master_password'}, status=400)
     
     try:
         user = User.objects.get(username=username)
     except User.DoesNotExist:
-        return JsonResponse({'error': 'Kullanıcı adı veya şifre hatalı'}, status=401)
+        return JsonResponse({
+            'error': 'Bu kullanıcı adıyla bir hesap bulunamadı. Bu bilgisayarda henüz hesap oluşturmadıysanız, kayıt olmanız gerekiyor',
+            'field': 'username'
+        }, status=404)
     
     if not verify_master_password(master_password, bytes(user.salt), user.master_password_hash):
-        return JsonResponse({'error': 'Kullanıcı adı veya şifre hatalı'}, status=401)
+        return JsonResponse({
+            'error': 'Yanlış şifre! Ana şifrenizi doğru girdiğinizden emin olun. Unuttusanız verilerinize erişemezsiniz',
+            'field': 'master_password'
+        }, status=401)
     
     request.session['user_id'] = user.id
     request.session['master_password'] = master_password

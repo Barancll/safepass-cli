@@ -15,7 +15,14 @@ def main():
             "available on your PYTHONPATH environment variable? Did you "
             "forget to activate a virtual environment?"
         ) from exc
-    execute_from_command_line(sys.argv)
+    # Eğer runserver komutu varsa ve port belirtilmemişse, 2025 portunu ekle
+    argv = sys.argv
+    if 'runserver' in argv and not any(a for a in argv if a.startswith('runserver') and ':' in a):
+        idx = argv.index('runserver')
+        # runserver komutundan sonra port yoksa ekle
+        if len(argv) == idx + 1 or not argv[idx + 1].isdigit():
+            argv.insert(idx + 1, '2025')
+    execute_from_command_line(argv)
 
 
 if __name__ == '__main__':

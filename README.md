@@ -8,10 +8,12 @@ SafePass, şifrelerinizi güvenli bir şekilde yerel bilgisayarınızda saklayan
 - ✅ **Güçlü Şifreleme**: AES-256-GCM ile şifreleme
 - ✅ **Ana Şifre**: Master password ile tüm verilerinizi koruyun
 - ✅ **Şifre Üretici**: Güçlü şifreler otomatik oluşturun
+- ✅ **Gerçek Zamanlı Şifre Doğrulama**: Kayıt sırasında canlı şifre gücü göstergesi
 - ✅ **Güvenlik Analizi**: Şifrelerinizi otomatik değerlendirin
 - ✅ **Dashboard**: Gerçek zamanlı güvenlik skoru ve istatistikler
 - ✅ **Oturum Timeout**: 1 saat inaktivite sonrası otomatik çıkış
-- ✅ **Modern Arayüz**: Responsive tasarım
+- ✅ **Otomatik Güncelleme Kontrolü**: PyPI üzerinden yeni sürüm bildirimleri
+- ✅ **Modern Arayüz**: Responsive tasarım ve toast bildirimleri
 
 ## 📊 Güvenlik Analizi
 
@@ -93,26 +95,67 @@ pip install safepass-cli
 
 ## 🚀 Kullanım
 
-## 💡 Kullanım
+### İlk Kurulum
+
+Kurulumdan sonra SafePass otomatik olarak varsayılan port olan **2025**'te başlar.
 
 ### Komutlar
 
 ```bash
-# Veritabanını manuel başlat (opsiyonel)
+# Veritabanını manuel başlat (opsiyonel - start komutu otomatik yapar)
 safepass init
 
-# Web sunucusunu başlat
+# Web sunucusunu başlat (varsayılan port: 2025)
 safepass start
 
-# Farklı portta başlat
-safepass start --port 3000
+# Uygulamayı güncelle
+safepass update
 
 # Çalışan sunucuyu durdur
 safepass stop
 
 # Tüm verileri sıfırla (GERİ ALINAMAZ!)
 safepass reset
+
+# Tüm kullanıcı verilerini ve veritabanını kaldır
+safepass clean
+
+# Yardım
+safepass --help
 ```
+
+### Tarayıcıdan Erişim
+
+```
+http://localhost:2025
+```
+
+## 🎨 Kullanıcı Arayüzü Özellikleri
+
+### Kayıt & Giriş
+
+- **Gerçek Zamanlı Şifre Doğrulama**: Kayıt sırasında şifrenizin gücünü anlık görün
+- **Şifre Gereksinimleri Göstergesi**: 
+  - ✅ En az 8 karakter
+  - ✅ Büyük harf (A-Z)
+  - ✅ Küçük harf (a-z)
+  - ✅ Rakam (0-9)
+  - ✨ Sembol (!@#$%) - isteğe bağlı
+- **Şifre Görünürlük Kontrolü**: Göz ikonu ile şifreleri göster/gizle
+- **Ana Şifre Uyarısı**: Şifrenizi unutma riskine karşı bilgilendirme
+
+### Bildirimler
+
+- **Toast Bildirimleri**: Sağ üst köşede modern bildirimler
+- **Hata Yönetimi**: Detaylı ve kullanıcı dostu hata mesajları
+- **Güncelleme Kontrolü**: PyPI üzerinden otomatik sürüm kontrolü
+
+### Yardımcı Butonlar
+
+Sağ alt köşede sabit butonlar:
+- **ℹ️ Nasıl Çalışır**: SafePass hakkında detaylı bilgi (sadece kayıt sayfasında)
+- **🔔 Güncelleme**: Yeni sürüm mevcut olduğunda görünür
+- **❤️ Geliştirici**: Geliştirici bilgileri ve iletişim
 
 ## 🗑️ Kaldırma
 
@@ -137,28 +180,86 @@ pip uninstall safepass-cli
 
 **Not:** `pip uninstall` sadece uygulamayı kaldırır, verilerinizi silmez. Verilerinizi de silmek için önce `safepass clean` komutunu çalıştırın.
 
-Tarayıcınızda `http://localhost:8000` adresine gidin.
+## 🔄 Güncelleme
 
-### Diğer Komutlar
+SafePass, PyPI üzerinden yeni sürümleri otomatik kontrol eder. Yeni bir sürüm mevcut olduğunda:
+
+1. Sağ alt köşede 🔔 güncelleme butonu görünür
+2. Butona tıklayarak güncelleme talimatlarını görün
+3. Terminalde `safepass update` komutunu çalıştırın
+4. Uygulamayı yeniden başlatın
+
+**Manuel Güncelleme:**
 ```bash
-# Ana şifreyi sıfırla (TÜM VERİLER SİLİNİR!)
-safepass reset
-
-# Yardım
-safepass --help
+safepass update
+# veya
+pip install --upgrade safepass-cli
 ```
+
+## 🎯 Teknolojiler
+
+**Backend:**
+- Django 5.1.x
+- SQLite
+- Python 3.8+
+
+**Frontend:**
+- Modern CSS (Gradient tasarımlar, animasyonlar)
+- Vanilla JavaScript
+- Responsive Design
+
+**Güvenlik:**
+- AES-256-GCM şifreleme
+- PBKDF2 anahtar türetme
+- CSRF koruması
 
 ## 🔒 Güvenlik
 
 - Tüm şifreler AES-256-GCM ile şifrelenir
 - Ana şifre asla saklanmaz
 - Veriler `~/.safepass/` dizininde saklanır
-- Offline çalışır, internet bağlantısı gerektirmez
+- Offline çalışır, internet bağlantısı gerektirmez (güncelleme kontrolü hariç)
+- CSRF token koruması
+- Session timeout (1 saat inaktivite)
+
+## ⚙️ Yapılandırma
+
+### Varsayılan Ayarlar
+
+- **Port**: 2025
+- **Session Timeout**: 1 saat
+- **Veritabanı**: `~/.safepass/db.sqlite3`
+- **Otomatik Güncelleme Kontrolü**: Aktif
 
 ## ⚠️ Önemli Notlar
 
 - **Ana şifrenizi unutmayın!** Unutursanız verileriniz kurtarılamaz.
 - Düzenli olarak verilerinizi yedekleyin (Profil > Veri Dışa Aktar)
+- Güçlü ve benzersiz bir ana şifre kullanın
+- Ana şifrenizi güvenli bir yerde saklayın
+- Uygulamayı güncel tutun (`safepass update`)
+
+## 📱 Tarayıcı Desteği
+
+SafePass modern tarayıcılarda sorunsuz çalışır:
+- ✅ Chrome/Edge (önerilen)
+- ✅ Firefox
+- ✅ Safari
+- ✅ Opera
+
+## 🐛 Sorun Giderme
+
+### Veritabanı Hatası
+```bash
+# Veritabanını sıfırla (VERİLER SİLİNİR!)
+safepass clean
+```
+
+### Güncelleme Sorunu
+```bash
+# Manuel güncelleme
+pip install --upgrade safepass-cli --force-reinstall
+```
 
 ## 👨‍💻 Geliştirici
 
@@ -166,7 +267,11 @@ safepass --help
 
 - 🌐 Website: [barancelaltonyali.com](https://barancelaltonyali.com/)
 - 💼 LinkedIn: [linkedin.com/in/baran-celal-tonyali](https://www.linkedin.com/in/baran-celal-tonyali/)
-- 📧 Email: tonyalibarancelal@gmail.com
----
+- 📦 PyPI: [pypi.org/project/safepass-cli](https://pypi.org/project/safepass-cli/)
+- 💻 GitHub: [github.com/Barancll/safepass-cli](https://github.com/Barancll/safepass-cli)
 
-Made with ❤️ by Baran Celal Tonyalı
+## 📄 Lisans
+
+MIT License - Detaylar için LICENSE dosyasına bakın.
+
+**SafePass v1.1.0** - Made with ❤️ by Baran Celal Tonyalı

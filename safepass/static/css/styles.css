@@ -100,7 +100,7 @@ body::after {
 .dev-info-btn {
     position: fixed !important;
     bottom: 20px !important;
-    right: 20px !important;
+    right: 24px !important;
     width: 50px;
     height: 50px;
     border-radius: 50%;
@@ -217,6 +217,7 @@ body::after {
     font-weight: 800;
     background: linear-gradient(135deg, var(--primary), var(--secondary));
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 5px;
 }
@@ -281,4 +282,84 @@ body::after {
     0%, 100% { transform: scale(1); }
     25% { transform: scale(1.2); }
     50% { transform: scale(1); }
+}
+
+/* Update Notification Button */
+.update-btn {
+    position: fixed !important;
+    bottom: 90px !important;
+    right: 24px !important;
+    z-index: 999999 !important;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    font-size: 26px;
+    cursor: pointer;
+    display: none !important;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+    transition: all 0.3s ease;
+    animation: pulse 2s ease-in-out infinite;
+    pointer-events: auto !important;
+}
+
+.update-btn.visible {
+    display: flex !important;
+}
+
+.update-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 30px rgba(99, 102, 241, 0.6);
+    animation: none;
+}
+
+.update-btn:active {
+    transform: scale(1.05);
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+/* Update Badge - Kırmızı bildirim sayısı */
+.update-badge {
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    width: 22px;
+    height: 22px;
+    background: #ef4444;
+    border: 2px solid #0f1729;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: white;
+    animation: badgePulse 1.5s ease infinite;
+}
+
+@keyframes badgePulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+    50% { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+}
+
+.bell-icon {
+    display: inline-block;
+}
+
+.update-btn:hover .bell-icon {
+    animation: bellShake 0.6s ease;
+}
+
+@keyframes bellShake {
+    0%, 100% { transform: rotate(0deg); }
+    10%, 30%, 50%, 70%, 90% { transform: rotate(-12deg); }
+    20%, 40%, 60%, 80% { transform: rotate(12deg); }
 }

@@ -4,10 +4,10 @@
 {% block title %}Dashboard - SafePass{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/components/sidebar.css' %}">
-<link rel="stylesheet" href="{% static 'css/components/dashboard.css' %}">
-<link rel="stylesheet" href="{% static 'css/components/buttons.css' %}">
-<link rel="stylesheet" href="{% static 'css/components/forms.css' %}">
+<link rel="stylesheet" href="{% static 'css/components/sidebar.css' %}?v={{ APP_VERSION }}">
+<link rel="stylesheet" href="{% static 'css/components/dashboard.css' %}?v={{ APP_VERSION }}">
+<link rel="stylesheet" href="{% static 'css/components/buttons.css' %}?v={{ APP_VERSION }}">
+<link rel="stylesheet" href="{% static 'css/components/forms.css' %}?v={{ APP_VERSION }}">
 {% endblock %}
 
 {% block body_class %}with-sidebar{% endblock %}

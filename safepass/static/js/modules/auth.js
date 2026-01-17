@@ -1,8 +1,54 @@
 /* SafePass - Auth Module */
 
+// Helper function for password strength requirements
+function updateRequirement(id, isMet, isOptional = false) {
+    const element = document.getElementById(id);
+    if (!element) return;
+    
+    const icon = element.querySelector('.req-icon');
+    if (isMet) {
+        element.classList.add('met');
+        element.classList.remove('optional');
+        icon.textContent = '✅';
+    } else if (isOptional) {
+        element.classList.remove('met');
+        element.classList.add('optional');
+        icon.textContent = '✨';
+    } else {
+        element.classList.remove('met', 'optional');
+        icon.textContent = '❌';
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
+
+    // Password toggle functionality
+    const passwordToggles = document.querySelectorAll('.password-toggle');
+    console.log('Password toggle buttons found:', passwordToggles.length);
+    
+    passwordToggles.forEach(toggle => {
+        toggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('data-target');
+            const input = document.getElementById(targetId);
+            
+            console.log('Toggle clicked for:', targetId, 'Input found:', !!input);
+            
+            if (input) {
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    this.classList.add('visible');
+                    console.log('Password shown');
+                } else {
+                    input.type = 'password';
+                    this.classList.remove('visible');
+                    console.log('Password hidden');
+                }
+            }
+        });
+    });
 
     if (loginForm) {
         loginForm.addEventListener('submit', handleLogin);
@@ -10,6 +56,64 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (registerForm) {
         registerForm.addEventListener('submit', handleRegister);
+        
+        // Real-time password strength validation
+        const passwordInput = document.getElementById('master-password');
+        const strengthIndicator = document.getElementById('password-strength');
+        const strengthFill = document.getElementById('strength-fill');
+        
+        console.log('Password strength elements:', { passwordInput, strengthIndicator, strengthFill });
+        
+        if (passwordInput && strengthIndicator) {
+            console.log('Setting up password strength listener');
+            passwordInput.addEventListener('input', function() {
+                const password = passwordInput.value;
+                console.log('Password changed:', password.length, 'chars');
+                
+                if (password.length === 0) {
+                    strengthIndicator.style.display = 'none';
+                    return;
+                }
+                
+                strengthIndicator.style.display = 'block';
+                
+                // Check requirements
+                const hasLength = password.length >= 8;
+                const hasUpper = /[A-Z]/.test(password);
+                const hasLower = /[a-z]/.test(password);
+                const hasDigit = /[0-9]/.test(password);
+                const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+                
+                // Update requirement indicators
+                updateRequirement('req-length', hasLength);
+                updateRequirement('req-upper', hasUpper);
+                updateRequirement('req-lower', hasLower);
+                updateRequirement('req-digit', hasDigit);
+                updateRequirement('req-special', hasSpecial, true); // optional
+                
+                // Calculate strength
+                let strength = 0;
+                if (hasLength) strength += 25;
+                if (hasUpper) strength += 25;
+                if (hasLower) strength += 25;
+                if (hasDigit) strength += 25;
+                if (hasSpecial) strength += 20;
+                
+                // Update strength bar
+                strengthFill.style.width = Math.min(strength, 100) + '%';
+                
+                // Update color
+                if (strength < 50) {
+                    strengthFill.style.background = '#ef4444';
+                } else if (strength < 75) {
+                    strengthFill.style.background = '#f59e0b';
+                } else if (strength < 100) {
+                    strengthFill.style.background = '#10b981';
+                } else {
+                    strengthFill.style.background = 'linear-gradient(90deg, #10b981, #059669)';
+                }
+            });
+        }
         
         // Info modal functionality
         const infoBtn = document.getElementById('info-btn');
@@ -41,7 +145,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Real-time password match validation
-        const passwordInput = document.getElementById('master-password');
         const confirmInput = document.getElementById('master-password-confirm');
         const matchHint = document.getElementById('password-match-hint');
         
@@ -78,8 +181,19 @@ document.addEventListener('DOMContentLoaded', function() {
 async function handleLogin(e) {
     e.preventDefault();
     
-    const username = document.getElementById('username').value;
+    const username = document.getElementById('username').value.trim();
     const masterPassword = document.getElementById('master-password').value;
+    
+    // Frontend validation
+    if (!username) {
+        showToast('Kullanıcı adı boş bırakılamaz', 'error');
+        return;
+    }
+    
+    if (!masterPassword) {
+        showToast('Şifre boş bırakılamaz', 'error');
+        return;
+    }
     
     try {
         const response = await fetch('/api/auth/login', {
@@ -96,36 +210,65 @@ async function handleLogin(e) {
         const data = await response.json();
         
         if (response.ok) {
-            window.location.href = '/dashboard';
+            showToast('✅ Giriş başarılı! Yönlendiriliyorsunuz...', 'success');
+            setTimeout(() => {
+                window.location.href = '/dashboard';
+            }, 1000);
         } else {
-            showAlert(data.error || 'Giriş başarısız', 'error');
+            showToast(data.error || 'Giriş başarısız', 'error');
         }
     } catch (error) {
-        showAlert('Bir hata oluştu', 'error');
+        console.error('Login error:', error);
+        showToast('Sunucuya bağlanılamadı. Lütfen tekrar deneyin', 'error');
     }
 }
 
 async function handleRegister(e) {
     e.preventDefault();
     
-    const username = document.getElementById('username').value;
+    const username = document.getElementById('username').value.trim();
     const masterPassword = document.getElementById('master-password').value;
     const masterPasswordConfirm = document.getElementById('master-password-confirm').value;
     const checkbox = document.querySelector('input[type="checkbox"]');
     
-    // Check if checkbox is checked
-    if (!checkbox.checked) {
-        showAlert('Devam etmek için şartları kabul etmelisiniz', 'error');
+    // Frontend validation
+    if (!username) {
+        showToast('Kullanıcı adı boş bırakılamaz', 'error');
         return;
     }
     
-    if (masterPassword !== masterPasswordConfirm) {
-        showAlert('Şifreler eşleşmiyor!', 'error');
+    if (username.length < 3) {
+        showToast('Kullanıcı adı en az 3 karakter olmalı', 'error');
+        return;
+    }
+    
+    if (!masterPassword) {
+        showToast('Ana şifre boş bırakılamaz', 'error');
         return;
     }
     
     if (masterPassword.length < 8) {
-        showAlert('Ana şifre en az 8 karakter olmalı', 'error');
+        showToast('Ana şifre en az 8 karakter olmalı', 'error');
+        return;
+    }
+    
+    if (!checkbox.checked) {
+        showToast('Devam etmek için şartları kabul etmelisiniz', 'warning');
+        return;
+    }
+    
+    if (masterPassword !== masterPasswordConfirm) {
+        showToast('Şifreler eşleşmiyor! Lütfen aynı şifreyi girin', 'error');
+        return;
+    }
+    
+    // Check password strength
+    const hasUpper = /[A-Z]/.test(masterPassword);
+    const hasLower = /[a-z]/.test(masterPassword);
+    const hasDigit = /[0-9]/.test(masterPassword);
+    
+    if (!hasUpper || !hasLower || !hasDigit) {
+        showToast('Zayıf şifre! Büyük harf, küçük harf ve rakam içermelidir', 'error');
         return;
     }
     
@@ -144,32 +287,61 @@ async function handleRegister(e) {
         const data = await response.json();
         
         if (response.ok) {
-            showAlert('Kayıt başarılı! Giriş yapılıyor...', 'success');
+            showToast('✅ Kayıt başarılı! Giriş yapılıyor...', 'success');
             setTimeout(() => {
                 window.location.href = '/dashboard';
             }, 1500);
         } else {
-            showAlert(data.error || 'Kayıt başarısız', 'error');
+            showToast(data.error || 'Kayıt başarısız', 'error');
         }
     } catch (error) {
-        showAlert('Bir hata oluştu', 'error');
+        console.error('Register error:', error);
+        showToast('Sunucuya bağlanılamadı. Lütfen tekrar deneyin', 'error');
     }
 }
 
 function showAlert(message, type = 'info') {
-    const existingAlert = document.querySelector('.alert');
-    if (existingAlert) {
-        existingAlert.remove();
+    // Deprecated - use showToast instead
+    showToast(message, type);
+}
+
+function showToast(message, type = 'info') {
+    // Remove existing toasts
+    const existingToasts = document.querySelectorAll('.toast-notification');
+    existingToasts.forEach(toast => toast.remove());
+    
+    // Create toast container if it doesn't exist
+    let toastContainer = document.querySelector('.toast-container');
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.className = 'toast-container';
+        document.body.appendChild(toastContainer);
     }
     
-    const alert = document.createElement('div');
-    alert.className = `alert alert-${type} mt-3`;
-    alert.textContent = message;
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.className = `toast-notification toast-${type}`;
     
-    const form = document.querySelector('form');
-    form.parentNode.insertBefore(alert, form.nextSibling);
+    // Icon based on type
+    let icon = '📝';
+    if (type === 'error') icon = '❌';
+    if (type === 'success') icon = '✅';
+    if (type === 'warning') icon = '⚠️';
     
+    toast.innerHTML = `
+        <div class="toast-icon">${icon}</div>
+        <div class="toast-message">${message}</div>
+        <button class="toast-close" onclick="this.parentElement.remove()">✕</button>
+    `;
+    
+    toastContainer.appendChild(toast);
+    
+    // Animate in
+    setTimeout(() => toast.classList.add('show'), 10);
+    
+    // Auto remove after 5 seconds
     setTimeout(() => {
-        alert.remove();
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
     }, 5000);
 }

@@ -4,11 +4,11 @@
 {% block title %}Şifrelerim - SafePass{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/components/sidebar.css' %}">
-<link rel="stylesheet" href="{% static 'css/components/layout.css' %}">
-<link rel="stylesheet" href="{% static 'css/components/cards.css' %}">
-<link rel="stylesheet" href="{% static 'css/components/buttons.css' %}">
-<link rel="stylesheet" href="{% static 'css/components/forms.css' %}">
+<link rel="stylesheet" href="{% static 'css/components/sidebar.css' %}?v={{ APP_VERSION }}">
+<link rel="stylesheet" href="{% static 'css/components/layout.css' %}?v={{ APP_VERSION }}">
+<link rel="stylesheet" href="{% static 'css/components/cards.css' %}?v={{ APP_VERSION }}">
+<link rel="stylesheet" href="{% static 'css/components/buttons.css' %}?v={{ APP_VERSION }}">
+<link rel="stylesheet" href="{% static 'css/components/forms.css' %}?v={{ APP_VERSION }}">
 {% endblock %}
 
 {% block body_class %}with-sidebar{% endblock %}
@@ -70,6 +70,16 @@
                         </button>
                     </div>
                 </div>
+                {% if card.url and card.url != "" %}
+                <div class="card-field">
+                    <label>URL</label>
+                    <div class="field-value">
+                        <a href="{{ card.url }}" target="_blank" rel="noopener noreferrer" style="color: #60a5fa; text-decoration: none;">
+                            {{ card.url }}
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
                 {% if card.notes %}
                 <div class="card-field">
                     <label>Notlar</label>

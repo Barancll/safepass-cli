@@ -94,6 +94,17 @@ def start_server(port=8000):
         if pid_file.exists():
             pid_file.unlink()
 
+def update_server():
+    """Update SafePass to the latest version"""
+    import subprocess
+    
+    print("🔄 SafePass güncelleniyor...")
+    try:
+        subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--upgrade', 'safepass'])
+        print("✅ SafePass başarıyla güncellendi!")
+    except subprocess.CalledProcessError as e:
+        print(f"❌ Güncelleme başarısız oldu: {e}")
+
 
 def stop_server():
     """Stop the running SafePass server"""
@@ -199,12 +210,8 @@ Komutlar:
     )
     
     parser.add_argument('command', 
-                       choices=['init', 'start', 'stop', 'reset', 'clean'],
+                       choices=['init', 'start', 'stop', 'reset', 'clean', 'update'],
                        help='Çalıştırılacak komut')
-    parser.add_argument('--port', 
-                       type=int, 
-                       default=8000,
-                       help='Web sunucu portu (varsayılan: 8000)')
     
     args = parser.parse_args()
     
@@ -215,7 +222,8 @@ Komutlar:
         db_file = get_data_dir() / "db.sqlite3"
         if not db_file.exists():
             init_database()
-        start_server(args.port)
+        check_for_update()
+        start_server(2025)
     elif args.command == 'stop':
         stop_server()
     elif args.command == 'reset':
@@ -227,6 +235,36 @@ Komutlar:
             clean_data()
         else:
             print("❌ Operation cancelled.")
+    elif args.command == 'update':
+        update_server()
+
+def check_for_update():
+    """Check if a new version is available on PyPI and notify user"""
+    import sys
+    import json
+    import urllib.request
+    try:
+        from importlib.metadata import version as pkg_version
+    except ImportError:
+        try:
+            from pkg_resources import get_distribution as pkg_version  # type: ignore
+        except ImportError:
+            return  # Skip update check if neither module is available
+
+    package_name = "safepass-cli"
+    try:
+        current_version = pkg_version(package_name)
+    except Exception:
+        return
+    try:
+        with urllib.request.urlopen(f"https://pypi.org/pypi/{package_name}/json") as resp:
+            data = json.load(resp)
+            latest_version = data["info"]["version"]
+        if current_version != latest_version:
+            print(f"\n🚨 Yeni SafePass sürümü mevcut: {latest_version} (Şu anki: {current_version})")
+            print("Güncellemek için: safepass update\n")
+    except Exception:
+        pass
 
 
 if __name__ == '__main__':

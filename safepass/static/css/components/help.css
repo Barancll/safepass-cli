@@ -172,7 +172,8 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.password-input-wrapper {
+/* Password wrapper disabled - using auth.css version */
+/*.password-input-wrapper {
     display: flex;
     gap: 0.5rem;
     align-items: center;
@@ -180,7 +181,7 @@
 
 .password-input-wrapper input {
     flex: 1;
-}
+}*/
 
 .password-strength-indicator {
     margin-top: 0.5rem;

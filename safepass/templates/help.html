@@ -4,10 +4,10 @@
 {% block title %}Yardım - SafePass{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/components/sidebar.css' %}">
-<link rel="stylesheet" href="{% static 'css/components/layout.css' %}">
-<link rel="stylesheet" href="{% static 'css/components/help.css' %}">
-<link rel="stylesheet" href="{% static 'css/components/buttons.css' %}">
+<link rel="stylesheet" href="{% static 'css/components/sidebar.css' %}?v={{ APP_VERSION }}">
+<link rel="stylesheet" href="{% static 'css/components/layout.css' %}?v={{ APP_VERSION }}">
+<link rel="stylesheet" href="{% static 'css/components/help.css' %}?v={{ APP_VERSION }}">
+<link rel="stylesheet" href="{% static 'css/components/buttons.css' %}?v={{ APP_VERSION }}">
 {% endblock %}
 
 {% block body_class %}with-sidebar{% endblock %}
