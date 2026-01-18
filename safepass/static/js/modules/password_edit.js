@@ -2,11 +2,79 @@
  * Password Edit Module
  */
 
+// Subcategory options based on main category
+const subcategoryOptions = {
+    'genel': [
+        { value: 'e-posta', label: 'E-Posta' },
+        { value: 'sosyal-medya', label: 'Sosyal Medya' },
+        { value: 'alisveris', label: 'Alışveriş (E-Ticaret)' },
+        { value: 'forumlar-uyelikler', label: 'Forumlar & Üyelikler' }
+    ],
+    'finans': [
+        { value: 'bankacilik', label: 'Bankacılık' },
+        { value: 'kredi-kartlari', label: 'Kredi Kartları' },
+        { value: 'kripto-paralar', label: 'Kripto Paralar' },
+        { value: 'faturalar', label: 'Faturalar' }
+    ],
+    'is-gelistirici': [
+        { value: 'sirket-hesaplari', label: 'Şirket Hesapları' },
+        { value: 'sunucular-ssh', label: 'Sunucular & SSH' },
+        { value: 'veritabanlari', label: 'Veritabanları' },
+        { value: 'git-repolar', label: 'Git & Repolar' },
+        { value: 'api-lisanslar', label: 'API & Lisanslar' }
+    ],
+    'sistem-ag': [
+        { value: 'wifi-sifreleri', label: 'Wi-Fi Şifreleri' },
+        { value: 'cihaz-pinleri', label: 'Cihaz Pinleri' },
+        { value: 'modem-arayuzleri', label: 'Modem Arayüzleri' },
+        { value: 'yazilim-lisanslari', label: 'Yazılım Lisansları' }
+    ],
+    'kisisel': [
+        { value: 'e-devlet-resmi-kurum', label: 'E-Devlet & Resmi Kurum' },
+        { value: 'saglik', label: 'Sağlık' },
+        { value: 'notlar-guvenli-dosyalar', label: 'Notlar & Güvenli Dosyalar' }
+    ]
+};
+
+function updateSubcategoryOptions(categoryValue, selectedSubcategory = '') {
+    const subcategorySelect = document.getElementById('subcategory');
+    if (!subcategorySelect) return;
+    
+    // Clear current options
+    subcategorySelect.innerHTML = '<option value="">Seçiniz...</option>';
+    
+    // Get subcategories for selected category
+    const subcategories = subcategoryOptions[categoryValue] || [];
+    
+    // Add new options
+    subcategories.forEach(sub => {
+        const option = document.createElement('option');
+        option.value = sub.value;
+        option.textContent = sub.label;
+        if (sub.value === selectedSubcategory) {
+            option.selected = true;
+        }
+        subcategorySelect.appendChild(option);
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const editCardForm = document.getElementById('editCardForm');
     const passwordInput = document.getElementById('password');
     const passwordStrengthBar = document.getElementById('passwordStrengthBar');
     const passwordStrengthText = document.getElementById('passwordStrengthText');
+    const categorySelect = document.getElementById('category');
+    const subcategorySelect = document.getElementById('subcategory');
+    
+    // Category change handler - update subcategories
+    if (categorySelect) {
+        categorySelect.addEventListener('change', function() {
+            updateSubcategoryOptions(this.value);
+        });
+        // Initialize subcategories for current category with saved value
+        const initialSubcategory = subcategorySelect?.dataset.initial || '';
+        updateSubcategoryOptions(categorySelect.value, initialSubcategory);
+    }
 
     // Password toggle handler - handled by inline function in template
     // Keeping this for backwards compatibility if needed
@@ -88,7 +156,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 password: document.getElementById('password').value,
                 url: document.getElementById('url')?.value.trim() || '',
                 notes: document.getElementById('notes')?.value.trim() || '',
-                category: document.getElementById('category')?.value || 'Genel'
+                category: document.getElementById('category')?.value || 'genel',
+                subcategory: document.getElementById('subcategory')?.value || ''
             };
 
             // Validation

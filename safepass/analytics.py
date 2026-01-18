@@ -89,15 +89,27 @@ def get_dashboard_stats(user, cards):
         else:
             seen[pwd] = item['app_name']
     
-    # Calculate security score
-    # Base: 100 points
-    # -2 points for each weak password
-    # -1 point for each medium password
-    # -3 points for each duplicate password
-    security_score = 100
-    security_score -= len(weak_passwords) * 2
-    security_score -= len(medium_passwords) * 1
-    security_score -= len(duplicate_passwords) * 3
+    # Calculate security score based on password quality distribution
+    # Score is based on percentage of strong/medium/weak passwords
+    if total_cards > 0:
+        # Weight: strong = 100%, medium = 60%, weak = 20%
+        strong_weight = len(strong_passwords) * 100
+        medium_weight = len(medium_passwords) * 60
+        weak_weight = len(weak_passwords) * 20
+        
+        # Base score from password quality
+        base_score = (strong_weight + medium_weight + weak_weight) / total_cards
+        
+        # Penalty for duplicates: -10 points per duplicate set
+        duplicate_penalty = len(duplicate_passwords) * 10
+        
+        # Penalty for having any weak passwords: additional -5 per weak
+        weak_penalty = len(weak_passwords) * 5
+        
+        security_score = base_score - duplicate_penalty - weak_penalty
+    else:
+        security_score = 100
+    
     security_score = max(0, min(100, security_score))
     
     result = {

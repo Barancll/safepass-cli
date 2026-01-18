@@ -210,7 +210,7 @@ async function handleLogin(e) {
         const data = await response.json();
         
         if (response.ok) {
-            showToast('✅ Giriş başarılı! Yönlendiriliyorsunuz...', 'success');
+            showToast('Giriş başarılı! Yönlendiriliyorsunuz...', 'success');
             setTimeout(() => {
                 window.location.href = '/dashboard';
             }, 1000);
@@ -287,7 +287,7 @@ async function handleRegister(e) {
         const data = await response.json();
         
         if (response.ok) {
-            showToast('✅ Kayıt başarılı! Giriş yapılıyor...', 'success');
+            showToast('Kayıt başarılı! Giriş yapılıyor...', 'success');
             setTimeout(() => {
                 window.location.href = '/dashboard';
             }, 1500);

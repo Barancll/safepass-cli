@@ -152,23 +152,34 @@
                           placeholder="Ek bilgiler, güvenlik soruları vb..." maxlength="1000"></textarea>
             </div>
 
-            <div class="form-group">
-                <label for="category">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 8px;">
-                        <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
-                        <line x1="7" y1="7" x2="7.01" y2="7"></line>
-                    </svg>
-                    Kategori
-                </label>
-                <select id="category" name="category" class="form-select-modern">
-                    <option value="">Genel</option>
-                        <option value="social">Sosyal Medya</option>
-                        <option value="email">E-posta</option>
-                        <option value="banking">Bankacılık</option>
-                        <option value="shopping">Alışveriş</option>
-                        <option value="work">İş</option>
-                        <option value="entertainment">Eğlence</option>
-                        <option value="other">Diğer</option>
+            <div class="form-row">
+                <div class="form-group form-group-half">
+                    <label for="category">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 8px;">
+                            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                            <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                        </svg>
+                        Ana Kategori
+                    </label>
+                    <select id="category" name="category" class="form-select-modern">
+                        <option value="genel">📁 Genel</option>
+                        <option value="finans">💰 Finans</option>
+                        <option value="is-gelistirici">💼 İş & Geliştirici</option>
+                        <option value="sistem-ag">🌐 Sistem & Ağ</option>
+                        <option value="kisisel">👤 Kişisel</option>
+                    </select>
+                </div>
+
+                <div class="form-group form-group-half">
+                    <label for="subcategory">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 8px;">
+                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                        Alt Kategori
+                    </label>
+                    <select id="subcategory" name="subcategory" class="form-select-modern">
+                        <!-- Options will be populated by JavaScript based on category -->
+                        <option value="">Seçiniz...</option>
                     </select>
                 </div>
             </div>
@@ -192,5 +203,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/modules/card_form.js' %}"></script>
+<script src="{% static 'js/modules/card_form.js' %}?v={{ APP_VERSION }}"></script>
 {% endblock %}

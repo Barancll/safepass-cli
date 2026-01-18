@@ -23,6 +23,7 @@ class PasswordCard(models.Model):
     url = models.URLField(blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
     category = models.CharField(max_length=100, blank=True, null=True)
+    subcategory = models.CharField(max_length=100, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -31,3 +32,17 @@ class PasswordCard(models.Model):
     
     def __str__(self):
         return f"{self.app_name} - {self.username}"
+
+
+class PasswordHistory(models.Model):
+    """Password history for tracking changes"""
+    card = models.ForeignKey(PasswordCard, on_delete=models.CASCADE, related_name='history')
+    password_encrypted = models.BinaryField()
+    changed_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        db_table = 'password_history'
+        ordering = ['-changed_at']
+    
+    def __str__(self):
+        return f"{self.card.app_name} - {self.changed_at.strftime('%Y-%m-%d %H:%M')}"

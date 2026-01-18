@@ -333,6 +333,7 @@ def api_passwords(request):
                 'url': card.url,
                 'notes': card.notes,
                 'category': card.category,
+                'subcategory': card.subcategory or '',
                 'created_at': card.created_at.isoformat(),
                 'updated_at': card.updated_at.isoformat()
             })
@@ -361,7 +362,8 @@ def api_passwords(request):
             password_encrypted=password_encrypted,
             url=url,
             notes=notes,
-            category=category
+            category=category,
+            subcategory=subcategory
         )
         
         return JsonResponse({
@@ -403,6 +405,7 @@ def api_password_detail(request, password_id):
                 'password': password,
                 'notes': card.notes,
                 'category': card.category,
+                'subcategory': card.subcategory or '',
                 'url': getattr(card, 'url', '')
             }
         })
@@ -415,15 +418,25 @@ def api_password_detail(request, password_id):
         url = data.get('url', '').strip()
         notes = data.get('notes', '')
         category = data.get('category', '')
+        subcategory = data.get('subcategory', '')
         
         if not app_name or not password:
             return JsonResponse({'error': 'Uygulama adı ve şifre gerekli'}, status=400)
+        
+        # Save old password to history before updating
+        from .models import PasswordHistory
+        if card.password_encrypted:
+            PasswordHistory.objects.create(
+                card=card,
+                password_encrypted=card.password_encrypted
+            )
         
         card.app_name = app_name
         card.username = username
         card.url = url
         card.notes = notes
         card.category = category
+        card.subcategory = subcategory
         
         encryption_key = bytes(user.encryption_key_encrypted)
         card.password_encrypted = encrypt_data(password, encryption_key)
@@ -535,11 +548,14 @@ def api_export_data(request):
             
             export_data['passwords'].append({
                 'app_name': card.app_name,
+                'title': card.app_name,
                 'username': card.username,
                 'password': decrypted_password,
                 'url': card.url,
+                'website': card.url,
                 'notes': card.notes,
                 'category': card.category or '',
+                'subcategory': card.subcategory or '',
                 'created_at': card.created_at.isoformat(),
                 'updated_at': card.updated_at.isoformat()
             })
@@ -613,12 +629,13 @@ def api_import_data(request):
                 # Create new card
                 PasswordCard.objects.create(
                     user=user,
-                    app_name=pwd_data.get('app_name', 'Bilinmeyen'),
+                    app_name=pwd_data.get('app_name', pwd_data.get('title', 'Bilinmeyen')),
                     username=pwd_data.get('username', ''),
                     password_encrypted=encrypted_password,
-                    url=pwd_data.get('url', ''),
+                    url=pwd_data.get('url', pwd_data.get('website', '')),
                     notes=pwd_data.get('notes', ''),
-                    category=pwd_data.get('category', '')
+                    category=pwd_data.get('category', ''),
+                    subcategory=pwd_data.get('subcategory', '')
                 )
                 imported_count += 1
                 
@@ -662,11 +679,165 @@ def api_delete_account(request):
         
         request.session.flush()
         
-        return JsonResponse({
-            'success': True,
+        return JsonResponse({            'success': True,
             'message': f'{username} hesabı ve tüm verileri silindi'
         })
         
     except Exception as e:
         return JsonResponse({'error': f'Hesap silinirken hata: {str(e)}'}, status=500)
 
+@csrf_exempt
+@require_http_methods(["GET"])
+def api_password_history(request, password_id):
+    """Get password history for a specific card"""
+    user = get_session_user(request)
+    if not user:
+        return JsonResponse({'error': 'Oturum açmanız gerekiyor'}, status=401)
+    
+    try:
+        card = PasswordCard.objects.get(id=password_id, user=user)
+        from .models import PasswordHistory
+        history = PasswordHistory.objects.filter(card=card).order_by('-changed_at')[:10]  # Last 10 changes
+        
+        encryption_key = bytes(user.encryption_key_encrypted)
+        history_list = []
+        
+        for item in history:
+            try:
+                decrypted_password = decrypt_data(bytes(item.password_encrypted), encryption_key)
+                history_list.append({
+                    'id': item.id,
+                    'password': decrypted_password,
+                    'changed_at': item.changed_at.strftime('%d.%m.%Y %H:%M')
+                })
+            except:
+                continue
+        
+        return JsonResponse({
+            'success': True,
+            'history': history_list
+        })
+    except PasswordCard.DoesNotExist:
+        return JsonResponse({'error': 'Kart bulunamadı'}, status=404)
+
+
+@require_auth
+def import_export_page(request):
+    """Import/Export page"""
+    user = get_session_user(request)
+    context = {'user': user}
+    return render(request, 'import_export.html', context)
+
+
+@csrf_exempt
+async def api_import_passwords(request):
+    """Import passwords from KeePass CSV"""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+    
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Authentication required'}, status=401)
+    
+    try:
+        import json
+        data = json.loads(request.body)
+        passwords = data.get('passwords', [])
+        skip_duplicates = data.get('skip_duplicates', True)
+        
+        if not passwords:
+            return JsonResponse({'error': 'No passwords provided'}, status=400)
+        
+        imported = 0
+        skipped = 0
+        
+        for pwd_data in passwords:
+            # Check for duplicates
+            if skip_duplicates:
+                existing = await sync_to_async(PasswordCard.objects.filter)(
+                    user=request.user,
+                    title=pwd_data['title'],
+                    username=pwd_data['username']
+                )
+                if await sync_to_async(existing.exists)():
+                    skipped += 1
+                    continue
+            
+            # Encrypt password
+            encrypted_password = encrypt_password(pwd_data['password'])
+            
+            # Create password card
+            await sync_to_async(PasswordCard.objects.create)(
+                user=request.user,
+                title=pwd_data['title'],
+                username=pwd_data['username'],
+                password_encrypted=encrypted_password,
+                website=pwd_data.get('website', ''),
+                category=pwd_data.get('category', 'genel'),
+                subcategory=pwd_data.get('subcategory', ''),
+                notes=pwd_data.get('notes', '')
+            )
+            imported += 1
+        
+        return JsonResponse({
+            'success': True,
+            'imported': imported,
+            'skipped': skipped,
+            'total': len(passwords)
+        })
+    
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@csrf_exempt
+async def api_export_passwords(request):
+    """Export passwords to JSON"""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+    
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Authentication required'}, status=401)
+    
+    try:
+        import json
+        data = json.loads(request.body)
+        include_metadata = data.get('include_metadata', True)
+        
+        # Get all password cards
+        cards = await sync_to_async(list)(
+            PasswordCard.objects.filter(user=request.user).order_by('-created_at')
+        )
+        
+        export_data = {
+            'version': '1.2.0',
+            'export_date': datetime.now().isoformat(),
+            'total_passwords': len(cards),
+            'passwords': []
+        }
+        
+        for card in cards:
+            # Decrypt password
+            decrypted_password = decrypt_password(card.password_encrypted)
+            
+            password_data = {
+                'title': card.title,
+                'username': card.username,
+                'password': decrypted_password,
+                'website': card.website,
+                'category': card.category,
+                'subcategory': card.subcategory or ''
+            }
+            
+            if include_metadata:
+                password_data.update({
+                    'notes': card.notes,
+                    'created_at': card.created_at.isoformat(),
+                    'updated_at': card.updated_at.isoformat()
+                })
+            
+            export_data['passwords'].append(password_data)
+        
+        return JsonResponse(export_data)
+    
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)

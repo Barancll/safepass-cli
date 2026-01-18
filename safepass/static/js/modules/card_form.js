@@ -3,6 +3,68 @@
  * Handles add/edit card functionality
  */
 
+// Subcategory options based on main category
+const subcategoryOptions = {
+    'genel': [
+        { value: 'e-posta', label: 'E-Posta' },
+        { value: 'sosyal-medya', label: 'Sosyal Medya' },
+        { value: 'alisveris', label: 'Alışveriş (E-Ticaret)' },
+        { value: 'forumlar-uyelikler', label: 'Forumlar & Üyelikler' }
+    ],
+    'finans': [
+        { value: 'bankacilik', label: 'Bankacılık' },
+        { value: 'kredi-kartlari', label: 'Kredi Kartları' },
+        { value: 'kripto-paralar', label: 'Kripto Paralar' },
+        { value: 'faturalar', label: 'Faturalar' }
+    ],
+    'is-gelistirici': [
+        { value: 'sirket-hesaplari', label: 'Şirket Hesapları' },
+        { value: 'sunucular-ssh', label: 'Sunucular & SSH' },
+        { value: 'veritabanlari', label: 'Veritabanları' },
+        { value: 'git-repolar', label: 'Git & Repolar' },
+        { value: 'api-lisanslar', label: 'API & Lisanslar' }
+    ],
+    'sistem-ag': [
+        { value: 'wifi-sifreleri', label: 'Wi-Fi Şifreleri' },
+        { value: 'cihaz-pinleri', label: 'Cihaz Pinleri' },
+        { value: 'modem-arayuzleri', label: 'Modem Arayüzleri' },
+        { value: 'yazilim-lisanslari', label: 'Yazılım Lisansları' }
+    ],
+    'kisisel': [
+        { value: 'e-devlet-resmi-kurum', label: 'E-Devlet & Resmi Kurum' },
+        { value: 'saglik', label: 'Sağlık' },
+        { value: 'notlar-guvenli-dosyalar', label: 'Notlar & Güvenli Dosyalar' }
+    ]
+};
+
+function updateSubcategoryOptions(categoryValue, selectedSubcategory = '') {
+    console.log('updateSubcategoryOptions called with:', categoryValue);
+    const subcategorySelect = document.getElementById('subcategory');
+    if (!subcategorySelect) {
+        console.log('Subcategory select NOT found!');
+        return;
+    }
+    
+    // Clear current options
+    subcategorySelect.innerHTML = '<option value="">Seçiniz...</option>';
+    
+    // Get subcategories for selected category
+    const subcategories = subcategoryOptions[categoryValue] || [];
+    console.log('Found subcategories:', subcategories);
+    
+    // Add new options
+    subcategories.forEach(sub => {
+        const option = document.createElement('option');
+        option.value = sub.value;
+        option.textContent = sub.label;
+        if (sub.value === selectedSubcategory) {
+            option.selected = true;
+        }
+        subcategorySelect.appendChild(option);
+    });
+    console.log('Subcategory options updated, total:', subcategories.length);
+}
+
 // Service button handlers
 document.addEventListener('DOMContentLoaded', function() {
     const showAlert = window.showAlert;
@@ -13,6 +75,21 @@ document.addEventListener('DOMContentLoaded', function() {
     const passwordInput = document.getElementById('password');
     const passwordStrengthBar = document.getElementById('passwordStrengthBar');
     const passwordStrengthText = document.getElementById('passwordStrengthText');
+    const categorySelect = document.getElementById('category');
+    
+    // Category change handler - update subcategories
+    if (categorySelect) {
+        console.log('Category select found:', categorySelect.value);
+        categorySelect.addEventListener('change', function() {
+            console.log('Category changed to:', this.value);
+            updateSubcategoryOptions(this.value);
+        });
+        // Initialize subcategories for default category
+        console.log('Initializing subcategories for:', categorySelect.value);
+        updateSubcategoryOptions(categorySelect.value);
+    } else {
+        console.log('Category select NOT found!');
+    }
 
     // Service button click handlers
     const serviceButtons = document.querySelectorAll('.service-btn');
@@ -142,7 +219,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 password: document.getElementById('password').value,
                 url: document.getElementById('url')?.value.trim() || '',
                 notes: document.getElementById('notes')?.value.trim() || '',
-                category: document.getElementById('category')?.value || 'Genel'
+                category: document.getElementById('category')?.value || 'genel',
+                subcategory: document.getElementById('subcategory')?.value || ''
             };
 
             // Validation

@@ -21,6 +21,7 @@ urlpatterns = [
     path('generator', views.generator_page, name='generator'),
     path('profile', views.profile_page, name='profile'),
     path('help', views.help_page, name='help'),
+    path('import-export', views.import_export_page, name='import_export'),
     
     # ========================================================================
     # API ENDPOINTS (JSON Responses)
@@ -33,12 +34,16 @@ urlpatterns = [
     path('api/passwords', views.api_passwords, name='api_passwords'),
     path('api/passwords/<int:password_id>', views.api_password_detail, name='api_password_detail'),
     path('api/passwords/<int:password_id>/delete', views.api_password_delete, name='api_password_delete'),
+    path('api/passwords/<int:password_id>/history', views.api_password_history, name='api_password_history'),
     
     path('api/generate-password', views.api_generate_password, name='api_generate_password'),
     path('api/dashboard/stats', views.api_dashboard_stats, name='api_dashboard_stats'),
     path('api/export', views.api_export_data, name='api_export_data'),
     path('api/import', views.api_import_data, name='api_import_data'),
     path('api/profile/delete-account', views.api_delete_account, name='api_delete_account'),
+    
+    path('api/import-passwords', views.api_import_passwords, name='api_import_passwords'),
+    path('api/export-passwords', views.api_export_passwords, name='api_export_passwords'),
 ]
 
 if settings.DEBUG:

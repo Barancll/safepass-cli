@@ -11,9 +11,11 @@ SafePass, şifrelerinizi güvenli bir şekilde yerel bilgisayarınızda saklayan
 - ✅ **Gerçek Zamanlı Şifre Doğrulama**: Kayıt sırasında canlı şifre gücü göstergesi
 - ✅ **Güvenlik Analizi**: Şifrelerinizi otomatik değerlendirin
 - ✅ **Dashboard**: Gerçek zamanlı güvenlik skoru ve istatistikler
+- ✅ **Hiyerarşik Kategoriler**: 5 ana kategori ve 18 alt kategori ile şifrelerinizi organize edin
+- ✅ **Şifre Geçmişi**: Eski şifrelerinizi görüntüleyin ve geri yükleyin
+- ✅ **Import/Export**: JSON formatında yedekleme ve geri yükleme
 - ✅ **Oturum Timeout**: 1 saat inaktivite sonrası otomatik çıkış
 - ✅ **Otomatik Güncelleme Kontrolü**: PyPI üzerinden yeni sürüm bildirimleri
-- ✅ **Modern Arayüz**: Responsive tasarım ve toast bildirimleri
 
 ## 📊 Güvenlik Analizi
 
@@ -56,18 +58,20 @@ Her şifre aşağıdaki kriterlere göre 100 üzerinden puanlanır:
 Dashboard'daki güvenlik skoru, tüm şifrelerinizi değerlendirerek hesaplanır:
 
 ```
-Başlangıç: 100 puan
-- Her zayıf şifre için: -2 puan
-- Her orta şifre için: -1 puan  
-- Her tekrarlanan şifre için: -3 puan
-Sonuç: 0-100 arası güvenlik skoru
+Hesaplama Formülü:
+- Güçlü şifre: 100 puan
+- Orta şifre: 60 puan
+- Zayıf şifre: 20 puan
+
+Baz Skor = (Güçlü×100 + Orta×60 + Zayıf×20) / Toplam Şifre Sayısı
+
+Cezalar:
+- Her zayıf şifre için: -5 puan
+- Her tekrarlanan şifre grubu için: -10 puan
 ```
 
 **Tekrar Eden Şifreler:**
-Birden fazla hesap için aynı şifreyi kullanmak büyük güvenlik riski oluşturur. Bir hesap ele geçirildiğinde diğer hesaplarınız da tehlikeye girer. Bu yüzden:
-- Aynı şifreyi 2 hesapta kullanmak → -3 puan
-- Aynı şifreyi 3 hesapta kullanmak → -6 puan
-- vb.
+Birden fazla hesap için aynı şifreyi kullanmak büyük güvenlik riski oluşturur. Bir hesap ele geçirildiğinde diğer hesaplarınız da tehlikeye girer.
 
 Dashboard'da "Tekrar Eden Şifreler" bölümünde hangi şifrelerin tekrarlandığını görebilirsiniz.
 
@@ -86,6 +90,43 @@ Ana sayfada şu bilgileri görebilirsiniz:
 - 🔴 Zayıf şifre sayısı
 - 🔒 Genel güvenlik skoru (0-100)
 - 📋 Son eklenen şifreler
+
+## 📁 Kategori Sistemi
+
+SafePass, şifrelerinizi organize etmek için hiyerarşik kategori sistemi sunar:
+
+### Ana Kategoriler ve Alt Kategoriler
+
+| Ana Kategori | Alt Kategoriler |
+|--------------|-----------------|
+| 📁 **Genel** | E-Posta, Sosyal Medya, Alışveriş, Forumlar & Üyelikler |
+| 💰 **Finans** | Bankacılık, Kredi Kartları, Kripto Paralar, Faturalar |
+| 💼 **İş & Geliştirici** | Şirket Hesapları, Sunucular & SSH, Veritabanları, Git & Repolar, API & Lisanslar |
+| 🌐 **Sistem & Ağ** | Wi-Fi Şifreleri, Cihaz Pinleri, Modem Arayüzleri, Yazılım Lisansları |
+| 👤 **Kişisel** | E-Devlet & Resmi Kurum, Sağlık, Notlar & Güvenli Dosyalar |
+
+Şifrelerim sayfasında kategoriye göre filtreleme yapabilirsiniz.
+
+## 🕒 Şifre Geçmişi
+
+SafePass, şifrelerinizin geçmiş versiyonlarını saklar:
+
+- Her şifre değişikliğinde eski şifre geçmişe eklenir
+- Şifre kartlarındaki 🕒 ikonuna tıklayarak geçmişi görüntüleyin
+- Eski bir şifreyi tek tıkla geri yükleyin
+- Değişiklik tarihleri ile birlikte görüntüleme
+
+## 💾 Import / Export
+
+Verilerinizi yedekleyin ve geri yükleyin:
+
+### Dışa Aktarma (Export)
+- **JSON Formatı**: Tüm şifrelerinizi JSON dosyası olarak indirin
+- İçe/Dışa Aktar > Json Veri Yönetimi sayfasından erişin
+
+### İçe Aktarma (Import)
+- **JSON Dosyası**: Daha önce dışa aktarılan dosyayı yükleyin
+- **CSV Dosyası**: Diğer şifre yönetim uygulamalarınızdaki şifrelerinizi tek bir butonla Safepass 'e taşıyın
 
 ## 📦 Kurulum
 
@@ -150,6 +191,12 @@ http://localhost:2025
 - **Hata Yönetimi**: Detaylı ve kullanıcı dostu hata mesajları
 - **Güncelleme Kontrolü**: PyPI üzerinden otomatik sürüm kontrolü
 
+### Şifrelerim Sayfası
+
+- **Hızlı Eylemler**: Şifre kopyalama, düzenleme, silme, geçmiş görüntüleme
+- **Kategori Filtreleme**: Ana ve alt kategorilere göre filtreleme
+- **Arama**: Anlık şifre arama
+
 ### Yardımcı Butonlar
 
 Sağ alt köşede sabit butonlar:
@@ -204,7 +251,7 @@ pip install --upgrade safepass-cli
 - Python 3.8+
 
 **Frontend:**
-- Modern CSS (Gradient tasarımlar, animasyonlar)
+- Modern CSS (Glassmorphism, Gradient tasarımlar, animasyonlar)
 - Vanilla JavaScript
 - Responsive Design
 
@@ -234,7 +281,7 @@ pip install --upgrade safepass-cli
 ## ⚠️ Önemli Notlar
 
 - **Ana şifrenizi unutmayın!** Unutursanız verileriniz kurtarılamaz.
-- Düzenli olarak verilerinizi yedekleyin (Profil > Veri Dışa Aktar)
+- Düzenli olarak verilerinizi yedekleyin (Profil > Import/Export > JSON İndir)
 - Güçlü ve benzersiz bir ana şifre kullanın
 - Ana şifrenizi güvenli bir yerde saklayın
 - Uygulamayı güncel tutun (`safepass update`)
@@ -274,4 +321,4 @@ pip install --upgrade safepass-cli --force-reinstall
 
 MIT License - Detaylar için LICENSE dosyasına bakın.
 
-**SafePass v1.1.0** - Made with ❤️ by Baran Celal Tonyalı
+**SafePass v1.2.0** - Made with ❤️ by Baran Celal Tonyalı
