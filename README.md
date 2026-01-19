@@ -321,4 +321,4 @@ pip install --upgrade safepass-cli --force-reinstall
 
 MIT License - Detaylar için LICENSE dosyasına bakın.
 
-**SafePass v1.2.0** - Made with ❤️ by Baran Celal Tonyalı
+**SafePass v1.2.1** - Made with ❤️ by Baran Celal Tonyalı

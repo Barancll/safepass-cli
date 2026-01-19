@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="{% static 'css/components/layout.css' %}?v={{ APP_VERSION }}">
 <link rel="stylesheet" href="{% static 'css/components/help.css' %}?v={{ APP_VERSION }}">
 <link rel="stylesheet" href="{% static 'css/components/buttons.css' %}?v={{ APP_VERSION }}">
-<link rel="stylesheet" href="{% static 'css/components/import_export.css' %}?v=1.2.0">
+<link rel="stylesheet" href="{% static 'css/components/import_export.css' %}?v={{ APP_VERSION }}">
 {% endblock %}
 
 {% block body_class %}with-sidebar{% endblock %}
@@ -38,7 +38,7 @@
                 </svg>
                 JSON Veri Yönetimi
             </h2>
-            
+
             <div class="faq-item">
                 <h3>Verileri İçe Aktar</h3>
                 <p>Önceden SafePass'ten dışa aktarılmış JSON dosyasını içe aktarın.</p>
@@ -65,13 +65,16 @@
                 </div>
                 <div class="warning-box">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                        <path
+                            d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z">
+                        </path>
                         <line x1="12" y1="9" x2="12" y2="13"></line>
                         <line x1="12" y1="17" x2="12.01" y2="17"></line>
                     </svg>
                     <div>
                         <strong>Güvenlik Uyarısı</strong>
-                        <p>Dışa aktarılan dosya şifrelerinizi düz metin olarak içerir. Dosyayı güvenli bir yerde saklayın ve paylaşmayın.</p>
+                        <p>Dışa aktarılan dosya şifrelerinizi düz metin olarak içerir. Dosyayı güvenli bir yerde
+                            saklayın ve paylaşmayın.</p>
                     </div>
                 </div>
                 <button type="button" class="btn btn-primary" id="export-btn">
@@ -95,11 +98,11 @@
                 </svg>
                 CSV İçe Aktar
             </h2>
-            
+
             <div class="faq-item">
                 <h3>CSV Dosyasından İçe Aktarma</h3>
                 <p>Diğer şifre yöneticilerinden aldığınız CSV dosyalarını içe aktarın.</p>
-                
+
                 <div class="file-upload-area" id="file-upload-area">
                     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
@@ -115,7 +118,8 @@
 
                 <div class="file-info" id="file-info" style="display: none;">
                     <div class="file-details">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
                             <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
                             <polyline points="13 2 13 9 20 9"></polyline>
                         </svg>
@@ -125,7 +129,8 @@
                         </div>
                     </div>
                     <button type="button" class="btn-remove" id="remove-file-btn">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
                             <line x1="18" y1="6" x2="6" y2="18"></line>
                             <line x1="6" y1="6" x2="18" y2="18"></line>
                         </svg>
@@ -172,8 +177,10 @@
                         <ul style="margin-top: 0.5rem; padding-left: 1.5rem;">
                             <li><em>Genel:</em> e-posta, sosyal-medya, alisveris, forumlar-uyelikler</li>
                             <li><em>Finans:</em> bankacilik, kredi-kartlari, kripto-paralar, faturalar</li>
-                            <li><em>İş & Geliştirici:</em> sirket-hesaplari, sunucular-ssh, veritabanlari, git-repolar, api-lisanslar</li>
-                            <li><em>Sistem & Ağ:</em> wifi-sifreleri, cihaz-pinleri, modem-arayuzleri, yazilim-lisanslari</li>
+                            <li><em>İş & Geliştirici:</em> sirket-hesaplari, sunucular-ssh, veritabanlari, git-repolar,
+                                api-lisanslar</li>
+                            <li><em>Sistem & Ağ:</em> wifi-sifreleri, cihaz-pinleri, modem-arayuzleri,
+                                yazilim-lisanslari</li>
                             <li><em>Kişisel:</em> e-devlet-resmi-kurum, saglik, notlar-guvenli-dosyalar</li>
                         </ul>
                     </li>
@@ -190,5 +197,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/modules/import_export.js' %}?v=1.2.0" type="module"></script>
+<script src="{% static 'js/modules/import_export.js' %}?v={{ APP_VERSION }}" type="module"></script>
 {% endblock %}
