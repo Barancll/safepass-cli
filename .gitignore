@@ -24,7 +24,6 @@ wheels/
 venv/
 env/
 ENV/
-MANIFEST.in
 
 # IDE
 .vscode/
