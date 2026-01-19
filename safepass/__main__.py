@@ -100,7 +100,7 @@ def update_server():
     
     print("🔄 SafePass güncelleniyor...")
     try:
-        subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--upgrade', 'safepass'])
+        subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--upgrade', 'safepass-cli'])
         print("✅ SafePass başarıyla güncellendi!")
     except subprocess.CalledProcessError as e:
         print(f"❌ Güncelleme başarısız oldu: {e}")

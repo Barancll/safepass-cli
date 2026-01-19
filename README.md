@@ -150,7 +150,7 @@ safepass init
 safepass start
 
 # Uygulamayı güncelle
-safepass update
+safepass-cli update
 
 # Çalışan sunucuyu durdur
 safepass stop
@@ -233,12 +233,12 @@ SafePass, PyPI üzerinden yeni sürümleri otomatik kontrol eder. Yeni bir sür�
 
 1. Sağ alt köşede 🔔 güncelleme butonu görünür
 2. Butona tıklayarak güncelleme talimatlarını görün
-3. Terminalde `safepass update` komutunu çalıştırın
+3. Terminalde `safepass-cli update` komutunu çalıştırın
 4. Uygulamayı yeniden başlatın
 
 **Manuel Güncelleme:**
 ```bash
-safepass update
+safepass-cli update
 # veya
 pip install --upgrade safepass-cli
 ```
@@ -284,7 +284,7 @@ pip install --upgrade safepass-cli
 - Düzenli olarak verilerinizi yedekleyin (Profil > Import/Export > JSON İndir)
 - Güçlü ve benzersiz bir ana şifre kullanın
 - Ana şifrenizi güvenli bir yerde saklayın
-- Uygulamayı güncel tutun (`safepass update`)
+- Uygulamayı güncel tutun (`safepass-cli update`)
 
 ## 📱 Tarayıcı Desteği
 
@@ -321,4 +321,4 @@ pip install --upgrade safepass-cli --force-reinstall
 
 MIT License - Detaylar için LICENSE dosyasına bakın.
 
-**SafePass v1.2.1** - Made with ❤️ by Baran Celal Tonyalı
+**SafePass v1.2.2** - Made with ❤️ by Baran Celal Tonyalı
