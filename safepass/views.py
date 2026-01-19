@@ -809,7 +809,7 @@ async def api_export_passwords(request):
         )
         
         export_data = {
-            'version': '1.2.0',
+            'version': '1.2.3',
             'export_date': datetime.now().isoformat(),
             'total_passwords': len(cards),
             'passwords': []
