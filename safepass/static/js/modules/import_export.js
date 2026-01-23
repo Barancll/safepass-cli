@@ -1,5 +1,5 @@
 // Import/Export functionality
-import { showNotification } from '../app.js';
+// showNotification is available globally via window.showNotification
 
 // DOM Elements
 const fileUploadArea = document.getElementById('file-upload-area');
@@ -10,7 +10,6 @@ const fileName = document.getElementById('file-name');
 const fileSize = document.getElementById('file-size');
 const removeFileBtn = document.getElementById('remove-file-btn');
 const importBtn = document.getElementById('import-btn');
-const skipDuplicates = document.getElementById('skip-duplicates');
 const importProgress = document.getElementById('import-progress');
 const progressFill = document.getElementById('progress-fill');
 const progressText = document.getElementById('progress-text');
@@ -46,7 +45,7 @@ function setupEventListeners() {
 
     // Export
     exportBtn.addEventListener('click', handleExport);
-    
+
     // JSON Import
     importJsonBtn.addEventListener('click', () => jsonFileInput.click());
     jsonFileInput.addEventListener('change', handleJsonImport);
@@ -66,7 +65,7 @@ function handleDragLeave(e) {
 function handleDrop(e) {
     e.preventDefault();
     fileUploadArea.classList.remove('drag-over');
-    
+
     const files = e.dataTransfer.files;
     if (files.length > 0) {
         const file = files[0];
@@ -119,12 +118,12 @@ function formatFileSize(bytes) {
 async function parseCSV(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
-        
+
         reader.onload = (e) => {
             try {
                 const text = e.target.result;
                 const lines = text.split('\n').filter(line => line.trim());
-                
+
                 if (lines.length < 2) {
                     reject(new Error('CSV dosyası boş veya geçersiz'));
                     return;
@@ -132,30 +131,63 @@ async function parseCSV(file) {
 
                 // Parse header
                 const header = parseCSVLine(lines[0]);
-                const requiredFields = ['Group', 'Subcategory', 'Title', 'Username', 'Password', 'URL'];
-                const hasRequiredFields = requiredFields.every(field => 
+                
+                // Check for KeePass format (Group, Subcategory, Title, Username, Password, URL)
+                const keepassFields = ['Group', 'Subcategory', 'Title', 'Username', 'Password', 'URL'];
+                const isKeePassFormat = keepassFields.every(field =>
+                    header.some(h => h.toLowerCase() === field.toLowerCase())
+                );
+                
+                // Check for SafePass format (title, username, password, category)
+                const safepassFields = ['title', 'username', 'password'];
+                const isSafePassFormat = safepassFields.every(field =>
                     header.some(h => h.toLowerCase() === field.toLowerCase())
                 );
 
-                if (!hasRequiredFields) {
-                    reject(new Error('CSV dosyası gerekli sütunları içermiyor'));
+                if (!isKeePassFormat && !isSafePassFormat) {
+                    reject(new Error('CSV dosyası gerekli sütunları içermiyor. KeePass veya SafePass formatı kullanın.'));
                     return;
                 }
 
                 // Parse data rows
                 const passwords = [];
-                for (let i = 1; i < lines.length; i++) {
-                    const values = parseCSVLine(lines[i]);
-                    if (values.length >= 6) {
-                        passwords.push({
-                            category: values[0].toLowerCase().trim(),
-                            subcategory: values[1].toLowerCase().trim(),
-                            title: values[2],
-                            username: values[3],
-                            password: values[4],
-                            website: values[5],
-                            notes: values[6] || ''
-                        });
+                
+                if (isKeePassFormat) {
+                    // KeePass format: Group,Subcategory,Title,Username,Password,URL
+                    for (let i = 1; i < lines.length; i++) {
+                        const values = parseCSVLine(lines[i]);
+                        if (values.length >= 6) {
+                            passwords.push({
+                                category: values[0].toLowerCase().trim(),
+                                subcategory: values[1].toLowerCase().trim(),
+                                title: values[2],
+                                username: values[3],
+                                password: values[4],
+                                website: values[5],
+                                notes: values[6] || ''
+                            });
+                        }
+                    }
+                } else {
+                    // SafePass format: title,app_name,username,password,website,url,category,subcategory
+                    const headerMap = {};
+                    header.forEach((col, idx) => {
+                        headerMap[col.toLowerCase().trim()] = idx;
+                    });
+                    
+                    for (let i = 1; i < lines.length; i++) {
+                        const values = parseCSVLine(lines[i]);
+                        if (values.length >= 3) {
+                            passwords.push({
+                                title: values[headerMap['title']] || values[headerMap['app_name']] || '',
+                                username: values[headerMap['username']] || '',
+                                password: values[headerMap['password']] || '',
+                                website: values[headerMap['website']] || values[headerMap['url']] || '',
+                                category: values[headerMap['category']] || 'genel',
+                                subcategory: values[headerMap['subcategory']] || '',
+                                notes: values[headerMap['notes']] || ''
+                            });
+                        }
                     }
                 }
 
@@ -178,7 +210,7 @@ function parseCSVLine(line) {
 
     for (let i = 0; i < line.length; i++) {
         const char = line[i];
-        
+
         if (char === '"') {
             inQuotes = !inQuotes;
         } else if (char === ',' && !inQuotes) {
@@ -188,7 +220,7 @@ function parseCSVLine(line) {
             current += char;
         }
     }
-    
+
     values.push(current.trim());
     return values.map(v => v.replace(/^"|"$/g, ''));
 }
@@ -206,7 +238,7 @@ async function handleImport() {
 
         // Parse CSV
         const passwords = await parseCSV(selectedFile);
-        
+
         if (passwords.length === 0) {
             throw new Error('CSV dosyasında geçerli şifre bulunamadı');
         }
@@ -221,8 +253,7 @@ async function handleImport() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                passwords: passwords,
-                skip_duplicates: skipDuplicates.checked
+                passwords: passwords
             })
         });
 
@@ -233,10 +264,21 @@ async function handleImport() {
             progressText.textContent = 'Tamamlandı!';
             setTimeout(() => {
                 importProgress.style.display = 'none';
-                showResult(
-                    `Başarıyla tamamlandı! ${result.imported} şifre eklendi, ${result.skipped} şifre atlandı.`,
-                    'success'
-                );
+                
+                const imported = result.imported || 0;
+                const updated = result.updated || 0;
+                const skipped = result.skipped || 0;
+                
+                let message = 'Başarıyla tamamlandı! ';
+                const parts = [];
+                
+                if (imported > 0) parts.push(`${imported} yeni şifre eklendi`);
+                if (updated > 0) parts.push(`${updated} şifre güncellendi`);
+                if (skipped > 0) parts.push(`${skipped} atlandı`);
+                
+                message += parts.join(', ') + '.';
+                
+                showResult(message, 'success');
                 clearFile();
             }, 500);
         } else {
@@ -279,7 +321,7 @@ async function handleExport() {
         }
 
         const data = await response.json();
-        
+
         // Create download
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
@@ -332,22 +374,50 @@ async function handleJsonImport(e) {
             throw new Error('Geçersiz JSON formatı');
         }
 
-        // Call the old import API that handles JSON
+        // Send passwords array to backend
         const response = await fetch('/api/import', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: text
+            body: JSON.stringify({
+                passwords: data.passwords,
+                skip_duplicates: true
+            })
         });
 
         const result = await response.json();
 
+        // Debug logging
+        console.log('[DEBUG] Response:', result);
+        if (result.debug) {
+            console.log('[DEBUG] Backend debug info:', result.debug);
+        }
+
         if (response.ok) {
-            jsonImportResult.textContent = `Başarıyla ${data.passwords.length} şifre içe aktarıldı!`;
+            const imported = result.imported || 0;
+            const updated = result.updated || 0;
+            const skipped = result.skipped || 0;
+            
+            let message = '';
+            if (imported > 0 && updated > 0) {
+                message = `${imported} yeni şifre eklendi, ${updated} şifre güncellendi`;
+            } else if (imported > 0) {
+                message = `${imported} yeni şifre eklendi`;
+            } else if (updated > 0) {
+                message = `${updated} şifre güncellendi`;
+            } else {
+                message = 'Hiçbir değişiklik yapılmadı';
+            }
+            
+            if (skipped > 0) {
+                message += `, ${skipped} atlandı`;
+            }
+            
+            jsonImportResult.textContent = `Başarılı! ${message}`;
             jsonImportResult.className = 'import-result success';
             jsonImportResult.style.display = 'block';
-            showNotification('Şifreler başarıyla içe aktarıldı', 'success');
+            window.showNotification('Şifreler başarıyla içe aktarıldı', 'success');
         } else {
             throw new Error(result.error || 'İçe aktarma başarısız');
         }
@@ -357,7 +427,7 @@ async function handleJsonImport(e) {
         jsonImportResult.textContent = error.message;
         jsonImportResult.className = 'import-result error';
         jsonImportResult.style.display = 'block';
-        showNotification(error.message, 'error');
+        window.showNotification(error.message, 'error');
     } finally {
         importJsonBtn.disabled = false;
         jsonFileInput.value = '';

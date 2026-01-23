@@ -1,17 +1,19 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}SafePass - Şifre Yöneticisi{% endblock %}</title>
-    
+
     <!-- CSS -->
     <link rel="stylesheet" href="{% static 'css/styles.css' %}?v={{ APP_VERSION }}">
     {% block extra_css %}{% endblock %}
 </head>
+
 <body class="{% block body_class %}{% endblock %}">
-    
+
     {% block content %}{% endblock %}
     <!-- Update Notification Button -->
     <button class="update-btn" id="updateBtn" title="Yeni güncelleme mevcut">
@@ -70,94 +72,106 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Scripts -->
     <script src="{% static 'js/app.js' %}"></script>
     <script>
         // Update Notification Button Logic
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Developer Info Modal
             const devBtn = document.getElementById('devInfoBtn');
             const devModal = document.getElementById('devModal');
             const closeBtn = document.getElementById('closeModal');
             if (devBtn && devModal) {
-                devBtn.addEventListener('click', function(e) {
+                devBtn.addEventListener('click', function (e) {
                     e.preventDefault();
                     e.stopPropagation();
                     devModal.style.display = 'flex';
                     setTimeout(() => devModal.classList.add('show'), 10);
                 });
                 if (closeBtn) {
-                    closeBtn.addEventListener('click', function(e) {
+                    closeBtn.addEventListener('click', function (e) {
                         e.preventDefault();
                         e.stopPropagation();
                         devModal.classList.remove('show');
                         setTimeout(() => devModal.style.display = 'none', 300);
                     });
                 }
-                devModal.addEventListener('click', function(e) {
+                devModal.addEventListener('click', function (e) {
                     if (e.target === devModal) {
                         devModal.classList.remove('show');
                         setTimeout(() => devModal.style.display = 'none', 300);
                     }
                 });
             }
-            // Update Button Logic
-            const updateBtn = document.getElementById('updateBtn');
-            const currentVersion = '{{ APP_VERSION }}';
-            
-            // Test için butonu her zaman tıklanabilir yap
-            updateBtn.onclick = function() {
-                alert('🔄 Güncelleme kontrolü yapılıyor...\n\nBu test modunda. Gerçek güncelleme için PyPI\'dan veri çekilecek.');
-            };
-            
-            // Versiyon kontrolü için PyPI'dan en son sürümü çek
-            fetch('https://pypi.org/pypi/safepass-cli/json')
-                .then(resp => resp.json())
-                .then(data => {
-                    const latest = data.info.version;
-                    
-                    // Gerçek onclick handler - her durumda çalışır
-                    updateBtn.onclick = function() {
-                        let msg = `🚀 SafePass Güncelleme Bilgisi\n\n`;
-                        msg += `📦 PyPI Sürümü: ${latest}\n`;
-                        msg += `📦 Mevcut Sürüm: ${currentVersion}\n\n`;
-                        
-                        if (latest !== currentVersion) {
-                            msg += `✨ YENİ GÜNCELLEME MEVCUT!\n\n`;
-                            msg += `⚡ Güncelleme Adımları:\n`;
-                            msg += `━━━━━━━━━━━━━━━━━━━━━━\n`;
-                            msg += `1️⃣ Terminal'i açın\n\n`;
-                            msg += `2️⃣ Şu komutu çalıştırın:\n`;
-                            msg += `   $ safepass update\n\n`;
-                            msg += `3️⃣ Güncelleme tamamlandıktan sonra\n`;
-                            msg += `   uygulamayı kapatıp yeniden başlatın\n`;
-                            msg += `━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-                            msg += `📝 Detaylı bilgi için:\n`;
-                            msg += `https://pypi.org/project/safepass-cli/${latest}/`;
-                        } else {
-                            msg += `✅ Uygulamanız güncel!\n\n`;
-                            msg += `En son sürümü kullanıyorsunuz.`;
-                        }
-                        
-                        alert(msg);
-                    };
-                    
-                    // Sadece yeni sürüm varsa butonu göster
-                    if (latest !== currentVersion) {
-                        updateBtn.classList.add('visible');
-                        updateBtn.title = `Yeni sürüm mevcut: ${latest}`;
-                    }
-                })
-                .catch(err => {
-                    // PyPI'a erişilemezse bildirim gösterme
-                    console.log('Update check failed:', err);
-                    updateBtn.onclick = function() {
-                        alert('⚠️ Güncelleme kontrolü yapılamadı.\n\nİnternet bağlantınızı kontrol edin.');
-                    };
-                });
         });
+
+        // Timeout wrapper fonksiyonu - PyPI gibi dış servislere istek atarken kullan
+        function fetchWithTimeout(url, options = {}, timeout = 5000) {
+            return Promise.race([
+                fetch(url, options),
+                new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('Request timeout')), timeout)
+                )
+            ]);
+        }
+
+        // Update Button Logic
+        const updateBtn = document.getElementById('updateBtn');
+        const currentVersion = '{{ APP_VERSION }}';
+
+        // Test için butonu her zaman tıklanabilir yap
+        updateBtn.onclick = function () {
+            alert('🔄 Güncelleme kontrolü yapılıyor...\n\nBu test modunda. Gerçek güncelleme için PyPI\'dan veri çekilecek.');
+        };
+
+        // Versiyon kontrolü için PyPI'dan en son sürümü çek (5 saniye timeout ile)
+        fetchWithTimeout('https://pypi.org/pypi/safepass-cli/json', {}, 5000)
+            .then(resp => resp.json())
+            .then(data => {
+                const latest = data.info.version;
+
+                // Gerçek onclick handler - her durumda çalışır
+                updateBtn.onclick = function () {
+                    let msg = `🚀 SafePass Güncelleme Bilgisi\n\n`;
+                    msg += `📦 PyPI Sürümü: ${latest}\n`;
+                    msg += `📦 Mevcut Sürüm: ${currentVersion}\n\n`;
+
+                    if (latest !== currentVersion) {
+                        msg += `✨ YENİ GÜNCELLEME MEVCUT!\n\n`;
+                        msg += `⚡ Güncelleme Adımları:\n`;
+                        msg += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+                        msg += `1️⃣ Terminal'i açın\n\n`;
+                        msg += `2️⃣ Şu komutu çalıştırın:\n`;
+                        msg += `   $ safepass update\n\n`;
+                        msg += `3️⃣ Güncelleme tamamlandıktan sonra\n`;
+                        msg += `   uygulamayı kapatıp yeniden başlatın\n`;
+                        msg += `━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+                        msg += `📝 Detaylı bilgi için:\n`;
+                        msg += `https://pypi.org/project/safepass-cli/${latest}/`;
+                    } else {
+                        msg += `✅ Uygulamanız güncel!\n\n`;
+                        msg += `En son sürümü kullanıyorsunuz.`;
+                    }
+
+                    alert(msg);
+                };
+
+                // Sadece yeni sürüm varsa butonu göster
+                if (latest !== currentVersion) {
+                    updateBtn.classList.add('visible');
+                    updateBtn.title = `Yeni sürüm mevcut: ${latest}`;
+                }
+            })
+            .catch(err => {
+                // PyPI'a erişilemezse veya timeout olursa bildirim gösterme
+                console.log('Update check failed (timeout or network error):', err);
+                updateBtn.onclick = function () {
+                    alert('⚠️ Güncelleme kontrolü yapılamadı.\n\nİnternet bağlantınızı kontrol edin veya daha sonra tekrar deneyin.');
+                };
+            });
     </script>
     {% block extra_js %}{% endblock %}
 </body>
+
 </html>

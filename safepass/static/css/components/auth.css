@@ -660,3 +660,182 @@ body.register-page .update-btn {
 .password-toggle.visible .eye-icon {
     stroke: var(--primary);
 }
+
+/* ========================================================================
+   FLOATING PASSWORD ICONS - ANIMATED BACKGROUND
+   ======================================================================== */
+
+.floating-icons {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.float-icon {
+    position: absolute;
+    font-size: 3rem;
+    font-weight: 700;
+    opacity: 0;
+    will-change: transform, opacity;
+    
+    /* 3D Transform için */
+    transform-style: preserve-3d;
+    perspective: 1000px;
+    
+    /* Gradient text color */
+    background: linear-gradient(135deg, 
+        rgba(99, 102, 241, 0.6), 
+        rgba(168, 85, 247, 0.6),
+        rgba(236, 72, 153, 0.6)
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    
+    /* Blur efekti */
+    filter: blur(1px);
+    
+    /* Pozisyon - CSS variables ile kontrol */
+    left: var(--x);
+    top: var(--y);
+    
+    /* Animasyon */
+    animation: float 20s ease-in-out infinite;
+    animation-delay: var(--delay);
+}
+
+/* Floating Animation */
+@keyframes float {
+    0% {
+        opacity: 0;
+        transform: translateY(0) translateX(0) rotateZ(0deg) scale(0.8);
+    }
+    
+    10% {
+        opacity: 0.3;
+    }
+    
+    25% {
+        transform: translateY(-30px) translateX(20px) rotateZ(5deg) scale(1);
+        opacity: 0.5;
+    }
+    
+    50% {
+        transform: translateY(-60px) translateX(-15px) rotateZ(-3deg) scale(1.1);
+        opacity: 0.4;
+    }
+    
+    75% {
+        transform: translateY(-30px) translateX(25px) rotateZ(4deg) scale(0.95);
+        opacity: 0.5;
+    }
+    
+    90% {
+        opacity: 0.3;
+    }
+    
+    100% {
+        opacity: 0;
+        transform: translateY(0) translateX(0) rotateZ(0deg) scale(0.8);
+    }
+}
+
+/* Farklı iconlar için farklı renkler */
+.float-icon:nth-child(1),
+.float-icon:nth-child(7),
+.float-icon:nth-child(9) {
+    /* * karakterleri - Mavi-Mor gradient */
+    background: linear-gradient(135deg, 
+        rgba(59, 130, 246, 0.6), 
+        rgba(99, 102, 241, 0.6)
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 2.5rem;
+}
+
+.float-icon:nth-child(2),
+.float-icon:nth-child(3),
+.float-icon:nth-child(8) {
+    /* Emoji iconlar - Gradient */
+    font-size: 2.8rem;
+    filter: drop-shadow(0 0 10px rgba(99, 102, 241, 0.4));
+}
+
+.float-icon:nth-child(4),
+.float-icon:nth-child(10) {
+    /* # karakterleri - Pembe-Mor gradient */
+    background: linear-gradient(135deg, 
+        rgba(168, 85, 247, 0.6), 
+        rgba(236, 72, 153, 0.6)
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 2.2rem;
+}
+
+.float-icon:nth-child(5),
+.float-icon:nth-child(12) {
+    /* @ karakterleri - Turkuaz-Mavi gradient */
+    background: linear-gradient(135deg, 
+        rgba(20, 184, 166, 0.6), 
+        rgba(59, 130, 246, 0.6)
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 2rem;
+}
+
+.float-icon:nth-child(6),
+.float-icon:nth-child(11) {
+    /* • karakterleri - Turuncu-Sarı gradient */
+    background: linear-gradient(135deg, 
+        rgba(251, 191, 36, 0.6), 
+        rgba(245, 158, 11, 0.6)
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 1.8rem;
+}
+
+/* Hover efekti - Kartın üzerine gelindiğinde iconlar daha belirgin */
+.auth-container:hover ~ .floating-icons .float-icon {
+    opacity: 0.6 !important;
+    filter: blur(0.5px);
+}
+
+/* Responsive - Mobilde daha az icon göster */
+@media (max-width: 768px) {
+    .float-icon {
+        font-size: 2rem;
+    }
+    
+    .float-icon:nth-child(n+7) {
+        display: none; /* Mobilde sadece ilk 6 icon */
+    }
+}
+
+/* Dark mode için ek ayarlar */
+@media (prefers-color-scheme: dark) {
+    .float-icon {
+        filter: blur(1.5px);
+        opacity: 0.8;
+    }
+}
+
+/* Performans optimizasyonu */
+@media (prefers-reduced-motion: reduce) {
+    .float-icon {
+        animation: none;
+        opacity: 0.2;
+    }
+}

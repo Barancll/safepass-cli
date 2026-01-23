@@ -52,6 +52,34 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (loginForm) {
         loginForm.addEventListener('submit', handleLogin);
+        
+        // Login password validation
+        const loginPasswordInput = document.getElementById('master-password');
+        const loginPasswordError = document.getElementById('login-password-error');
+        
+        if (loginPasswordInput && loginPasswordError) {
+            // Real-time validation
+            loginPasswordInput.addEventListener('input', function() {
+                const password = loginPasswordInput.value;
+                
+                if (password.length > 0 && password.length < 8) {
+                    loginPasswordError.textContent = 'Şifre en az 8 karakter olmalıdır.';
+                    loginPasswordError.style.display = 'block';
+                    loginPasswordInput.classList.add('error');
+                } else {
+                    loginPasswordError.style.display = 'none';
+                    loginPasswordInput.classList.remove('error');
+                }
+            });
+            
+            // Clear error on focus
+            loginPasswordInput.addEventListener('focus', function() {
+                if (loginPasswordInput.value.length >= 8) {
+                    loginPasswordError.style.display = 'none';
+                    loginPasswordInput.classList.remove('error');
+                }
+            });
+        }
     }
 
     if (registerForm) {

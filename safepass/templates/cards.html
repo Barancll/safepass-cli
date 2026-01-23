@@ -75,19 +75,19 @@
             <div class="card-header">
                 <div class="card-title">{{ card.app_name }}</div>
                 <div class="card-actions">
-                    <button class="btn-icon btn-history" data-card-id="{{ card.id }}" title="Geçmiş">
+                    <button class="btn-icon btn-history" data-card-id="{{ card.id }}" data-tooltip="Geçmiş">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="12" cy="12" r="10"></circle>
                             <polyline points="12 6 12 12 16 14"></polyline>
                         </svg>
                     </button>
-                    <button class="btn-icon btn-edit" data-card-id="{{ card.id }}" title="Düzenle">
+                    <button class="btn-icon btn-edit" data-card-id="{{ card.id }}" data-tooltip="Düzenle">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                         </svg>
                     </button>
-                    <button class="btn-icon btn-delete" data-card-id="{{ card.id }}" title="Sil">
+                    <button class="btn-icon btn-delete" data-card-id="{{ card.id }}" data-tooltip="Sil">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <polyline points="3 6 5 6 21 6"></polyline>
                             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -103,20 +103,24 @@
                 <div class="card-field">
                     <label>Şifre</label>
                     <div class="field-value password-field">
-                        <span class="password-hidden">••••••••</span>
-                        <span class="password-visible" style="display:none;">{{ card.password }}</span>
-                        <button class="btn-icon btn-toggle-password" title="Göster/Gizle">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                <circle cx="12" cy="12" r="3"></circle>
-                            </svg>
-                        </button>
-                        <button class="btn-icon btn-copy-password" data-password="{{ card.password }}" title="Kopyala">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                            </svg>
-                        </button>
+                        <div class="password-text">
+                            <span class="password-hidden">••••••••</span>
+                            <span class="password-visible" style="display:none;">{{ card.password }}</span>
+                        </div>
+                        <div class="password-actions">
+                            <button class="password-btn btn-toggle-password">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                            <button class="password-btn btn-copy-password" data-password="{{ card.password }}">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 {% if card.url and card.url != "" %}

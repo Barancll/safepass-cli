@@ -51,6 +51,12 @@ def get_session_user(request):
     try:
         user = User.objects.get(id=user_id)
         user.session_master_password = request.session.get('master_password', '')
+        
+        # SESSION_SAVE_EVERY_REQUEST = False olduğu için
+        # Django'ya session'ın değiştiğini manuel söylememiz gerekiyor
+        # Bu sayede last_activity güncellemesi kaydedilir
+        request.session.modified = True
+        
         return user
     except User.DoesNotExist:
         return None
@@ -258,6 +264,9 @@ def api_login(request):
     if not master_password:
         return JsonResponse({'error': 'Şifre boş bırakılamaz', 'field': 'master_password'}, status=400)
     
+    if len(master_password) < 8:
+        return JsonResponse({'error': 'Şifre en az 8 karakter olmalıdır', 'field': 'master_password'}, status=400)
+    
     try:
         user = User.objects.get(username=username)
     except User.DoesNotExist:
@@ -348,6 +357,7 @@ def api_passwords(request):
         url = data.get('url', '').strip()
         notes = data.get('notes', '')
         category = data.get('category', '')
+        subcategory = data.get('subcategory', '')
         
         if not app_name or not password:
             return JsonResponse({'error': 'Uygulama adı ve şifre gerekli'}, status=400)
@@ -577,7 +587,7 @@ def api_export_data(request):
 @csrf_exempt
 @require_http_methods(["POST"])
 def api_import_data(request):
-    """Import data from JSON file"""
+    """Import data from JSON file or JSON body"""
     user = get_session_user(request)
     if not user:
         return JsonResponse({'error': 'Oturum açmanız gerekiyor'}, status=401)
@@ -587,57 +597,111 @@ def api_import_data(request):
     if not master_password:
         return JsonResponse({'error': 'Oturum süresi dolmuş'}, status=401)
     
+    # File size limit: 10MB
+    MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB in bytes
+    if 'file' in request.FILES:
+        uploaded_file = request.FILES['file']
+        if uploaded_file.size > MAX_FILE_SIZE:
+            return JsonResponse({
+                'error': f'Dosya boyutu çok büyük! Maksimum {MAX_FILE_SIZE // (1024 * 1024)}MB yüklenebilir'
+            }, status=400)
+    
     # Derive encryption key from master password
     salt = bytes(user.salt)
     encryption_key = derive_key_from_master_password(master_password, salt)
     
     try:
-        # Get uploaded file
-        if 'file' not in request.FILES:
-            return JsonResponse({'error': 'Dosya yüklenmedi'}, status=400)
-        
-        uploaded_file = request.FILES['file']
-        
-        # Read and parse JSON
-        file_content = uploaded_file.read().decode('utf-8')
-        import_data = json.loads(file_content)
+        # Check if data is coming from file upload or JSON body
+        if 'file' in request.FILES:
+            # File upload
+            uploaded_file = request.FILES['file']
+            file_content = uploaded_file.read().decode('utf-8')
+            import_data = json.loads(file_content)
+        else:
+            # JSON body
+            data = get_json_body(request)
+            
+            # Check if passwords are provided directly
+            if 'passwords' in data:
+                import_data = data
+            else:
+                return JsonResponse({'error': 'Dosya yüklenmedi'}, status=400)
         
         # Validate format
-        if 'version' not in import_data or 'passwords' not in import_data:
+        if 'passwords' not in import_data or not isinstance(import_data['passwords'], list):
             return JsonResponse({'error': 'Geçersiz dosya formatı'}, status=400)
         
         # Import passwords
         imported_count = 0
+        updated_count = 0
         skipped_count = 0
+        skip_duplicates = import_data.get('skip_duplicates', True)
         
         for pwd_data in import_data['passwords']:
             try:
-                # Check if this password already exists
-                existing = PasswordCard.objects.filter(
-                    user=user,
-                    app_name=pwd_data.get('app_name', ''),
-                    username=pwd_data.get('username', '')
-                ).first()
+                # Get app_name from either 'title' or 'app_name'
+                app_name = pwd_data.get('app_name', pwd_data.get('title', 'Bilinmeyen'))
+                username_val = pwd_data.get('username', '')
+                password_val = pwd_data.get('password', '')
+                url_val = pwd_data.get('url', pwd_data.get('website', ''))
+                category_val = pwd_data.get('category', 'genel')
+                subcategory_val = pwd_data.get('subcategory', '')
                 
-                if existing:
+                if not password_val:
                     skipped_count += 1
                     continue
                 
-                # Encrypt password
-                encrypted_password = encrypt_data(pwd_data['password'], encryption_key)
-                
-                # Create new card
-                PasswordCard.objects.create(
+                # Check if card with same details exists
+                existing = PasswordCard.objects.filter(
                     user=user,
-                    app_name=pwd_data.get('app_name', pwd_data.get('title', 'Bilinmeyen')),
-                    username=pwd_data.get('username', ''),
-                    password_encrypted=encrypted_password,
-                    url=pwd_data.get('url', pwd_data.get('website', '')),
-                    notes=pwd_data.get('notes', ''),
-                    category=pwd_data.get('category', ''),
-                    subcategory=pwd_data.get('subcategory', '')
-                )
-                imported_count += 1
+                    app_name=app_name,
+                    username=username_val,
+                    url=url_val,
+                    category=category_val
+                ).first()
+                
+                if existing:
+                    # Card exists - check if password is different
+                    try:
+                        current_password = decrypt_data(bytes(existing.password_encrypted), encryption_key)
+                        
+                        if current_password != password_val:
+                            # Password is different - update and save old password to history
+                            from .models import PasswordHistory
+                            
+                            # Save current password to history
+                            PasswordHistory.objects.create(
+                                card=existing,
+                                password_encrypted=existing.password_encrypted
+                            )
+                            
+                            # Update with new password
+                            new_encrypted_password = encrypt_data(password_val, encryption_key)
+                            existing.password_encrypted = new_encrypted_password
+                            existing.save()
+                            
+                            updated_count += 1
+                        else:
+                            # Same password - skip
+                            skipped_count += 1
+                    except:
+                        # Decryption failed or other error - skip
+                        skipped_count += 1
+                else:
+                    # New card - create it
+                    encrypted_password = encrypt_data(password_val, encryption_key)
+                    
+                    PasswordCard.objects.create(
+                        user=user,
+                        app_name=app_name,
+                        username=username_val,
+                        password_encrypted=encrypted_password,
+                        url=url_val,
+                        notes=pwd_data.get('notes', ''),
+                        category=category_val,
+                        subcategory=subcategory_val
+                    )
+                    imported_count += 1
                 
             except Exception as e:
                 skipped_count += 1
@@ -646,8 +710,10 @@ def api_import_data(request):
         return JsonResponse({
             'success': True,
             'imported': imported_count,
+            'updated': updated_count,
             'skipped': skipped_count,
-            'message': f'{imported_count} şifre içe aktarıldı, {skipped_count} atlandı'
+            'total': len(import_data['passwords']),
+            'message': f'{imported_count} yeni şifre eklendi, {updated_count} şifre güncellendi, {skipped_count} atlandı'
         })
         
     except json.JSONDecodeError:
@@ -730,114 +796,207 @@ def import_export_page(request):
 
 
 @csrf_exempt
-async def api_import_passwords(request):
+@require_http_methods(["POST"])
+def api_import_passwords(request):
     """Import passwords from KeePass CSV"""
-    if request.method != 'POST':
-        return JsonResponse({'error': 'Method not allowed'}, status=405)
+    # Custom session-based authentication (tutarlılık için)
+    user = get_session_user(request)
+    if not user:
+        return JsonResponse({'error': 'Oturum açmanız gerekiyor'}, status=401)
     
-    if not request.user.is_authenticated:
-        return JsonResponse({'error': 'Authentication required'}, status=401)
+    # Get master password from session for encryption
+    master_password = request.session.get('master_password', '')
+    if not master_password:
+        return JsonResponse({'error': 'Oturum süresi dolmuş'}, status=401)
+    
+    # File size limit: 10MB
+    MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB in bytes
+    if request.body and len(request.body) > MAX_FILE_SIZE:
+        return JsonResponse({
+            'error': f'Dosya boyutu çok büyük! Maksimum {MAX_FILE_SIZE // (1024 * 1024)}MB yüklenebilir'
+        }, status=400)
     
     try:
-        import json
-        data = json.loads(request.body)
+        # Debug logging
+        print(f"[DEBUG] Request body: {request.body[:200]}")  # İlk 200 karakter
+        data = get_json_body(request)
+        print(f"[DEBUG] Parsed data keys: {data.keys() if data else 'None'}")
+        print(f"[DEBUG] Passwords count: {len(data.get('passwords', []))}")
+        
         passwords = data.get('passwords', [])
         skip_duplicates = data.get('skip_duplicates', True)
         
         if not passwords:
-            return JsonResponse({'error': 'No passwords provided'}, status=400)
+            # Debug bilgisi ile hata döndür
+            return JsonResponse({
+                'error': 'Şifre verisi sağlanmadı',
+                'debug': {
+                    'received_keys': list(data.keys()) if data else [],
+                    'passwords_type': str(type(data.get('passwords'))),
+                    'passwords_value': str(data.get('passwords'))[:100]
+                }
+            }, status=400)
+        
+        # Derive encryption key
+        salt = bytes(user.salt)
+        encryption_key = derive_key_from_master_password(master_password, salt)
         
         imported = 0
+        updated = 0
         skipped = 0
         
         for pwd_data in passwords:
-            # Check for duplicates
-            if skip_duplicates:
-                existing = await sync_to_async(PasswordCard.objects.filter)(
-                    user=request.user,
-                    title=pwd_data['title'],
-                    username=pwd_data['username']
-                )
-                if await sync_to_async(existing.exists)():
+            try:
+                # Model alanlarını düzelt: title → app_name, website → url
+                app_name = pwd_data.get('title', pwd_data.get('app_name', 'Bilinmeyen'))
+                username_val = pwd_data.get('username', '')
+                password_val = pwd_data.get('password', '')
+                url_val = pwd_data.get('website', pwd_data.get('url', ''))
+                category_val = pwd_data.get('category', 'genel')
+                subcategory_val = pwd_data.get('subcategory', '')
+                notes_val = pwd_data.get('notes', '')
+                
+                if not password_val:
                     skipped += 1
                     continue
-            
-            # Encrypt password
-            encrypted_password = encrypt_password(pwd_data['password'])
-            
-            # Create password card
-            await sync_to_async(PasswordCard.objects.create)(
-                user=request.user,
-                title=pwd_data['title'],
-                username=pwd_data['username'],
-                password_encrypted=encrypted_password,
-                website=pwd_data.get('website', ''),
-                category=pwd_data.get('category', 'genel'),
-                subcategory=pwd_data.get('subcategory', ''),
-                notes=pwd_data.get('notes', '')
-            )
-            imported += 1
+                
+                # Check if card with same details exists
+                existing = PasswordCard.objects.filter(
+                    user=user,
+                    app_name=app_name,
+                    username=username_val,
+                    url=url_val,
+                    category=category_val
+                ).first()
+                
+                if existing:
+                    # Card exists - check if password is different
+                    try:
+                        current_password = decrypt_data(bytes(existing.password_encrypted), encryption_key)
+                        
+                        if current_password != password_val:
+                            # Password is different - update and save old password to history
+                            from .models import PasswordHistory
+                            
+                            # Save current password to history
+                            PasswordHistory.objects.create(
+                                card=existing,
+                                password_encrypted=existing.password_encrypted
+                            )
+                            
+                            # Update with new password
+                            new_encrypted_password = encrypt_data(password_val, encryption_key)
+                            existing.password_encrypted = new_encrypted_password
+                            existing.save()
+                            
+                            updated += 1
+                        else:
+                            # Same password - skip
+                            skipped += 1
+                    except:
+                        # Decryption failed or other error - skip
+                        skipped += 1
+                else:
+                    # New card - create it
+                    encrypted_password = encrypt_data(password_val, encryption_key)
+                    
+                    PasswordCard.objects.create(
+                        user=user,
+                        app_name=app_name,
+                        username=username_val,
+                        password_encrypted=encrypted_password,
+                        url=url_val,
+                        category=category_val,
+                        subcategory=subcategory_val,
+                        notes=notes_val
+                    )
+                    imported += 1
+                
+            except Exception as e:
+                # Skip individual password errors
+                skipped += 1
+                continue
         
         return JsonResponse({
             'success': True,
             'imported': imported,
+            'updated': updated,
             'skipped': skipped,
-            'total': len(passwords)
+            'total': len(passwords),
+            'message': f'{imported} yeni şifre eklendi, {updated} şifre güncellendi, {skipped} atlandı'
         })
     
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Geçersiz JSON formatı'}, status=400)
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+        return JsonResponse({'error': f'İçe aktarma hatası: {str(e)}'}, status=500)
 
 
 @csrf_exempt
-async def api_export_passwords(request):
+@require_http_methods(["POST"])
+def api_export_passwords(request):
     """Export passwords to JSON"""
-    if request.method != 'POST':
-        return JsonResponse({'error': 'Method not allowed'}, status=405)
+    # Custom session-based authentication (tutarlılık için)
+    user = get_session_user(request)
+    if not user:
+        return JsonResponse({'error': 'Oturum açmanız gerekiyor'}, status=401)
     
-    if not request.user.is_authenticated:
-        return JsonResponse({'error': 'Authentication required'}, status=401)
+    # Get master password from session for decryption
+    master_password = request.session.get('master_password', '')
+    if not master_password:
+        return JsonResponse({'error': 'Oturum süresi dolmuş'}, status=401)
     
     try:
-        import json
-        data = json.loads(request.body)
+        data = get_json_body(request)
         include_metadata = data.get('include_metadata', True)
         
+        # Derive encryption key
+        salt = bytes(user.salt)
+        encryption_key = derive_key_from_master_password(master_password, salt)
+        
         # Get all password cards
-        cards = await sync_to_async(list)(
-            PasswordCard.objects.filter(user=request.user).order_by('-created_at')
-        )
+        cards = PasswordCard.objects.filter(user=user).order_by('-created_at')
         
         export_data = {
             'version': '1.2.3',
             'export_date': datetime.now().isoformat(),
-            'total_passwords': len(cards),
+            'total_passwords': cards.count(),
             'passwords': []
         }
         
         for card in cards:
-            # Decrypt password
-            decrypted_password = decrypt_password(card.password_encrypted)
-            
-            password_data = {
-                'title': card.title,
-                'username': card.username,
-                'password': decrypted_password,
-                'website': card.website,
-                'category': card.category,
-                'subcategory': card.subcategory or ''
-            }
-            
-            if include_metadata:
-                password_data.update({
-                    'notes': card.notes,
-                    'created_at': card.created_at.isoformat(),
-                    'updated_at': card.updated_at.isoformat()
-                })
-            
-            export_data['passwords'].append(password_data)
+            try:
+                # Decrypt password using correct function
+                decrypted_password = decrypt_data(bytes(card.password_encrypted), encryption_key)
+                
+                # Model alanlarını düzelt: app_name ve url kullan
+                password_data = {
+                    'title': card.app_name,  # Export'ta 'title' olarak gönder (uyumluluk için)
+                    'app_name': card.app_name,  # Her iki formatı da destekle
+                    'username': card.username,
+                    'password': decrypted_password,
+                    'website': card.url,  # Export'ta 'website' olarak gönder (uyumluluk için)
+                    'url': card.url,  # Her iki formatı da destekle
+                    'category': card.category or 'genel',
+                    'subcategory': card.subcategory or ''
+                }
+                
+                if include_metadata:
+                    password_data.update({
+                        'notes': card.notes or '',
+                        'created_at': card.created_at.isoformat(),
+                        'updated_at': card.updated_at.isoformat()
+                    })
+                
+                export_data['passwords'].append(password_data)
+                
+            except Exception as e:
+                # Skip cards that fail to decrypt
+                continue
         
         return JsonResponse(export_data)
     
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Geçersiz JSON formatı'}, status=400)
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+        return JsonResponse({'error': f'Dışa aktarma hatası: {str(e)}'}, status=500)

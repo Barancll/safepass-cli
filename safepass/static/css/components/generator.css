@@ -1,17 +1,17 @@
 /* Generator Page Styles */
 
 .generator-container {
-    max-width: 800px;
+    max-width: 700px;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 1.5rem;
 }
 
 .generated-password-card {
     background: var(--bg-card);
     border-radius: 12px;
-    padding: 2rem;
+    padding: 1.5rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -30,8 +30,8 @@
 
 .password-display {
     flex: 1;
-    padding: 1rem;
-    font-size: 1.25rem;
+    padding: 0.875rem;
+    font-size: 1.1rem;
     font-family: 'Courier New', monospace;
     background: var(--bg-primary);
     border: 2px solid var(--border-color);
@@ -104,12 +104,12 @@
 .generator-options {
     background: var(--bg-card);
     border-radius: 12px;
-    padding: 2rem;
+    padding: 1.5rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .generator-options h3 {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.25rem;
     color: var(--text-primary);
 }
 
@@ -118,9 +118,9 @@
     align-items: center;
     gap: 1rem;
     background: var(--bg-secondary);
-    padding: 0.875rem 1rem;
+    padding: 0.75rem 0.875rem;
     border-radius: 8px;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.25rem;
 }
 
 .form-group-inline label {
@@ -137,9 +137,9 @@
     justify-content: space-between;
     gap: 1rem;
     background: rgba(15, 23, 42, 0.4);
-    padding: 1rem 1.25rem;
+    padding: 0.875rem 1rem;
     border-radius: 10px;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
     border: 1px solid rgba(99, 102, 241, 0.2);
 }
 
@@ -265,7 +265,7 @@
     background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
     border: 2px solid var(--border-color);
     border-radius: 10px;
-    padding: 1.125rem;
+    padding: 0.875rem;
     transition: all 0.2s ease;
 }
 
@@ -283,21 +283,21 @@
     height: 0;
 }
 
-.checkbox-card input[type="checkbox"]:checked ~ .checkbox-content {
+.checkbox-card input[type="checkbox"]:checked~.checkbox-content {
     opacity: 1;
 }
 
-.checkbox-card input[type="checkbox"]:checked ~ .checkbox-content .checkbox-icon {
+.checkbox-card input[type="checkbox"]:checked~.checkbox-content .checkbox-icon {
     color: var(--primary);
     transform: scale(1.05);
 }
 
-.checkbox-card input[type="checkbox"]:checked ~ .checkbox-content .checkbox-check {
+.checkbox-card input[type="checkbox"]:checked~.checkbox-content .checkbox-check {
     opacity: 1;
     transform: scale(1);
 }
 
-.checkbox-card input[type="checkbox"]:not(:checked) ~ .checkbox-content {
+.checkbox-card input[type="checkbox"]:not(:checked)~.checkbox-content {
     opacity: 0.5;
 }
 
@@ -317,7 +317,7 @@
 }
 
 .checkbox-icon {
-    font-size: 1.75rem;
+    font-size: 1.5rem;
     font-weight: 700;
     color: var(--text-secondary);
     font-family: 'Courier New', monospace;
@@ -345,14 +345,14 @@
 }
 
 .checkbox-title {
-    font-size: 0.9375rem;
+    font-size: 0.875rem;
     font-weight: 600;
     color: var(--text-primary);
     line-height: 1.3;
 }
 
 .checkbox-desc {
-    font-size: 0.8125rem;
+    font-size: 0.75rem;
     color: var(--text-secondary);
     font-family: 'Courier New', monospace;
     letter-spacing: 0.5px;
@@ -392,7 +392,7 @@
 .generator-tips {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border-radius: 12px;
-    padding: 2rem;
+    padding: 1.5rem;
     color: white;
     box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
@@ -426,7 +426,7 @@
     .generator-container {
         max-width: 700px;
     }
-    
+
     .password-display {
         font-size: 1.15rem;
         padding: 0.875rem;
@@ -437,12 +437,12 @@
     .generator-container {
         max-width: 650px;
     }
-    
+
     .generated-password-card,
     .generator-controls {
         padding: 1.5rem;
     }
-    
+
     .password-display {
         font-size: 1.1rem;
     }

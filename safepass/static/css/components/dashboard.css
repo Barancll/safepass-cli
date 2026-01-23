@@ -2,8 +2,8 @@
 
 .main-content {
     flex: 1;
-    margin-left: 280px;
-    padding: 2rem;
+    margin-left: 240px;
+    padding: 1.75rem;
     position: relative;
     z-index: 1;
     min-height: 100vh;
@@ -14,7 +14,7 @@
 }
 
 .page-header h1 {
-    font-size: 2rem;
+    font-size: 1.85rem;
     font-weight: 700;
     margin-bottom: 0.5rem;
 }
@@ -32,9 +32,9 @@
 
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 1.75rem;
 }
 
 .stat-card {
@@ -43,7 +43,7 @@
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid var(--border);
     border-radius: 16px;
-    padding: 1.5rem;
+    padding: 1.25rem;
     display: flex;
     align-items: center;
     gap: 1.25rem;
@@ -56,7 +56,7 @@
 }
 
 .stat-icon {
-    font-size: 2.5rem;
+    font-size: 2.25rem;
     line-height: 1;
 }
 
@@ -65,7 +65,7 @@
 }
 
 .stat-value {
-    font-size: 2rem;
+    font-size: 1.75rem;
     font-weight: 700;
     color: var(--text-primary);
     line-height: 1;
@@ -91,10 +91,6 @@
 
 .stat-card.stat-duplicate {
     border-color: rgba(168, 85, 247, 0.3);
-}
-
-.stat-card.stat-duplicate .stat-icon {
-    background: rgba(168, 85, 247, 0.1);
 }
 
 .dashboard-sections {
@@ -129,10 +125,8 @@
     width: 150px;
     height: 150px;
     border-radius: 50%;
-    background: conic-gradient(
-        var(--score-color, var(--primary)) calc(var(--score) * 1%),
-        rgba(99, 102, 241, 0.1) 0
-    );
+    background: conic-gradient(var(--score-color, var(--primary)) calc(var(--score) * 1%),
+            rgba(99, 102, 241, 0.1) 0);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -142,35 +136,31 @@
 
 /* Güvenlik skoru renk sınıfları */
 .score-circle.score-excellent {
-    --score-color: #10b981; /* Yeşil - Mükemmel */
-    background: conic-gradient(
-        #10b981 calc(var(--score) * 1%),
-        rgba(16, 185, 129, 0.1) 0
-    );
+    --score-color: #10b981;
+    /* Yeşil - Mükemmel */
+    background: conic-gradient(#10b981 calc(var(--score) * 1%),
+            rgba(16, 185, 129, 0.1) 0);
 }
 
 .score-circle.score-good {
-    --score-color: #6366f1; /* Mavi - İyi */
-    background: conic-gradient(
-        #6366f1 calc(var(--score) * 1%),
-        rgba(99, 102, 241, 0.1) 0
-    );
+    --score-color: #6366f1;
+    /* Mavi - İyi */
+    background: conic-gradient(#6366f1 calc(var(--score) * 1%),
+            rgba(99, 102, 241, 0.1) 0);
 }
 
 .score-circle.score-medium {
-    --score-color: #f59e0b; /* Turuncu - Orta */
-    background: conic-gradient(
-        #f59e0b calc(var(--score) * 1%),
-        rgba(245, 158, 11, 0.1) 0
-    );
+    --score-color: #f59e0b;
+    /* Turuncu - Orta */
+    background: conic-gradient(#f59e0b calc(var(--score) * 1%),
+            rgba(245, 158, 11, 0.1) 0);
 }
 
 .score-circle.score-poor {
-    --score-color: #ef4444; /* Kırmızı - Zayıf */
-    background: conic-gradient(
-        #ef4444 calc(var(--score) * 1%),
-        rgba(239, 68, 68, 0.1) 0
-    );
+    --score-color: #ef4444;
+    /* Kırmızı - Zayıf */
+    background: conic-gradient(#ef4444 calc(var(--score) * 1%),
+            rgba(239, 68, 68, 0.1) 0);
 }
 
 .score-circle::before {
@@ -202,10 +192,21 @@
     transition: color 0.3s ease;
 }
 
-.score-label.score-excellent { color: #10b981; }
-.score-label.score-good { color: #6366f1; }
-.score-label.score-medium { color: #f59e0b; }
-.score-label.score-poor { color: #ef4444; }
+.score-label.score-excellent {
+    color: #10b981;
+}
+
+.score-label.score-good {
+    color: #6366f1;
+}
+
+.score-label.score-medium {
+    color: #f59e0b;
+}
+
+.score-label.score-poor {
+    color: #ef4444;
+}
 
 .recent-cards {
     display: flex;
@@ -343,16 +344,16 @@
     .main-content {
         margin-left: 260px;
     }
-    
+
     .stats-grid {
         grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
         gap: 1.25rem;
     }
-    
+
     .stat-card {
         padding: 1.25rem;
     }
-    
+
     .stat-value {
         font-size: 1.75rem;
     }
@@ -362,16 +363,16 @@
     .main-content {
         margin-left: 240px;
     }
-    
+
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);
     }
-    
+
     .dashboard-sections {
         grid-template-columns: 1fr;
         gap: 1.25rem;
     }
-    
+
     .score-circle {
         width: 130px;
         height: 130px;
@@ -397,7 +398,7 @@
     .stats-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .dashboard-sections {
         grid-template-columns: 1fr;
     }

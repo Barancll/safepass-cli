@@ -28,7 +28,7 @@ def init_database():
     print(f"📁 Veriler: {get_data_dir()}")
 
 
-def start_server(port=8000):
+def start_server(port=2025):
     """Start the Django development server"""
     import subprocess
     from pathlib import Path

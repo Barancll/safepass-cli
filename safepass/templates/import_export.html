@@ -137,11 +137,16 @@
                     </button>
                 </div>
 
-                <div class="import-options">
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="skip-duplicates" checked>
-                        <span>Mevcut şifreleri atla (sadece yenilerini ekle)</span>
-                    </label>
+                <div class="import-info">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="16" x2="12" y2="12"></line>
+                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                    </svg>
+                    <div>
+                        <strong>Akıllı İçe Aktarma:</strong>
+                        <p>Yeni kartlar eklenir, mevcut kartlardaki şifre değişiklikleri güncellenir (eski şifre geçmişe kaydedilir).</p>
+                    </div>
                 </div>
 
                 <button type="button" class="btn btn-primary" id="import-btn" disabled>
@@ -153,6 +158,20 @@
                     İçe Aktar
                 </button>
 
+                <div class="csv-formats-info">
+                    <h4 style="margin-bottom: 1rem; color: var(--text-secondary); font-size: 0.9rem;">📋 Desteklenen CSV Formatları:</h4>
+                    <div class="format-box">
+                        <h5>KeePass Formatı</h5>
+                        <code>Group,Subcategory,Title,Username,Password,URL</code>
+                        <p class="format-example">finans,bankacilik,GitHub,user,pass123,https://github.com</p>
+                    </div>
+                    <div class="format-box">
+                        <h5>SafePass Formatı</h5>
+                        <code>title,username,password,website,category,subcategory</code>
+                        <p class="format-example">GitHub,user,pass123,https://github.com,finans,bankacilik</p>
+                    </div>
+                </div>
+
                 <div class="import-progress" id="import-progress" style="display: none;">
                     <div class="progress-bar">
                         <div class="progress-fill" id="progress-fill"></div>
@@ -161,35 +180,6 @@
                 </div>
 
                 <div class="import-result" id="import-result" style="display: none;"></div>
-            </div>
-
-            <div class="faq-item">
-                <h3>📋 Desteklenen CSV Formatı</h3>
-                <p>CSV dosyanız şu sütunları içermelidir:</p>
-                <code class="format-example">
-                    "Group","Subcategory","Title","Username","Password","URL","Notes"<br>
-                    "genel","e-posta","Gmail","user@example.com","mypass123","https://gmail.com","Notlar"<br>
-                    "finans","bankacilik","Ziraat Bankası","12345678","pass456","https://ziraatbank.com.tr","Ana hesap"
-                </code>
-                <ul class="format-notes">
-                    <li><strong>Group:</strong> Ana Kategori (genel, finans, is-gelistirici, sistem-ag, kisisel)</li>
-                    <li><strong>Subcategory:</strong> Alt Kategori:
-                        <ul style="margin-top: 0.5rem; padding-left: 1.5rem;">
-                            <li><em>Genel:</em> e-posta, sosyal-medya, alisveris, forumlar-uyelikler</li>
-                            <li><em>Finans:</em> bankacilik, kredi-kartlari, kripto-paralar, faturalar</li>
-                            <li><em>İş & Geliştirici:</em> sirket-hesaplari, sunucular-ssh, veritabanlari, git-repolar,
-                                api-lisanslar</li>
-                            <li><em>Sistem & Ağ:</em> wifi-sifreleri, cihaz-pinleri, modem-arayuzleri,
-                                yazilim-lisanslari</li>
-                            <li><em>Kişisel:</em> e-devlet-resmi-kurum, saglik, notlar-guvenli-dosyalar</li>
-                        </ul>
-                    </li>
-                    <li><strong>Title:</strong> Şifre başlığı</li>
-                    <li><strong>Username:</strong> Kullanıcı adı</li>
-                    <li><strong>Password:</strong> Şifre</li>
-                    <li><strong>URL:</strong> Website URL</li>
-                    <li><strong>Notes:</strong> Notlar (opsiyonel)</li>
-                </ul>
             </div>
         </div>
     </div>

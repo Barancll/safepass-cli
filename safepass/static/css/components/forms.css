@@ -3,9 +3,9 @@
 /* Service Selection Grid */
 .service-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 1rem;
-    margin-bottom: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 0.875rem;
+    margin-bottom: 1.25rem;
 }
 
 .service-btn {
@@ -14,7 +14,7 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    padding: 1.25rem 0.75rem;
+    padding: 1rem 0.625rem;
     background: rgba(15, 23, 42, 0.6);
     border: 2px solid var(--border);
     border-radius: 12px;
@@ -27,8 +27,8 @@
 
 .service-btn img,
 .service-btn svg {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     object-fit: contain;
 }
 
@@ -97,7 +97,7 @@
 .form-textarea-modern,
 .form-select-modern {
     width: 100%;
-    padding: 1rem;
+    padding: 0.875rem;
     background: rgba(15, 23, 42, 0.8);
     border: 2px solid var(--border);
     border-radius: 12px;
@@ -207,7 +207,7 @@
     transition: all 0.3s ease;
 }
 
-.password-field[type="text"] ~ .btn-toggle-password .icon-eye {
+.password-field[type="text"]~.btn-toggle-password .icon-eye {
     opacity: 0.5;
 }
 
@@ -216,7 +216,7 @@
     .form-container {
         max-width: 600px;
     }
-    
+
     .service-grid {
         grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
         gap: 0.875rem;
@@ -227,11 +227,11 @@
     .form-container {
         max-width: 550px;
     }
-    
+
     .service-grid {
         grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
     }
-    
+
     .service-btn {
         padding: 1rem 0.5rem;
         font-size: 0.8rem;
