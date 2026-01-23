@@ -13,7 +13,8 @@ SafePass, şifrelerinizi güvenli bir şekilde yerel bilgisayarınızda saklayan
 - ✅ **Dashboard**: Gerçek zamanlı güvenlik skoru ve istatistikler
 - ✅ **Hiyerarşik Kategoriler**: 5 ana kategori ve 18 alt kategori ile şifrelerinizi organize edin
 - ✅ **Şifre Geçmişi**: Eski şifrelerinizi görüntüleyin ve geri yükleyin
-- ✅ **Import/Export**: JSON formatında yedekleme ve geri yükleme
+- ✅ **Import/Export**: JSON ve CSV formatlarında yedekleme ve geri yükleme
+- ✅ **Akıllı İçe Aktarma**: Mevcut kartlardaki şifre değişikliklerini otomatik algılama
 - ✅ **Oturum Timeout**: 1 saat inaktivite sonrası otomatik çıkış
 - ✅ **Otomatik Güncelleme Kontrolü**: PyPI üzerinden yeni sürüm bildirimleri
 
@@ -125,8 +126,27 @@ Verilerinizi yedekleyin ve geri yükleyin:
 - İçe/Dışa Aktar > Json Veri Yönetimi sayfasından erişin
 
 ### İçe Aktarma (Import)
-- **JSON Dosyası**: Daha önce dışa aktarılan dosyayı yükleyin
-- **CSV Dosyası**: Diğer şifre yönetim uygulamalarınızdaki şifrelerinizi tek bir butonla Safepass 'e taşıyın
+
+**JSON İçe Aktarma:**
+- Daha önce SafePass'ten dışa aktarılan JSON dosyalarını yükleyin
+- **Akıllı Güncelleme**: Mevcut kartlardaki şifre değişiklikleri otomatik algılanır
+- Eski şifre geçmişe kaydedilir, yeni şifre güncellenir
+- Yeni kartlar otomatik olarak eklenir
+
+**CSV İçe Aktarma:**
+- Diğer şifre yönetim uygulamalarınızdaki şifrelerinizi SafePass'e taşıyın
+- **İki Format Desteği:**
+  - **KeePass Formatı**: `Group,Subcategory,Title,Username,Password,URL`
+  - **SafePass Formatı**: `title,username,password,website,category,subcategory`
+- Aynı akıllı güncelleme sistemi CSV için de geçerlidir
+
+**Akıllı İçe Aktarma Özellikleri:**
+- Aynı kullanıcı adı, başlık, URL ve kategoriye sahip kartlar tespit edilir
+- Şifre farklıysa: Eski şifre geçmişe kaydedilir, yeni şifre güncellenir
+- Şifre aynıysa: Atlanır, çift kayıt oluşmaz
+- Farklı bilgilere sahip kartlar: Yeni kart olarak eklenir
+
+⚠️ **Güvenlik Notu**: Dışa aktarılan dosyalar şifrelerinizi düz metin olarak içerir. Güvenli bir yerde saklayın!
 
 ## 📦 Kurulum
 
