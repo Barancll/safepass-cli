@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% load static sp_icons %}
+
+{% block title_key %}trash.title{% endblock %}
+{% block title %}Çöp Kutusu - SafePass{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/components/sidebar.css' %}?v={{ APP_VERSION }}-act1">
+<link rel="stylesheet" href="{% static 'css/components/layout.css' %}?v={{ APP_VERSION }}-act1">
+<link rel="stylesheet" href="{% static 'css/components/buttons.css' %}?v={{ APP_VERSION }}-act1">
+<link rel="stylesheet" href="{% static 'css/components/trash.css' %}?v={{ APP_VERSION }}-act1">
+{% endblock %}
+
+{% block body_class %}with-sidebar{% endblock %}
+
+{% block content %}
+{% include "partials/sidebar.html" with page_subtitle_key="trash.subtitle" page_subtitle="Silinen şifreler 7 gün burada kalır, sonra kalıcı olarak silinir." %}
+
+<main class="main-content">
+    <div class="page-header trash-header">
+        <button type="button" class="btn btn-danger-outline" id="trashEmptyBtn" data-i18n="trash.empty_all" {% if not cards and not trashed_definitions %}hidden{% endif %}>Çöp kutusunu boşalt</button>
+    </div>
+
+    <section class="trash-panel" aria-labelledby="trashCardsTitle">
+        {# Two groups: password cards, and deleted definitions (categories / services) #}
+        <div class="trash-group" id="trashCardsGroup" {% if not cards %}hidden{% endif %}>
+            <h2 class="trash-group-title" id="trashCardsTitle">
+                <span data-i18n="trash.group_cards">Şifre kartları</span>
+                <span class="trash-group-count" data-count-for="trashList">{{ cards|length }}</span>
+            </h2>
+            <ul class="trash-list" id="trashList">
+                {% for card in cards %}
+                <li class="trash-item" data-id="{{ card.id }}">
+                    <div class="trash-item-icon" aria-hidden="true">🔐</div>
+                    <div class="trash-item-info">
+                        <div class="trash-item-name" data-sp-card="{{ card.id }}" data-sp-field="app_name"></div>
+                        <div class="trash-item-meta">
+                            <span data-sp-if="username" hidden><span class="sp-private" tabindex="0" data-sp-card="{{ card.id }}" data-sp-field="username"></span> · </span>
+                            <span data-i18n="trash.deleted_on">Silinme</span> {{ card.deleted_at|date:"d.m.Y H:i" }}
+                        </div>
+                    </div>
+                    <span class="trash-days{% if card.days_left <= 1 %} is-urgent{% endif %}" data-days="{{ card.days_left }}">{{ card.days_left }} gün kaldı</span>
+                    <div class="trash-item-actions">
+                        <button type="button" class="btn btn-secondary btn-sm" data-trash-action="restore" data-i18n="trash.restore">Geri yükle</button>
+                        <button type="button" class="btn btn-danger-outline btn-sm" data-trash-action="delete" data-i18n="trash.delete_forever">Kalıcı sil</button>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="trash-group" id="trashDefsGroup" {% if not trashed_definitions %}hidden{% endif %}>
+            <h2 class="trash-group-title">
+                <span data-i18n="trash.group_definitions">Silinmiş tanımlar</span>
+                <span class="trash-group-count" data-count-for="trashDefList">{{ trashed_definitions|length }}</span>
+            </h2>
+            <ul class="trash-list" id="trashDefList">
+                {% for item in trashed_definitions %}
+                <li class="trash-item" data-id="{{ item.obj.id }}" data-kind="{{ item.kind }}" data-moved="{{ item.moved }}">
+                    <div class="trash-item-icon trash-def-icon" aria-hidden="true"{% if item.color %} style="--def-color: {{ item.color }}"{% endif %}>{% sp_icon item.icon 20 %}</div>
+                    <div class="trash-item-info">
+                        <div class="trash-item-name"{% if item.label_key %} data-i18n="{{ item.label_key }}"{% endif %}>{{ item.name }}</div>
+                        <div class="trash-item-meta">
+                            {% if item.kind == 'service' %}<span data-i18n="trash.kind_service">Servis</span>
+                            {% elif item.is_sub %}<span data-i18n="trash.kind_sub">Alt kategori</span> ·
+                                <span{% if item.parent_label_key %} data-i18n="{{ item.parent_label_key }}"{% endif %}>{{ item.parent_name }}</span>
+                            {% else %}<span data-i18n="trash.kind_main">Ana kategori</span>{% endif %}
+                            {% if item.moved %} · <span class="trash-moved" data-moved="{{ item.moved }}"></span>{% endif %}
+                            · <span data-i18n="trash.deleted_on">Silinme</span> {{ item.deleted_at|date:"d.m.Y H:i" }}
+                        </div>
+                    </div>
+                    <span class="trash-days{% if item.days_left <= 1 %} is-urgent{% endif %}" data-days="{{ item.days_left }}">{{ item.days_left }} gün kaldı</span>
+                    <div class="trash-item-actions">
+                        <button type="button" class="btn btn-secondary btn-sm" data-trash-action="restore" data-i18n="trash.restore">Geri yükle</button>
+                        <button type="button" class="btn btn-danger-outline btn-sm" data-trash-action="delete" data-i18n="trash.delete_forever">Kalıcı sil</button>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="trash-empty" id="trashEmpty" {% if cards or trashed_definitions %}hidden{% endif %}>
+            <div class="trash-empty-icon" aria-hidden="true">🗑️</div>
+            <h3 data-i18n="trash.empty_title">Çöp kutusu boş</h3>
+            <p data-i18n="trash.empty_text">Sildiğiniz şifreler burada 7 gün boyunca saklanır.</p>
+        </div>
+    </section>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/modules/trash.js' %}?v={{ APP_VERSION }}-act1"></script>
+{% endblock %}

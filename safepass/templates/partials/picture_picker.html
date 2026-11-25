@@ -1,0 +1,22 @@
+{% load sp_icons %}{% security_pictures as pictures %}
+<div class="sp-picture-picker" data-picture-picker>
+    <div class="sp-picture-preview" data-picture-preview aria-hidden="true"></div>
+    <div class="sp-picture-group">
+        <span class="sp-picture-group-label" id="{{ picker_id }}Shapes" data-i18n="picture.choose_shape">Görsel</span>
+        <div class="sp-picture-shapes" role="radiogroup" aria-labelledby="{{ picker_id }}Shapes">
+            {% for name, svg in pictures.shapes %}
+            <button type="button" class="sp-picture-shape" data-shape="{{ name }}" role="radio" aria-checked="false" data-i18n-aria-label="picture.shape_{{ name }}" data-i18n-title="picture.shape_{{ name }}" aria-label="{{ name }}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{{ svg }}</svg>
+            </button>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="sp-picture-group">
+        <span class="sp-picture-group-label" id="{{ picker_id }}Colors" data-i18n="picture.choose_color">Renk</span>
+        <div class="sp-picture-colors" role="radiogroup" aria-labelledby="{{ picker_id }}Colors">
+            {% for name, hex in pictures.colors %}
+            <button type="button" class="sp-picture-color" data-color="{{ name }}" style="--swatch: {{ hex }}" role="radio" aria-checked="false" data-i18n-aria-label="picture.color_{{ name }}" data-i18n-title="picture.color_{{ name }}" aria-label="{{ name }}"></button>
+            {% endfor %}
+        </div>
+    </div>
+</div>

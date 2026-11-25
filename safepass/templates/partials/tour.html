@@ -1,0 +1,24 @@
+{# Lokki's page tour: cloned by js/modules/tour.js when Help is clicked; words are set there too #}
+<template id="spTourTemplate">
+    <div class="sp-tour">
+        <div class="sp-tour-shield"></div>
+        <div class="sp-tour-spot" hidden></div>
+        <section class="sp-tour-pop" data-side="none" role="dialog" aria-modal="true" aria-labelledby="spTourTitle" aria-describedby="spTourText">
+            <span class="sp-tour-arrow" aria-hidden="true"></span>
+            <header class="sp-tour-head">
+                <span class="sp-tour-lokki">{% include "partials/mascot.html" with uid="tour" %}</span>
+                <div>
+                    <p class="sp-tour-count"></p>
+                    <h2 class="sp-tour-title" id="spTourTitle"></h2>
+                </div>
+            </header>
+            <p class="sp-tour-text" id="spTourText" aria-live="polite"></p>
+            <button type="button" class="btn btn-primary sp-tour-action" hidden></button>
+            <footer class="sp-tour-actions">
+                <button type="button" class="sp-tour-close"></button>
+                <button type="button" class="btn btn-secondary btn-sm sp-tour-back"></button>
+                <button type="button" class="btn btn-primary btn-sm sp-tour-next"></button>
+            </footer>
+        </section>
+    </div>
+</template>

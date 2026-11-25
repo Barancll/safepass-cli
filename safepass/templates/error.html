@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ code }} - SafePass{% endblock %}
+{% block body_class %}error-page{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/components/error.css' %}?v={{ APP_VERSION }}-act1">
+{% endblock %}
+
+{% block content %}
+{% include "partials/auth_language_toggle.html" %}
+
+<main class="error-shell">
+    <a href="/" class="error-brand" aria-label="SafePass">
+        {% include "partials/brand_mark.html" with brand_class="error-brand-mark" %}
+    </a>
+
+    <section class="error-card" aria-labelledby="errorTitle">
+        <div class="error-code" aria-hidden="true">{{ code }}</div>
+        {% if code == 404 %}
+        <h1 id="errorTitle" data-i18n="error.404_title">Sayfa bulunamadı</h1>
+        <p data-i18n="error.404_text">Aradığınız sayfa taşınmış ya da hiç var olmamış olabilir.</p>
+        {% elif code == 400 %}
+        <h1 id="errorTitle" data-i18n="error.400_title">İstek anlaşılamadı</h1>
+        <p data-i18n="error.400_text">Adres ya da gönderilen bilgi geçersiz. Bağlantıyı kontrol edip tekrar deneyin.</p>
+        {% elif code == 403 %}
+        <h1 id="errorTitle" data-i18n="error.403_title">Bu işleme izin verilmedi</h1>
+        <p data-i18n="error.403_text">Güvenlik doğrulaması başarısız oldu. Sayfayı yenileyip tekrar deneyin.</p>
+        {% else %}
+        <h1 id="errorTitle" data-i18n="error.500_title">Bir şeyler ters gitti</h1>
+        <p data-i18n="error.500_text">Beklenmeyen bir hata oluştu. Sayfayı yenileyip tekrar deneyin; sorun sürerse SafePass'i yeniden başlatın.</p>
+        {% endif %}
+
+        <div class="error-actions">
+            <button type="button" class="btn btn-secondary" data-history-back data-i18n="error.back">Geri git</button>
+            <a href="/" class="btn btn-primary" data-i18n="error.home">Ana sayfaya dön</a>
+        </div>
+    </section>
+</main>
+{% endblock %}

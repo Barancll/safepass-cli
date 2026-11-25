@@ -1,17 +1,25 @@
+import re
+from pathlib import Path
+
 from setuptools import setup, find_packages
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
+# Single source of truth: safepass/__init__.py
+version = re.search(
+    r'^__version__ = "([^"]+)"', Path("safepass/__init__.py").read_text(encoding="utf-8"), re.M
+).group(1)
+
 setup(
     name="safepass-cli",
-    version="1.2.4",
+    version=version,
     author="Baran Celal Tonyalı",
     author_email="tonyalibarancelal@gmail.com",
     description="Offline password manager with strong encryption",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/barancll/safepass",
+    url="https://github.com/Barancll/safepass-cli",
     packages=find_packages(),
     classifiers=[
         "Development Status :: 4 - Beta",
@@ -26,9 +34,8 @@ setup(
     ],
     python_requires=">=3.10",
     install_requires=[
-        "Django>=5.1,<5.2",
-        "cryptography>=41.0.0",
-        "django-cors-headers>=4.7.0",
+        "Django>=5.2,<5.3",
+        "cryptography>=44.0.0",
     ],
     entry_points={
         "console_scripts": [

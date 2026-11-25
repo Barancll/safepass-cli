@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title_key %}defs.title{% endblock %}
+{% block title %}Tanımlar - SafePass{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/components/sidebar.css' %}?v={{ APP_VERSION }}-act1">
+<link rel="stylesheet" href="{% static 'css/components/layout.css' %}?v={{ APP_VERSION }}-act1">
+<link rel="stylesheet" href="{% static 'css/components/buttons.css' %}?v={{ APP_VERSION }}-act1">
+<link rel="stylesheet" href="{% static 'css/components/definitions.css' %}?v={{ APP_VERSION }}-act1">
+{% endblock %}
+
+{% block body_class %}with-sidebar{% endblock %}
+
+{% block content %}
+{% include "partials/sidebar.html" with page_subtitle_key="defs.subtitle" page_subtitle="Kategorileri, alt kategorileri ve yeni kart sayfasındaki servisleri düzenle." %}
+
+<main class="main-content">
+    <div class="page-header defs-header">
+        <div class="defs-tabs" role="tablist" aria-label="Tanımlar" data-i18n-aria-label="defs.title">
+            <button type="button" role="tab" id="defsTabCategories" aria-controls="defsCategories" aria-selected="true">
+                <span data-i18n="defs.tab_categories">Kategoriler</span>
+            </button>
+            <button type="button" role="tab" id="defsTabServices" aria-controls="defsServices" aria-selected="false" tabindex="-1">
+                <span data-i18n="defs.tab_services">Servisler</span>
+            </button>
+        </div>
+        <button type="button" class="btn btn-primary" id="defsAddBtn">
+            <span aria-hidden="true">+</span> <span id="defsAddLabel" data-i18n="defs.add_category">Ana kategori ekle</span>
+        </button>
+    </div>
+
+    {# Filled by definitions.js from the JSON below #}
+    <section id="defsCategories" role="tabpanel" aria-labelledby="defsTabCategories" class="defs-category-grid"></section>
+    <section id="defsServices" role="tabpanel" aria-labelledby="defsTabServices" class="defs-service-grid" hidden></section>
+</main>
+
+{# Editor for a category or a service #}
+<div class="defs-modal" id="defsModal" hidden>
+    <div class="defs-modal-backdrop" data-close></div>
+    <form class="defs-modal-card" id="defsForm" role="dialog" aria-modal="true" aria-labelledby="defsModalTitle" novalidate>
+        <header class="defs-modal-head">
+            <h2 id="defsModalTitle"></h2>
+            <button type="button" class="defs-icon-btn" data-close aria-label="Kapat" data-i18n-aria-label="common.close">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </header>
+
+        <div class="defs-preview" id="defsPreview" aria-hidden="true">
+            <span class="defs-preview-icon" id="defsPreviewIcon"></span>
+            <span class="defs-preview-name" id="defsPreviewName"></span>
+        </div>
+
+        <label class="defs-field">
+            <span data-i18n="defs.field_name">Ad</span>
+            <input type="text" id="defsName" maxlength="60" autocomplete="off" required>
+            <small class="defs-hint" id="defsNameHint" hidden data-i18n="defs.builtin_name_hint">Boş bırakırsan varsayılan adı kullanılır (dile göre çevrilir).</small>
+        </label>
+
+        <label class="defs-field" data-only="service">
+            <span data-i18n="defs.field_url">Web adresi</span>
+            <input type="text" id="defsUrl" maxlength="200" autocomplete="off" placeholder="https://ornek.com" data-i18n-placeholder="form.url_placeholder">
+        </label>
+
+        <label class="defs-field" data-only="service">
+            <span data-i18n="defs.field_category">Seçilince kategori</span>
+            <select id="defsServiceCategory"></select>
+        </label>
+
+        <fieldset class="defs-field" data-only="main">
+            <legend data-i18n="defs.field_color">Renk</legend>
+            <div class="defs-swatches" id="defsSwatches">
+                {% for color in swatches %}
+                <button type="button" class="defs-swatch" data-color="{{ color }}" style="--swatch: {{ color }}" aria-label="{{ color }}"></button>
+                {% endfor %}
+                <label class="defs-swatch defs-swatch-custom" title="Özel renk" data-i18n-title="defs.custom_color">
+                    <input type="color" id="defsColorCustom" value="#a855f7" aria-label="Özel renk" data-i18n-aria-label="defs.custom_color">
+                </label>
+            </div>
+        </fieldset>
+
+        <fieldset class="defs-field">
+            <legend data-i18n="defs.field_icon">İkon</legend>
+            <div class="defs-icon-tabs" id="defsIconTabs" data-only="service">
+                <button type="button" data-set="brand" aria-pressed="true" data-i18n="defs.icons_brand">Markalar</button>
+                <button type="button" data-set="line" aria-pressed="false" data-i18n="defs.icons_line">Simgeler</button>
+            </div>
+            <div class="defs-icon-grid" id="defsIconGrid" role="listbox" aria-label="İkon" data-i18n-aria-label="defs.field_icon"></div>
+        </fieldset>
+
+        <p class="defs-error" id="defsError" role="alert" hidden></p>
+
+        <footer class="defs-modal-foot">
+            <button type="button" class="btn btn-secondary" data-close data-i18n="common.cancel">İptal</button>
+            <button type="submit" class="btn btn-primary" id="defsSave" data-i18n="common.save">Kaydet</button>
+        </footer>
+    </form>
+</div>
+
+{{ category_tree|json_script:"defsCategoriesData" }}
+{{ services|json_script:"defsServicesData" }}
+{{ icon_catalog|json_script:"defsIconCatalog" }}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/modules/definitions.js' %}?v={{ APP_VERSION }}-act1"></script>
+{% endblock %}

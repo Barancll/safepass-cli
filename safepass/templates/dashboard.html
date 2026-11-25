@@ -1,13 +1,14 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Dashboard - SafePass{% endblock %}
+{% block title_key %}dashboard.title{% endblock %}
+{% block title %}Gösterge Paneli - SafePass{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/components/sidebar.css' %}?v={{ APP_VERSION }}">
-<link rel="stylesheet" href="{% static 'css/components/dashboard.css' %}?v={{ APP_VERSION }}">
-<link rel="stylesheet" href="{% static 'css/components/buttons.css' %}?v={{ APP_VERSION }}">
-<link rel="stylesheet" href="{% static 'css/components/forms.css' %}?v={{ APP_VERSION }}">
+<link rel="stylesheet" href="{% static 'css/components/sidebar.css' %}?v={{ APP_VERSION }}-act1">
+<link rel="stylesheet" href="{% static 'css/components/dashboard.css' %}?v={{ APP_VERSION }}-act1">
+<link rel="stylesheet" href="{% static 'css/components/buttons.css' %}?v={{ APP_VERSION }}-act1">
+<link rel="stylesheet" href="{% static 'css/components/forms.css' %}?v={{ APP_VERSION }}-act1">
 {% endblock %}
 
 {% block body_class %}with-sidebar{% endblock %}
@@ -16,112 +17,267 @@
 {% include "partials/sidebar.html" %}
 
 <!-- Main Content -->
-<main class="main-content">
-    <div class="page-header">
-        <h1>📈 Dashboard</h1>
-        <p>Güvenlik seviyenizin anlık özeti.</p>
-    </div>
-    
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-icon">🔑</div>
-            <div class="stat-content">
-                <div class="stat-value">{{ stats.total_cards }}</div>
-                <div class="stat-label">Toplam Şifre</div>
-            </div>
+<main class="main-content dashboard">
+    <!-- One of 20 security tips; a different one on every visit (dashboard.js) -->
+    <section class="tip-banner lokki-host" id="spTipBanner" aria-live="polite" data-tip-count="20">
+        <span class="tip-icon tip-mascot" aria-hidden="true">{% include "partials/mascot.html" with uid="dash" %}</span>
+        <div class="tip-body">
+            <h1 class="tip-heading"><span data-i18n="tips.series_lokki">Lokki'nin güvenlik ipuçları</span>
+                <span class="tip-counter" id="spTipCounter">1 / 20</span></h1>
+            <p class="tip-line">
+                <strong class="tip-title" id="spTipTitle" data-i18n="tips.1.title">Uzun parolalar kullan</strong>
+                <span class="tip-sep" aria-hidden="true">—</span>
+                <span class="tip-text" id="spTipText" data-i18n="tips.1.text">En az 14–16 karakter seç; uzunluk tahmin etmeyi zorlaştırır.</span>
+            </p>
         </div>
-        
+        <button type="button" class="tip-next" id="spTipNext" title="Sonraki ipucu" aria-label="Sonraki ipucu" data-i18n-title="tips.next" data-i18n-aria-label="tips.next">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+    </section>
+
+    <!-- KPI row -->
+    <section class="stats-grid" aria-label="Özet" data-i18n-aria-label="dashboard.summary">
+        <a class="stat-card stat-total" href="/passwords">
+            <span class="stat-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+            </span>
+            <span class="stat-content">
+                <span class="stat-value" data-count="{{ stats.total_cards }}">{{ stats.total_cards }}</span>
+                <span class="stat-label" data-i18n="dashboard.total">Toplam Şifre</span>
+                <span class="stat-caption" data-i18n="dashboard.in_trash" data-i18n-params='{"n": {{ stats.trash_count }}}'>{{ stats.trash_count }} çöp kutusunda</span>
+            </span>
+        </a>
+
         <div class="stat-card stat-success">
-            <div class="stat-icon">🛡️</div>
-            <div class="stat-content">
-                <div class="stat-value">{{ stats.strong_count }}</div>
-                <div class="stat-label">Güçlü Şifre</div>
-            </div>
+            <span class="stat-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+            </span>
+            <span class="stat-content">
+                <span class="stat-value" data-count="{{ stats.strong_count }}">{{ stats.strong_count }}</span>
+                <span class="stat-label" data-i18n="dashboard.strong">Güçlü Şifre</span>
+                <span class="stat-caption" data-i18n="dashboard.share" data-i18n-params='{"p": {{ stats.strong_pct }}}'>Oran: %{{ stats.strong_pct }}</span>
+            </span>
         </div>
-        
+
         <div class="stat-card stat-warning">
-            <div class="stat-icon">⚠️</div>
-            <div class="stat-content">
-                <div class="stat-value">{{ stats.medium_count }}</div>
-                <div class="stat-label">Orta Şifre</div>
-            </div>
+            <span class="stat-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </span>
+            <span class="stat-content">
+                <span class="stat-value" data-count="{{ stats.medium_count }}">{{ stats.medium_count }}</span>
+                <span class="stat-label" data-i18n="dashboard.medium">Orta Şifre</span>
+                <span class="stat-caption" data-i18n="dashboard.share" data-i18n-params='{"p": {{ stats.medium_pct }}}'>Oran: %{{ stats.medium_pct }}</span>
+            </span>
         </div>
-        
+
         <div class="stat-card stat-danger">
-            <div class="stat-icon">🔴</div>
-            <div class="stat-content">
-                <div class="stat-value">{{ stats.weak_count }}</div>
-                <div class="stat-label">Zayıf Şifre</div>
-            </div>
+            <span class="stat-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            </span>
+            <span class="stat-content">
+                <span class="stat-value" data-count="{{ stats.weak_count }}">{{ stats.weak_count }}</span>
+                <span class="stat-label" data-i18n="dashboard.weak">Zayıf Şifre</span>
+                <span class="stat-caption" data-i18n="dashboard.share" data-i18n-params='{"p": {{ stats.weak_pct }}}'>Oran: %{{ stats.weak_pct }}</span>
+            </span>
         </div>
-        
+
         <div class="stat-card stat-duplicate">
-            <div class="stat-icon">🔁</div>
-            <div class="stat-content">
-                <div class="stat-value">{{ stats.duplicate_count }}</div>
-                <div class="stat-label">Tekrar Eden</div>
-            </div>
+            <span class="stat-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </span>
+            <span class="stat-content">
+                <span class="stat-value" data-count="{{ stats.duplicate_card_count }}">{{ stats.duplicate_card_count }}</span>
+                <span class="stat-label" data-i18n="dashboard.duplicate">Tekrar Eden</span>
+                <span class="stat-caption" data-i18n="dashboard.groups" data-i18n-params='{"n": {{ stats.duplicate_count }}}'>{{ stats.duplicate_count }} ortak şifre</span>
+            </span>
         </div>
-    </div>
-    
-    <div class="dashboard-sections">
-        <div class="section">
-            <h2>🔒 Güvenlik Skoru</h2>
+
+        <div class="stat-card stat-stale">
+            <span class="stat-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </span>
+            <span class="stat-content">
+                <span class="stat-value" data-count="{{ stats.stale_count }}">{{ stats.stale_count }}</span>
+                <span class="stat-label" data-i18n="dashboard.stale">Eskiyen Şifre</span>
+                {% if stats.stale_days %}
+                <span class="stat-caption" data-i18n="dashboard.stale_hint" data-i18n-params='{"days": {{ stats.stale_days }}}'>{{ stats.stale_days }}+ gündür değişmedi</span>
+                {% else %}
+                <a class="stat-caption" href="/settings" data-i18n="dashboard.stale_off">Hatırlatma kapalı</a>
+                {% endif %}
+            </span>
+        </div>
+    </section>
+
+    <!-- Score · health · categories -->
+    <section class="dashboard-row dashboard-row-3">
+        <div class="section score-section">
+            <h2 data-i18n="dashboard.security_score">Güvenlik Skoru</h2>
             <div class="security-score">
-                <div class="score-circle" data-score="{{ stats.security_score }}">
+                <div class="score-circle" data-score="{{ stats.security_score }}" role="img"
+                     aria-label="{{ stats.security_score }}/100" style="--score: {{ stats.security_score }}">
+                    <!-- Water level = score; two waves drift across the surface, bubbles rise inside -->
+                    <svg class="score-liquid" viewBox="0 0 200 200" aria-hidden="true" focusable="false">
+                        <defs>
+                            <clipPath id="spScoreBowl"><circle cx="100" cy="100" r="86"></circle></clipPath>
+                        </defs>
+                        <circle class="liquid-bowl" cx="100" cy="100" r="86"></circle>
+                        <g clip-path="url(#spScoreBowl)">
+                            <g class="liquid-level">
+                                <path class="liquid-wave liquid-wave-back" d="M0 4 Q25 -6 50 4 T100 4 T150 4 T200 4 T250 4 T300 4 T350 4 T400 4 V230 H0 Z"></path>
+                                <path class="liquid-wave liquid-wave-front" d="M0 0 Q25 10 50 0 T100 0 T150 0 T200 0 T250 0 T300 0 T350 0 T400 0 V230 H0 Z"></path>
+                                <circle class="liquid-bubble" cx="62" cy="150" r="3.5"></circle>
+                                <circle class="liquid-bubble" cx="118" cy="170" r="2.5"></circle>
+                                <circle class="liquid-bubble" cx="142" cy="140" r="4"></circle>
+                            </g>
+                        </g>
+                        <circle class="liquid-rim" cx="100" cy="100" r="94"></circle>
+                    </svg>
                     <span class="score-value">{{ stats.security_score }}</span>
                     <span class="score-max">/100</span>
                 </div>
-                <p class="score-label">{{ stats.security_label }}</p>
+                <p class="score-label"></p>
             </div>
         </div>
-        
-        <div class="section">
-            <h2>📋 Son Eklenenler</h2>
+
+        <div class="section health-section">
+            <h2 data-i18n="dashboard.health">Şifre Sağlığı</h2>
+            {% if stats.total_cards %}
+            <div class="health-bar" role="img" aria-label="{{ stats.strong_count }} / {{ stats.medium_count }} / {{ stats.weak_count }}">
+                {% if stats.strong_count %}<span class="health-seg seg-strong" style="flex-grow: {{ stats.strong_count }}" data-tip-key="dashboard.strong" data-tip-count="{{ stats.strong_count }}" data-tip-pct="{{ stats.strong_pct }}"></span>{% endif %}
+                {% if stats.medium_count %}<span class="health-seg seg-medium" style="flex-grow: {{ stats.medium_count }}" data-tip-key="dashboard.medium" data-tip-count="{{ stats.medium_count }}" data-tip-pct="{{ stats.medium_pct }}"></span>{% endif %}
+                {% if stats.weak_count %}<span class="health-seg seg-weak" style="flex-grow: {{ stats.weak_count }}" data-tip-key="dashboard.weak" data-tip-count="{{ stats.weak_count }}" data-tip-pct="{{ stats.weak_pct }}"></span>{% endif %}
+            </div>
+            <ul class="health-legend">
+                <li><span class="legend-dot seg-strong" aria-hidden="true"></span><span data-i18n="dashboard.strong">Güçlü Şifre</span><b>{{ stats.strong_count }}</b><em>%{{ stats.strong_pct }}</em></li>
+                <li><span class="legend-dot seg-medium" aria-hidden="true"></span><span data-i18n="dashboard.medium">Orta Şifre</span><b>{{ stats.medium_count }}</b><em>%{{ stats.medium_pct }}</em></li>
+                <li><span class="legend-dot seg-weak" aria-hidden="true"></span><span data-i18n="dashboard.weak">Zayıf Şifre</span><b>{{ stats.weak_count }}</b><em>%{{ stats.weak_pct }}</em></li>
+            </ul>
+            <dl class="health-facts">
+                <div><dt data-i18n="dashboard.avg_length">Ortalama uzunluk</dt><dd data-i18n="dashboard.chars" data-i18n-params='{"n": "{{ stats.average_length }}"}'>{{ stats.average_length }} karakter</dd></div>
+                <div><dt data-i18n="dashboard.in_trash_label">Çöp kutusunda</dt><dd><a href="/trash">{{ stats.trash_count }}</a></dd></div>
+                {% if stats.unreadable_count %}<div><dt data-i18n="dashboard.unreadable">Okunamayan</dt><dd>{{ stats.unreadable_count }}</dd></div>{% endif %}
+            </dl>
+            {% else %}
+            <p class="text-muted" data-i18n="dashboard.no_cards">Henüz şifre kartı eklenmemiş</p>
+            {% endif %}
+        </div>
+
+        <div class="section category-section">
+            <h2 data-i18n="dashboard.categories">Kategoriler</h2>
+            <!-- One tube per category; water level = its share of all passwords -->
+            <ul class="category-vials">
+                {% for cat in stats.categories %}
+                <li class="vial" style="--level: {{ cat.pct }}" data-tip-key="cat.{{ cat.key }}" data-tip-count="{{ cat.count }}" data-tip-pct="{{ cat.pct }}">
+                    <span class="vial-count">{{ cat.count }}</span>
+                    <svg class="vial-glass" viewBox="0 0 60 150" aria-hidden="true" focusable="false">
+                        <defs>
+                            <clipPath id="spVial{{ forloop.counter }}"><rect x="8" y="6" width="44" height="138" rx="20"></rect></clipPath>
+                        </defs>
+                        <rect class="vial-tube" x="8" y="6" width="44" height="138" rx="20"></rect>
+                        <g clip-path="url(#spVial{{ forloop.counter }})">
+                            <g class="vial-level">
+                                <path class="liquid-wave liquid-wave-back" d="M0 3 Q7.5 -2 15 3 T30 3 T45 3 T60 3 T75 3 T90 3 T105 3 T120 3 V170 H0 Z"></path>
+                                <path class="liquid-wave liquid-wave-front" d="M0 0 Q7.5 5 15 0 T30 0 T45 0 T60 0 T75 0 T90 0 T105 0 T120 0 V170 H0 Z"></path>
+                                <circle class="liquid-bubble" cx="24" cy="120" r="2.2"></circle>
+                                <circle class="liquid-bubble" cx="38" cy="132" r="1.6"></circle>
+                            </g>
+                        </g>
+                        <rect class="vial-shine" x="15" y="16" width="5" height="96" rx="2.5"></rect>
+                        <rect class="vial-rim" x="8" y="6" width="44" height="138" rx="20"></rect>
+                    </svg>
+                    <span class="vial-name" data-i18n="cat.{{ cat.key }}">{{ cat.key }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </section>
+
+    <!-- Attention · recent · paused -->
+    <section class="dashboard-row dashboard-row-2">
+        <div class="section attention-section">
+            <div class="section-head">
+                <h2 data-i18n="dashboard.attention">Dikkat Gerektirenler</h2>
+                {% if stats.attention_total %}<span class="section-badge">{{ stats.attention_total }}</span>{% endif %}
+            </div>
+            {% if stats.attention %}
+            <ul class="attention-list">
+                {% for item in stats.attention %}
+                <li>
+                    <a href="/passwords/{{ item.id }}/edit" class="attention-item">
+                        <span class="attention-name" data-sp-card="{{ item.id }}" data-sp-field="app_name"></span>
+                        <span class="attention-reasons">
+                            {% for reason in item.reasons %}<span class="reason-chip reason-{{ reason }}" data-i18n="dashboard.reason_{{ reason }}">{{ reason }}</span>{% endfor %}
+                        </span>
+                        <svg class="attention-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+            {% if stats.attention_more %}
+            <a class="section-more" href="/passwords" data-i18n="dashboard.attention_more" data-i18n-params='{"n": {{ stats.attention_more }}}'>+{{ stats.attention_more }} kayıt daha</a>
+            {% endif %}
+            {% else %}
+            <div class="attention-empty">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+                <p data-i18n="dashboard.attention_empty">Harika! İlgilenmeniz gereken şifre yok.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="section recent-section">
+            <div class="section-head">
+                <h2 data-i18n="dashboard.recent">Son Eklenenler</h2>
+                <a class="section-more" href="/passwords" data-i18n="dashboard.view_all">Tümünü gör</a>
+            </div>
             <div class="recent-cards">
                 {% for card in recent_cards %}
                 <a href="/passwords/{{ card.id }}/edit" class="card-item card-link">
-                    <div class="card-icon">🔐</div>
-                    <div class="card-info">
-                        <div class="card-name">{{ card.app_name }}</div>
-                        <div class="card-username">{{ card.username }}</div>
-                    </div>
-                    <div class="card-date">{{ card.created_at|date:"d.m.Y" }}</div>
+                    <span class="card-icon" aria-hidden="true" data-sp-card="{{ card.id }}" data-sp-field="initial"></span>
+                    <span class="card-info">
+                        <span class="card-name" data-sp-card="{{ card.id }}" data-sp-field="app_name"></span>
+                        {# Only the user's own title is shown; the username never reaches the page (fixed-length mask) #}
+                        <span class="card-username" aria-hidden="true">••••••••</span>
+                    </span>
+                    <span class="card-date">{{ card.created_at|date:"d.m.Y" }}</span>
                 </a>
                 {% empty %}
-                <p class="text-muted">Henüz şifre kartı eklenmemiş</p>
+                <p class="text-muted" data-i18n="dashboard.no_cards">Henüz şifre kartı eklenmemiş</p>
                 {% endfor %}
             </div>
         </div>
-    </div>
-    
-    {% if stats.duplicate_count > 0 %}
-    <div class="warning-section">
-        <h2>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-                <line x1="12" y1="9" x2="12" y2="13"></line>
-                <line x1="12" y1="17" x2="12.01" y2="17"></line>
-            </svg>
-            Tekrar Eden Şifreler
-        </h2>
-        <p class="warning-text">Aynı şifre birden fazla hesapta kullanılıyor. Güvenlik riski!</p>
-        <div class="duplicate-list">
-            {% for dup in stats.duplicate_passwords %}
-            <div class="duplicate-item">
-                <div class="duplicate-icon">🔁</div>
-                <div class="duplicate-info">
-                    <div class="duplicate-apps">{{ dup.apps|join:", " }}</div>
-                    <div class="duplicate-count">{{ dup.apps|length }} hesapta aynı şifre</div>
-                </div>
+
+        {# Paused cards: left out of the figures above; resume them from here #}
+        <div class="section paused-section">
+            <div class="section-head">
+                <h2 data-i18n="dashboard.paused">Pasif Kayıtlar</h2>
+                {% if stats.paused_count %}<span class="section-badge section-badge-muted">{{ stats.paused_count }}</span>{% endif %}
             </div>
-            {% endfor %}
+            {% if stats.paused %}
+            <p class="paused-note" data-i18n="dashboard.paused_note">Skora ve hatırlatmalara katılmıyorlar.</p>
+            <ul class="attention-list">
+                {% for item in stats.paused %}
+                <li class="paused-item">
+                    <a href="/passwords/{{ item.id }}/edit" class="paused-name" data-sp-card="{{ item.id }}" data-sp-field="app_name"></a>
+                    <button type="button" class="paused-resume" data-resume="{{ item.id }}" data-i18n="vault.resume">Aktif et</button>
+                </li>
+                {% endfor %}
+            </ul>
+            {% if stats.paused_more %}
+            <a class="section-more" href="/passwords" data-i18n="dashboard.attention_more" data-i18n-params='{"n": {{ stats.paused_more }}}'>+{{ stats.paused_more }} kayıt daha</a>
+            {% endif %}
+            {% else %}
+            <div class="attention-empty paused-empty">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
+                <p data-i18n="dashboard.paused_empty">Pasif kayıt yok. Bir süre kullanmayacağın hesapları Şifrelerim'den pasife alabilirsin.</p>
+            </div>
+            {% endif %}
         </div>
-    </div>
-    {% endif %}
+    </section>
+
+    <div class="sp-chart-tooltip" id="spChartTooltip" role="tooltip" hidden></div>
 </main>
 {% endblock %}
 
 {% block extra_js %}
-<script src="/static/js/modules/dashboard.js"></script>
+<script src="{% static 'js/modules/dashboard.js' %}?v={{ APP_VERSION }}-act1"></script>
 {% endblock %}

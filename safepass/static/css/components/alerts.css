@@ -40,7 +40,348 @@
 }
 
 .alert-info {
-    background: rgba(99, 102, 241, 0.1);
-    border: 1px solid rgba(99, 102, 241, 0.3);
-    color: #a5b4fc;
+    background: rgba(var(--sp-primary-rgb), 0.1);
+    border: 1px solid rgba(var(--sp-primary-rgb), 0.3);
+    color: var(--sp-primary);
+}
+
+/* ── Floating toast (showAlert) ──────────────────────────────
+   Opaque card surface so text stays readable over any content;
+   the coloured left bar carries the type. Sits under the topbar. */
+.alert.alert-toast {
+    position: fixed;
+    top: calc(var(--sp-topbar-height, 64px) + 0.75rem);
+    right: 1.5rem;
+    z-index: 1000;
+    max-width: 380px;
+    padding: 0.85rem 1.1rem 0.85rem 1rem;
+    border: 1px solid var(--sp-border);
+    border-left: 4px solid var(--toast-accent, var(--sp-primary));
+    border-radius: 10px;
+    background: var(--sp-bg-dropdown);
+    color: var(--sp-text-heading);
+    font-weight: 500;
+    box-shadow: var(--sp-shadow-xl);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.alert.alert-toast.alert-success { --toast-accent: var(--sp-success); }
+.alert.alert-toast.alert-error   { --toast-accent: var(--sp-danger); }
+.alert.alert-toast.alert-warning { --toast-accent: var(--sp-warning); }
+.alert.alert-toast.alert-info    { --toast-accent: var(--sp-primary); }
+
+.alert.alert-toast-leaving {
+    opacity: 0;
+    transform: translateY(-6px);
+}
+
+/* Light theme: the tinted inline alerts used pastel text meant for dark backgrounds */
+[data-theme="light"] .alert-success { color: #047857; }
+[data-theme="light"] .alert-error   { color: #b91c1c; }
+[data-theme="light"] .alert-warning { color: #b45309; }
+[data-theme="light"] .alert-info    { color: var(--sp-primary-hover); }
+
+[data-theme="light"] .alert.alert-toast { color: var(--sp-text-heading); }
+
+@media (prefers-reduced-motion: reduce) {
+    .alert.alert-toast { transition: none; }
+}
+
+/* ── Session timeout dialog ─────────────────────────────────── */
+.sp-session-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: grid;
+    place-items: center;
+    padding: 1.5rem;
+    background: var(--sp-bg-modal-overlay);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+.sp-session-modal[hidden] {
+    display: none;
+}
+
+.sp-session-dialog {
+    width: min(100%, 400px);
+    padding: 1.75rem;
+    border: 1px solid var(--sp-border);
+    border-radius: var(--sp-radius-xl);
+    background: var(--sp-bg-card);
+    box-shadow: var(--sp-shadow-xl);
+    text-align: center;
+    animation: slideIn 0.2s ease;
+}
+
+.sp-session-icon {
+    display: grid;
+    width: 52px;
+    height: 52px;
+    margin: 0 auto 1rem;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--sp-primary-light);
+    color: var(--sp-primary);
+}
+
+.sp-session-icon svg {
+    width: 26px;
+    height: 26px;
+}
+
+.sp-session-dialog h2 {
+    margin: 0 0 0.5rem;
+    color: var(--sp-text-heading);
+    font-size: 1.15rem;
+}
+
+.sp-session-dialog p {
+    margin: 0 0 1.5rem;
+    color: var(--sp-text-secondary);
+    font-size: 0.92rem;
+    line-height: 1.55;
+    font-variant-numeric: tabular-nums;
+}
+
+.sp-session-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.sp-session-actions .btn {
+    flex: 1;
+    justify-content: center;
+}
+
+.auth-session-notice {
+    margin-bottom: 1.25rem;
+    font-size: 0.85rem;
+    line-height: 1.45;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sp-session-dialog { animation: none; }
+}
+
+/* Confirm dialog (SafePassDialog): red accent for destructive actions */
+.sp-confirm-modal.is-danger .sp-session-icon {
+    background: var(--sp-danger-light);
+    color: var(--sp-danger);
+}
+
+/* Dialog fields (SafePassDialog fields: […]) */
+.sp-dialog-fields {
+    display: grid;
+    gap: 0.9rem;
+    margin: 0 0 1.25rem;
+    text-align: left;
+}
+
+.sp-dialog-fields[hidden] {
+    display: none;
+}
+
+.sp-dialog-field label {
+    display: block;
+    margin-bottom: 0.4rem;
+    color: var(--sp-text-heading);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.sp-dialog-input {
+    position: relative;
+}
+
+.sp-dialog-input input {
+    width: 100%;
+    padding: 0.7rem 0.9rem;
+    border: 1px solid rgba(var(--sp-primary-rgb), 0.45);
+    border-radius: 10px;
+    background: var(--sp-bg-input);
+    color: var(--sp-text-primary);
+    font: inherit;
+    font-size: 0.92rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sp-dialog-input input[type="password"],
+.sp-dialog-input:has(.sp-dialog-eye) input {
+    padding-right: 2.75rem;
+}
+
+.sp-dialog-input input:focus {
+    outline: none;
+    border-color: var(--sp-primary);
+    box-shadow: 0 0 0 3px rgba(var(--sp-primary-rgb), 0.2);
+}
+
+.sp-dialog-eye {
+    position: absolute;
+    top: 50%;
+    right: 0.5rem;
+    display: grid;
+    width: 32px;
+    height: 32px;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--sp-text-muted);
+    cursor: pointer;
+    transform: translateY(-50%);
+}
+
+.sp-dialog-eye:hover,
+.sp-dialog-eye.is-on {
+    color: var(--sp-primary);
+}
+
+.sp-dialog-eye:focus-visible {
+    outline: 2px solid var(--sp-primary);
+    outline-offset: 1px;
+}
+
+.sp-dialog-eye svg {
+    width: 18px;
+    height: 18px;
+}
+
+.sp-session-dialog .sp-dialog-error {
+    margin: -0.5rem 0 1.1rem;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid rgba(239, 68, 68, 0.55);
+    border-radius: 10px;
+    background: rgba(239, 68, 68, 0.12);
+    color: var(--sp-danger);
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-align: left;
+}
+
+.sp-session-dialog .sp-dialog-error[hidden],
+.sp-session-dialog p[hidden] {
+    display: none;
+}
+
+.sp-session-actions .btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.sp-session-actions .btn.is-loading {
+    gap: 0.55rem;
+    cursor: progress;
+    opacity: 0.85;
+}
+
+.sp-session-actions .btn.is-loading::before {
+    content: "";
+    width: 14px;
+    height: 14px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: sp-dialog-spin 0.7s linear infinite;
+}
+
+@keyframes sp-dialog-spin {
+    to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sp-session-actions .btn.is-loading::before { animation-duration: 2s; }
+}
+
+/* Recovery key dialog (SafePassRecovery in app.js) */
+.sp-recovery-code {
+    display: block;
+    margin: 0.5rem 0 0.75rem;
+    padding: 0.75rem;
+    border: 1px dashed var(--sp-border-active);
+    border-radius: 10px;
+    background: var(--sp-bg-input);
+    color: var(--sp-text-heading);
+    font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+    font-size: 0.92rem;
+    font-weight: 700;
+    line-height: 1.6;
+    text-align: center;
+    overflow-wrap: anywhere;
+    user-select: all;
+}
+
+.sp-recovery-tools {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+
+.sp-recovery-tool {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--sp-border);
+    border-radius: 10px;
+    background: none;
+    color: var(--sp-primary);
+    cursor: pointer;
+    transition: border-color var(--sp-transition), background var(--sp-transition);
+}
+
+.sp-recovery-tool:hover {
+    border-color: var(--sp-primary);
+    background: rgba(var(--sp-primary-rgb), 0.1);
+}
+
+.sp-recovery-tool:focus-visible {
+    outline: 2px solid var(--sp-primary);
+    outline-offset: 2px;
+}
+
+.sp-recovery-check {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    margin-bottom: 1.25rem;
+    color: var(--sp-text-primary);
+    font-size: 0.875rem;
+    text-align: left;
+    cursor: pointer;
+}
+
+.sp-recovery-check input {
+    flex: none;
+    margin-top: 0.2rem;
+    accent-color: var(--sp-primary);
+}
+
+/* Session over with the server out of reach (app.js lockScreen) */
+.sp-lock-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    width: 100%;
+    min-height: 100vh;
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.sp-lock-screen h1 {
+    margin: 0;
+    color: var(--sp-text-heading);
+    font-size: 1.5rem;
+}
+
+.sp-lock-screen p {
+    max-width: 30rem;
+    margin: 0;
+    color: var(--sp-text-secondary);
 }

@@ -1,0 +1,3 @@
+{# <option>s for the main-category select, from the user's definitions; selected = slug to preselect #}
+{% for main in category_tree %}<option value="{{ main.slug }}"{% if main.slug == selected %} selected{% endif %}{% if main.label_key %} data-i18n="{{ main.label_key }}"{% endif %}>{{ main.name }}</option>
+{% endfor %}

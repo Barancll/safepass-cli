@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title_key %}settings.page_title{% endblock %}
+{% block title %}Ayarlar - SafePass{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/components/sidebar.css' %}?v={{ APP_VERSION }}-act1">
+<link rel="stylesheet" href="{% static 'css/components/layout.css' %}?v={{ APP_VERSION }}-act1">
+<link rel="stylesheet" href="{% static 'css/components/profile.css' %}?v={{ APP_VERSION }}-pic1">
+<link rel="stylesheet" href="{% static 'css/components/picture.css' %}?v={{ APP_VERSION }}-pic2">
+<link rel="stylesheet" href="{% static 'css/components/forms.css' %}?v={{ APP_VERSION }}-act1">
+<link rel="stylesheet" href="{% static 'css/components/buttons.css' %}?v={{ APP_VERSION }}-act1">
+{% endblock %}
+
+{% block body_class %}with-sidebar{% endblock %}
+
+{% block content %}
+{% include "partials/sidebar.html" with page_subtitle_key="settings.page_subtitle" page_subtitle="Oturum ve güvenlik tercihlerinizi yönetin." %}
+
+<div class="main-content">
+
+    <div class="profile-container">
+        <section class="settings-section" aria-labelledby="sessionSettingsTitle">
+            <h3 id="sessionSettingsTitle">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                <span data-i18n="settings.session_section">Oturum Güvenliği</span>
+            </h3>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <h4><label for="sessionTimeoutSelect" data-i18n="settings.session_timeout_label">Otomatik çıkış süresi</label></h4>
+                    <p id="sessionTimeoutHelp" data-i18n="settings.session_timeout_help">Bu süre boyunca işlem yapmazsanız oturumunuz kapanır ve şifreleme anahtarınız bellekten silinir.</p>
+                </div>
+                <select id="sessionTimeoutSelect" class="form-select-modern settings-select" data-setting="session_timeout_minutes" aria-describedby="sessionTimeoutHelp">
+                    {% for minutes in timeout_choices %}
+                    <option value="{{ minutes }}" data-i18n="settings.timeout_{{ minutes }}" {% if minutes == user.session_timeout_minutes %}selected{% endif %}>{{ minutes }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <h4 data-i18n="settings.browser_close_label">Tarayıcı kapanınca çıkış</h4>
+                    <p data-i18n="settings.browser_close_help">Tarayıcıyı kapattığınızda oturumunuz her zaman sonlanır.</p>
+                </div>
+                <span class="settings-badge" data-i18n="settings.always_on">Her zaman açık</span>
+            </div>
+        </section>
+
+        <section class="settings-section" aria-labelledby="clipboardSettingsTitle">
+            <h3 id="clipboardSettingsTitle">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                </svg>
+                <span data-i18n="settings.clipboard_section">Pano</span>
+            </h3>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <h4><label for="clipboardClearSelect" data-i18n="settings.clipboard_label">Panoyu otomatik temizle</label></h4>
+                    <p id="clipboardClearHelp" data-i18n="settings.clipboard_help">Kopyaladığınız şifre bu süre sonunda panodan silinir.</p>
+                </div>
+                <select id="clipboardClearSelect" class="form-select-modern settings-select" data-setting="clipboard_clear_seconds" aria-describedby="clipboardClearHelp">
+                    {% for seconds in clipboard_choices %}
+                    <option value="{{ seconds }}" data-i18n="settings.clipboard_{{ seconds }}" {% if seconds == user.clipboard_clear_seconds %}selected{% endif %}>{{ seconds }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </section>
+
+        <section class="settings-section" aria-labelledby="ageSettingsTitle">
+            <h3 id="ageSettingsTitle">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                <span data-i18n="settings.age_section">Şifre Hatırlatmaları</span>
+            </h3>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <h4><label for="maxAgeSelect" data-i18n="settings.age_label">Şifre değiştirme hatırlatması</label></h4>
+                    <p id="maxAgeHelp" data-i18n="settings.age_help">Bu süreden uzun zamandır değişmeyen şifreler için üst bardaki zilde bildirim gösterilir.</p>
+                </div>
+                <select id="maxAgeSelect" class="form-select-modern settings-select" data-setting="password_max_age_days" aria-describedby="maxAgeHelp">
+                    {% for days in max_age_choices %}
+                    <option value="{{ days }}" data-i18n="settings.age_{{ days }}" {% if days == user.password_max_age_days %}selected{% endif %}>{{ days }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </section>
+
+        <section class="settings-section" id="updatesSection" aria-labelledby="updatesSettingsTitle">
+            <h3 id="updatesSettingsTitle">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                <span data-i18n="settings.updates_section">Güncellemeler</span>
+            </h3>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <h4><label for="updateCheckSelect" data-i18n="settings.updates_label">Yeni sürümleri denetle</label></h4>
+                    <p id="updateCheckHelp" data-i18n="settings.updates_help">Günde en fazla bir kez PyPI'a en son sürüm numarası sorulur. Kasandan hiçbir bilgi gönderilmez.</p>
+                </div>
+                <select id="updateCheckSelect" class="form-select-modern settings-select" data-setting="update_check_enabled" aria-describedby="updateCheckHelp">
+                    <option value="1" data-i18n="settings.updates_on" {% if user.update_check_enabled %}selected{% endif %}>Açık</option>
+                    <option value="0" data-i18n="settings.updates_off" {% if not user.update_check_enabled %}selected{% endif %}>Kapalı</option>
+                </select>
+            </div>
+        </section>
+
+        <section class="settings-section" id="pictureSection" aria-labelledby="pictureSettingsTitle">
+            <h3 id="pictureSettingsTitle">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline>
+                </svg>
+                <span data-i18n="picture.section">Güvenlik Görseli</span>
+            </h3>
+
+            <div class="setting-item setting-item-picture" id="pictureSetting" data-picture="{{ user.security_picture }}">
+                <div class="setting-info">
+                    <h4 data-i18n="picture.setting_label">Giriş ekranındaki görselin</h4>
+                    <p data-i18n="picture.help">Giriş ekranında, kullanıcı adını yazınca gösterilir. SafePass'e benzeyen sahte bir sayfa hangi görseli seçtiğini bilemez: görselini görmediğin bir sayfaya ana şifreni yazma.</p>
+                </div>
+                {% include "partials/picture_picker.html" with picker_id="pictureSetting" %}
+                <div class="settings-picture-actions">
+                    <button type="button" class="btn btn-secondary" id="pictureRemove" data-i18n="picture.remove">Kaldır</button>
+                    <button type="button" class="btn btn-primary" id="pictureSave" data-i18n="picture.save">Kaydet</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="settings-section" id="recoverySection" aria-labelledby="recoverySettingsTitle">
+            <h3 id="recoverySettingsTitle">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path>
+                </svg>
+                <span data-i18n="recovery.heading">Kurtarma Anahtarı</span>
+            </h3>
+
+            <div class="setting-item" id="recoverySetting" data-has-key="{{ has_recovery_key|yesno:'1,0' }}">
+                <div class="setting-info">
+                    <h4 id="recoveryStateTitle" data-i18n="{{ has_recovery_key|yesno:'recovery.title_on,recovery.title_off' }}"></h4>
+                    <p id="recoveryState" data-i18n="{{ has_recovery_key|yesno:'recovery.state_on,recovery.state_off' }}"></p>
+                </div>
+                <button type="button" class="btn btn-secondary" id="recoveryBtn">
+                    <span id="recoveryBtnLabel" data-i18n="{{ has_recovery_key|yesno:'recovery.renew,recovery.create' }}"></span>
+                </button>
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/modules/picture.js' %}?v={{ APP_VERSION }}-pic1"></script>
+<script src="{% static 'js/modules/settings.js' %}?v={{ APP_VERSION }}-pic1"></script>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title_key %}notif.page_title{% endblock %}
+{% block title %}Bildirimler - SafePass{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/components/sidebar.css' %}?v={{ APP_VERSION }}-act1">
+<link rel="stylesheet" href="{% static 'css/components/layout.css' %}?v={{ APP_VERSION }}-act1">
+<link rel="stylesheet" href="{% static 'css/components/buttons.css' %}?v={{ APP_VERSION }}-act1">
+<link rel="stylesheet" href="{% static 'css/components/notifications.css' %}?v={{ APP_VERSION }}-act1">
+{% endblock %}
+
+{% block body_class %}with-sidebar{% endblock %}
+
+{% block content %}
+{% include "partials/sidebar.html" with page_subtitle_key="notif.page_subtitle" page_subtitle="Hatırlatmalar ve hesabınla ilgili güvenlik olayları burada." %}
+
+<main class="main-content">
+    <div class="page-header notif-page-header">
+        <a href="/settings" class="btn btn-secondary btn-sm notif-settings-link">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 1v3M12 20v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M1 12h3M20 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>
+            <span data-i18n="notif.settings_link">Hatırlatma ayarları</span>
+        </a>
+    </div>
+
+    <section class="notif-panel" aria-labelledby="notifPageListTitle">
+        <h2 id="notifPageListTitle" class="visually-hidden" data-i18n="notif.page_title">Bildirimler</h2>
+
+        <div class="notif-toolbar">
+            <div class="notif-tabs" role="tablist" data-i18n-aria-label="notif.filter" aria-label="Filtre">
+                <button type="button" role="tab" class="notif-tab is-active" data-notif-filter="all" aria-selected="true">
+                    <span data-i18n="notif.filter_all">Tümü</span> <em id="notifCountAll">0</em>
+                </button>
+                <button type="button" role="tab" class="notif-tab" data-notif-filter="unread" aria-selected="false">
+                    <span data-i18n="notif.filter_unread">Okunmamış</span> <em id="notifCountUnread">0</em>
+                </button>
+            </div>
+            <div class="notif-toolbar-actions">
+                <button type="button" class="btn btn-secondary btn-sm" data-notif-action="read-all" data-i18n="notif.read_all">Tümünü okundu say</button>
+                <button type="button" class="btn btn-danger-outline btn-sm" data-notif-action="delete-all" data-i18n="notif.delete_all">Tümünü sil</button>
+            </div>
+        </div>
+
+        <div class="notif-selectbar" id="notifSelectBar">
+            <label class="notif-check">
+                <input type="checkbox" id="notifSelectAll">
+                <span data-i18n="notif.select_all">Tümünü seç</span>
+            </label>
+            <div class="notif-bulk" id="notifBulk" hidden>
+                <span class="notif-bulk-count" id="notifBulkCount"></span>
+                <button type="button" class="btn btn-secondary btn-sm" data-notif-bulk="read" data-i18n="notif.mark_read">Okundu say</button>
+                <button type="button" class="btn btn-secondary btn-sm" data-notif-bulk="unread" data-i18n="notif.mark_unread">Okunmadı say</button>
+                <button type="button" class="btn btn-danger-outline btn-sm" data-notif-bulk="delete" data-i18n="notif.delete">Sil</button>
+            </div>
+        </div>
+
+        <div class="sp-notif-list notif-page-list" id="notifPageList" role="list" aria-busy="true"></div>
+    </section>
+</main>
+{% endblock %}

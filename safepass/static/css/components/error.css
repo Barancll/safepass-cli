@@ -1,0 +1,118 @@
+/* ============================================================
+   SafePass - Error pages (404 / 403 / 500)
+   Same backdrop and brand treatment as the auth screens
+   ============================================================ */
+
+body.error-page {
+    display: block; /* the app body is a flex row (sidebar layout) */
+    min-height: 100vh;
+    min-height: 100svh;
+    margin: 0;
+    background:
+        radial-gradient(55% 45% at 50% 42%, rgba(124, 58, 237, 0.14), transparent 70%),
+        var(--sp-bg-body);
+}
+
+.error-shell {
+    box-sizing: border-box;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    min-height: 100vh;
+    min-height: 100svh;
+    padding: 5rem 1.5rem 3rem;
+    text-align: center;
+}
+
+.error-brand {
+    display: inline-flex;
+    text-decoration: none;
+}
+
+.error-brand-mark {
+    gap: 0.5rem;
+}
+
+.error-brand-mark .brand-mark-icon {
+    height: 44px;
+}
+
+.error-brand-mark .brand-mark-word {
+    font-family: 'Saira Semi Condensed', 'Arial Narrow', sans-serif;
+    font-size: 34px;
+    letter-spacing: 0.03em;
+    background: none;
+    color: #ffffff;
+    -webkit-text-fill-color: #ffffff;
+}
+
+[data-theme="light"] .error-brand-mark .brand-mark-word {
+    color: #7c3aed;
+    -webkit-text-fill-color: #7c3aed;
+}
+
+.error-card {
+    width: min(100%, 460px);
+    padding: 2.25rem 2rem 2rem;
+    border: 1px solid var(--sp-border);
+    border-radius: var(--sp-radius-xl);
+    background: var(--sp-bg-card);
+    box-shadow: var(--sp-shadow-xl);
+}
+
+/* The code is the page's one loud element */
+.error-code {
+    margin-bottom: 0.75rem;
+    font-family: 'Saira Semi Condensed', 'Arial Narrow', sans-serif;
+    font-size: clamp(4.5rem, 14vw, 7rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: 0.02em;
+    background: linear-gradient(135deg, #c084fc 0%, #7c3aed 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    font-variant-numeric: tabular-nums;
+}
+
+.error-card h1 {
+    margin: 0 0 0.6rem;
+    color: var(--sp-text-heading);
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+.error-card p {
+    margin: 0 auto 1.75rem;
+    max-width: 34ch;
+    color: var(--sp-text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.error-actions {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.error-actions .btn {
+    min-width: 150px;
+    justify-content: center;
+    text-decoration: none;
+}
+
+@media (max-width: 480px) {
+    .error-actions {
+        flex-direction: column-reverse;
+    }
+
+    .error-actions .btn {
+        width: 100%;
+    }
+}

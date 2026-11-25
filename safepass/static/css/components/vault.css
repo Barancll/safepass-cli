@@ -1,0 +1,485 @@
+/* ============================================================
+   SafePass - My Passwords: one panel of compact rows (cards.html, cards.js)
+   Each row: category tile + title/username · secret · category · date · actions;
+   the row opens downwards for the URL, notes and dates.
+   ============================================================ */
+
+.vault {
+    --vault-tile: 38px;
+    --vault-gap: 0.9rem;
+}
+
+/* ── Toolbar: search + new ─────────────────────────────────── */
+.vault-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.vault-search {
+    position: relative;
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    max-width: 520px;
+    color: var(--sp-text-muted);
+}
+
+.vault-search > svg {
+    position: absolute;
+    left: 0.85rem;
+    pointer-events: none;
+}
+
+.vault-search input {
+    width: 100%;
+    height: 44px;
+    padding: 0 2.6rem 0 2.6rem;
+    border: 1px solid var(--sp-border);
+    border-radius: var(--sp-radius-md);
+    background: var(--sp-bg-input);
+    color: var(--sp-text-primary);
+    font: inherit;
+    font-size: 0.9rem;
+    transition: border-color var(--sp-transition-fast), box-shadow var(--sp-transition-fast);
+}
+
+.vault-search input::placeholder { color: var(--sp-text-muted); }
+
+.vault-search input:focus {
+    outline: none;
+    border-color: var(--sp-primary);
+    box-shadow: 0 0 0 3px rgba(var(--sp-primary-rgb), 0.18);
+}
+
+/* The native clear "x" competes with the shortcut hint */
+.vault-search input::-webkit-search-cancel-button { display: none; }
+
+.vault-search kbd {
+    position: absolute;
+    right: 0.7rem;
+    min-width: 1.4rem;
+    padding: 0.05rem 0.35rem;
+    border: 1px solid var(--sp-border);
+    border-radius: 6px;
+    color: var(--sp-text-muted);
+    font: 600 0.72rem/1.4 inherit;
+    text-align: center;
+    pointer-events: none;
+}
+
+.vault-search input:focus ~ kbd,
+.vault-search input:not(:placeholder-shown) ~ kbd { opacity: 0; }
+
+/* Right next to the search box, same height */
+.vault-toolbar .btn { height: 44px; padding: 0 1.1rem; white-space: nowrap; }
+
+/* ── Filter chips ──────────────────────────────────────────── */
+.vault-filters,
+.vault-subfilters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.vault-subfilters {
+    margin-top: -0.25rem;
+    padding-left: 0.75rem;
+    border-left: 2px solid var(--cat-color, var(--sp-primary));
+}
+
+.vault-subfilters[hidden] { display: none; }
+
+.vault-chip {
+    --cat-color: var(--sp-primary);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    height: 34px;
+    padding: 0 0.8rem;
+    border: 1px solid var(--sp-border);
+    border-radius: var(--sp-radius-full);
+    background: transparent;
+    color: var(--sp-text-secondary);
+    font: inherit;
+    font-size: 0.84rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background var(--sp-transition-fast), border-color var(--sp-transition-fast), color var(--sp-transition-fast);
+}
+
+.vault-chip .sp-icon { color: var(--cat-color); }
+
+.vault-chip:hover {
+    border-color: color-mix(in srgb, var(--cat-color) 55%, transparent);
+    color: var(--sp-text-heading);
+}
+
+.vault-chip[aria-pressed="true"] {
+    border-color: var(--cat-color);
+    background: color-mix(in srgb, var(--cat-color) 16%, transparent);
+    color: var(--sp-text-heading);
+}
+
+.vault-chip-count {
+    min-width: 1.35rem;
+    padding: 0 0.35rem;
+    border-radius: var(--sp-radius-full);
+    background: color-mix(in srgb, var(--sp-text-muted) 18%, transparent);
+    color: var(--sp-text-secondary);
+    font-size: 0.72rem;
+    font-weight: 600;
+    line-height: 1.35rem;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+.vault-chip[aria-pressed="true"] .vault-chip-count {
+    background: color-mix(in srgb, var(--cat-color) 30%, transparent);
+    color: var(--sp-text-heading);
+}
+
+.vault-chip-sub { height: 30px; font-size: 0.8rem; }
+.vault-chip[hidden] { display: none; }
+
+/* ── The list panel ────────────────────────────────────────── */
+.vault-list {
+    overflow: hidden;
+    border: 1px solid var(--sp-glass-border, var(--sp-border));
+    border-radius: var(--sp-radius-lg);
+    background: var(--sp-glass-bg, var(--sp-bg-card));
+}
+
+.vault-list[hidden] { display: none; }
+
+.vault-row {
+    position: relative;
+    border-bottom: 1px solid var(--sp-border);
+    transition: background var(--sp-transition-fast);
+}
+
+.vault-row:last-child { border-bottom: 0; }
+.vault-row[hidden] { display: none; }
+
+/* The category colour runs down the left edge of a hovered or open row */
+.vault-row::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 3px;
+    background: var(--cat-color);
+    opacity: 0;
+    transition: opacity var(--sp-transition-fast);
+}
+
+.vault-row:hover,
+.vault-row.is-open { background: var(--sp-bg-card-hover); }
+
+.vault-row:hover::before,
+.vault-row:focus-within::before,
+.vault-row.is-open::before { opacity: 1; }
+
+.vault-row-line {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(230px, 1.15fr) minmax(0, 0.85fr) 84px 148px;
+    align-items: center;
+    gap: var(--vault-gap);
+    min-height: 64px;
+    padding: 0.55rem 0.75rem 0.55rem 1rem;
+}
+
+/* Title area = the button that opens the row */
+.vault-row-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    min-width: 0;
+    padding: 0.25rem;
+    margin: -0.25rem;
+    border: 0;
+    border-radius: var(--sp-radius-sm);
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.vault-row-toggle:focus-visible,
+.vault-icon-btn:focus-visible,
+.vault-chip:focus-visible {
+    outline: 2px solid var(--sp-primary);
+    outline-offset: 2px;
+}
+
+.vault-tile {
+    display: grid;
+    flex: 0 0 var(--vault-tile);
+    width: var(--vault-tile);
+    height: var(--vault-tile);
+    place-items: center;
+    border-radius: 11px;
+    background: color-mix(in srgb, var(--cat-color) 16%, transparent);
+    color: var(--cat-color);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--cat-color) 28%, transparent);
+}
+
+.vault-name {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.vault-title,
+.vault-user {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.vault-title {
+    color: var(--sp-text-heading);
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.vault-user {
+    color: var(--sp-text-muted);
+    font-size: 0.8rem;
+}
+
+/* Secret: dots, or the revealed password, with reveal + copy */
+.vault-secret {
+    display: flex;
+    align-items: center;
+    gap: 0.15rem;
+    min-width: 0;
+    height: 36px;
+    padding: 0 0.25rem 0 0.75rem;
+    border: 1px solid var(--sp-border);
+    border-radius: var(--sp-radius-sm);
+    background: var(--sp-bg-input);
+}
+
+.vault-dots,
+.vault-plain {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    color: var(--sp-text-primary);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.vault-dots {
+    color: var(--sp-text-secondary);
+    letter-spacing: 0.12em;
+}
+
+/* Monospace so l / 1 / I and O / 0 can be told apart */
+.vault-plain {
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: 0.86rem;
+}
+
+.vault-dots[hidden],
+.vault-plain[hidden] { display: none; }
+
+.vault-secret.is-shown { border-color: color-mix(in srgb, var(--sp-primary) 50%, transparent); }
+
+.vault-icon-btn {
+    display: inline-grid;
+    flex: 0 0 auto;
+    width: 32px;
+    height: 32px;
+    place-items: center;
+    border: 0;
+    border-radius: var(--sp-radius-sm);
+    background: transparent;
+    color: var(--sp-text-secondary);
+    cursor: pointer;
+    text-decoration: none;
+    transition: background var(--sp-transition-fast), color var(--sp-transition-fast);
+}
+
+.vault-icon-btn:hover {
+    background: rgba(var(--sp-primary-rgb), 0.14);
+    color: var(--sp-primary);
+}
+
+.vault-danger:hover {
+    background: color-mix(in srgb, var(--sp-danger) 14%, transparent);
+    color: var(--sp-danger);
+}
+
+.vault-copy.is-done { color: var(--sp-success); }
+
+.vault-cat {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    color: var(--sp-text-secondary);
+    font-size: 0.82rem;
+}
+
+.vault-cat > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.vault-cat > span:first-child {
+    color: color-mix(in srgb, var(--cat-color) 75%, var(--sp-text-heading));
+    font-weight: 600;
+}
+
+.vault-cat-sub { color: var(--sp-text-muted); font-size: 0.76rem; }
+
+.vault-date {
+    color: var(--sp-text-muted);
+    font-size: 0.78rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.vault-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.1rem;
+}
+
+/* With a mouse, row actions wait for the row; on touch they are always there */
+@media (hover: hover) {
+    .vault-actions { opacity: 0; transition: opacity var(--sp-transition-fast); }
+    .vault-row:hover .vault-actions,
+    .vault-row:focus-within .vault-actions,
+    .vault-row.is-open .vault-actions { opacity: 1; }
+}
+
+/* ── Paused rows: kept in the list, faded, with a tag ───────── */
+.vault-title-line {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-width: 0;
+}
+
+.vault-paused-tag {
+    display: none;
+    flex: 0 0 auto;
+    padding: 0 0.4rem;
+    border: 1px solid var(--sp-border);
+    border-radius: var(--sp-radius-full);
+    color: var(--sp-text-muted);
+    font-size: 0.68rem;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+.vault-row.is-paused .vault-paused-tag { display: inline-block; }
+.vault-row.is-paused .vault-row-toggle,
+.vault-row.is-paused .vault-secret,
+.vault-row.is-paused .vault-cat,
+.vault-row.is-paused .vault-date { opacity: 0.5; }
+.vault-row.is-paused .vault-tile { filter: grayscale(0.7); }
+.vault-row.is-paused::before { background: var(--sp-text-muted); }
+
+.vault-icon-btn[data-action="toggle-active"][aria-pressed="true"] { color: var(--sp-primary); }
+
+.vault-chip-paused { --cat-color: var(--sp-text-muted); }
+
+/* ── Details (opened row) ──────────────────────────────────── */
+.vault-details {
+    padding: 0 1rem 1rem calc(1rem + var(--vault-tile) + 0.8rem);
+}
+
+.vault-details[hidden] { display: none; }
+
+.vault-details dl {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.75rem 1.5rem;
+    margin: 0;
+    padding-top: 0.85rem;
+    border-top: 1px dashed var(--sp-border);
+}
+
+.vault-details dt {
+    margin-bottom: 0.2rem;
+    color: var(--sp-text-muted);
+    font-size: 0.74rem;
+    font-weight: 600;
+}
+
+.vault-details dd {
+    margin: 0;
+    color: var(--sp-text-primary);
+    font-size: 0.86rem;
+    overflow-wrap: anywhere;
+}
+
+.vault-details a { color: var(--sp-primary); text-decoration: none; }
+.vault-details a:hover { text-decoration: underline; }
+
+.vault-notes { grid-column: 1 / -1; }
+.vault-notes dd { white-space: pre-wrap; }
+
+/* ── Empty / no results (Lokki) ────────────────────────────── */
+.vault-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 3rem 1rem;
+    text-align: center;
+}
+
+.vault-empty[hidden] { display: none; }
+
+.vault-empty-lokki {
+    display: block;
+    width: 96px;
+    height: 96px;
+    margin-bottom: 0.75rem;
+}
+
+.vault-empty-lokki .lokki { width: 100%; height: 100%; }
+
+.vault-empty h2 {
+    margin: 0 0 0.35rem;
+    color: var(--sp-text-heading);
+    font-size: 1.1rem;
+}
+
+.vault-empty p {
+    max-width: 36ch;
+    margin: 0 0 1.25rem;
+    color: var(--sp-text-secondary);
+    font-size: 0.9rem;
+}
+
+/* ── Narrower screens ──────────────────────────────────────── */
+@media (max-width: 1180px) {
+    .vault-row-line { grid-template-columns: minmax(0, 1.4fr) minmax(180px, 1fr) minmax(0, 0.9fr) 148px; }
+    .vault-date { display: none; }
+}
+
+@media (max-width: 860px) {
+    .vault-row-line { grid-template-columns: minmax(0, 1fr) minmax(170px, 0.9fr) auto; }
+    .vault-cat { display: none; }
+}
+
+@media (max-width: 600px) {
+    .vault-toolbar { flex-wrap: wrap; }
+    .vault-search { max-width: none; flex-basis: 100%; }
+    .vault-search kbd { display: none; }
+    .vault-row-line {
+        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-areas: "name actions" "secret secret";
+        row-gap: 0.6rem;
+    }
+    .vault-row-toggle { grid-area: name; }
+    .vault-actions { grid-area: actions; }
+    .vault-secret { grid-area: secret; }
+    .vault-details { padding-left: 1rem; }
+}

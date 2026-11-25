@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 {% load static %}
 
+{% block title_key %}import_export.title{% endblock %}
 {% block title %}İçe/Dışa Aktar - SafePass{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/components/sidebar.css' %}?v={{ APP_VERSION }}">
-<link rel="stylesheet" href="{% static 'css/components/layout.css' %}?v={{ APP_VERSION }}">
-<link rel="stylesheet" href="{% static 'css/components/help.css' %}?v={{ APP_VERSION }}">
-<link rel="stylesheet" href="{% static 'css/components/buttons.css' %}?v={{ APP_VERSION }}">
-<link rel="stylesheet" href="{% static 'css/components/import_export.css' %}?v={{ APP_VERSION }}">
+<link rel="stylesheet" href="{% static 'css/components/sidebar.css' %}?v={{ APP_VERSION }}-act1">
+<link rel="stylesheet" href="{% static 'css/components/layout.css' %}?v={{ APP_VERSION }}-act1">
+<link rel="stylesheet" href="{% static 'css/components/buttons.css' %}?v={{ APP_VERSION }}-act1">
+<link rel="stylesheet" href="{% static 'css/components/import_export.css' %}?v={{ APP_VERSION }}-act1">
 {% endblock %}
 
 {% block body_class %}with-sidebar{% endblock %}
@@ -16,176 +16,106 @@
 {% block content %}
 {% include "partials/sidebar.html" %}
 
-<div class="main-content">
-    <div class="page-header">
-        <h1>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="7 10 12 15 17 10"></polyline>
-                <line x1="12" y1="15" x2="12" y2="3"></line>
-            </svg>
-            İçe/Dışa Aktar
-        </h1>
-    </div>
+<main class="main-content ie">
+    <div class="ie-stage">
+        {# Import: another app (or a SafePass backup) comes in #}
+        <section class="ie-panel ie-import" id="ieImport" aria-labelledby="ieImportTitle">
+            <header class="ie-panel-head">
+                <span class="ie-panel-icon" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                </span>
+                <div>
+                    <h2 id="ieImportTitle" data-i18n="ie.import_heading">İçe aktar</h2>
+                    <p data-i18n="ie.import_sub">Başka bir şifre yöneticisinden ya da SafePass yedeğinden.</p>
+                </div>
+            </header>
 
-    <div class="help-container">
-        <!-- JSON Import/Export Section -->
-        <div class="help-section">
-            <h2>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
-                    <polyline points="13 2 13 9 20 9"></polyline>
-                </svg>
-                JSON Veri Yönetimi
-            </h2>
-
-            <div class="faq-item">
-                <h3>Verileri İçe Aktar</h3>
-                <p>Önceden SafePass'ten dışa aktarılmış JSON dosyasını içe aktarın.</p>
-                <button type="button" class="btn btn-secondary" id="import-json-btn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                        <polyline points="17 8 12 3 7 8"></polyline>
-                        <line x1="12" y1="3" x2="12" y2="15"></line>
-                    </svg>
-                    JSON Dosyası Seç
-                </button>
-                <input type="file" id="json-file-input" accept=".json" hidden>
-                <div class="import-result" id="json-import-result" style="display: none;"></div>
+            <div class="ie-drop" id="file-upload-area" role="button" tabindex="0" aria-describedby="ieDropHint">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><polyline points="9 15 12 12 15 15"></polyline></svg>
+                <strong data-i18n="ie.drop_title">Dosyayı buraya bırakın</strong>
+                <span id="ieDropHint" data-i18n="ie.drop_hint">ya da seçmek için tıklayın · .safepass, .csv veya .json</span>
+                <input type="file" id="csv-file-input" accept=".csv,.json,.safepass" hidden>
             </div>
+            <button type="button" class="ie-formats-btn" id="ieFormatsBtn" data-i18n="ie.formats_ask">Hangi dosyaları kabul ediyorsun?</button>
 
-            <div class="faq-item">
-                <h3>Verileri Dışa Aktar</h3>
-                <p>Tüm şifrelerinizi güvenli bir JSON dosyasına aktarın.</p>
-                <div class="export-options">
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="include-metadata" checked>
-                        <span>Ekstra bilgileri dahil et (tarih, notlar, vb.)</span>
-                    </label>
+            <div class="ie-file" id="file-info" hidden>
+                <span class="ie-file-badge" id="file-kind">CSV</span>
+                <div class="ie-file-meta">
+                    <span class="ie-file-name" id="file-name"></span>
+                    <span class="ie-file-size" id="file-size"></span>
                 </div>
-                <div class="warning-box">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path
-                            d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z">
-                        </path>
-                        <line x1="12" y1="9" x2="12" y2="13"></line>
-                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                    </svg>
-                    <div>
-                        <strong>Güvenlik Uyarısı</strong>
-                        <p>Dışa aktarılan dosya şifrelerinizi düz metin olarak içerir. Dosyayı güvenli bir yerde
-                            saklayın ve paylaşmayın.</p>
-                    </div>
-                </div>
-                <button type="button" class="btn btn-primary" id="export-btn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                        <polyline points="7 10 12 15 17 10"></polyline>
-                        <line x1="12" y1="15" x2="12" y2="3"></line>
-                    </svg>
-                    JSON Olarak İndir
+                <button type="button" class="ie-icon-btn" id="remove-file-btn" title="Dosyayı kaldır" aria-label="Dosyayı kaldır" data-i18n-title="ie.remove_file" data-i18n-aria-label="ie.remove_file">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
             </div>
+
+            <p class="ie-note" data-i18n="ie.smart_text">Yeni kayıtlar eklenir; mevcut kayıtlarda değişen şifreler güncellenir (eski şifre geçmişe kaydedilir).</p>
+
+            <div class="ie-progress" id="import-progress" hidden>
+                <div class="ie-progress-bar"><span id="progress-fill"></span></div>
+                <p id="progress-text" data-i18n="ie.importing">İçe aktarılıyor...</p>
+            </div>
+            <div class="ie-result" id="import-result" role="status" hidden></div>
+
+            <button type="button" class="btn btn-primary ie-action" id="import-btn" disabled>
+                <span data-i18n="ie.import">İçe Aktar</span>
+            </button>
+
+        </section>
+
+        {# Lokki watches both doors #}
+        <div class="ie-lokki" aria-live="polite">
+            <p class="ie-say" id="ieSay" data-i18n="ie.say_idle">Şifreler gelsin mi, gitsin mi?</p>
+            <span class="ie-lokki-figure">{% include "partials/mascot.html" with uid="ie" %}</span>
         </div>
 
-        <!-- CSV Import Section -->
-        <div class="help-section">
-            <h2>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                    <polyline points="17 8 12 3 7 8"></polyline>
-                    <line x1="12" y1="3" x2="12" y2="15"></line>
-                </svg>
-                CSV İçe Aktar
-            </h2>
-
-            <div class="faq-item">
-                <h3>CSV Dosyasından İçe Aktarma</h3>
-                <p>Diğer şifre yöneticilerinden aldığınız CSV dosyalarını içe aktarın.</p>
-
-                <div class="file-upload-area" id="file-upload-area">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
-                        <polyline points="13 2 13 9 20 9"></polyline>
-                    </svg>
-                    <h4>CSV Dosyası Seç</h4>
-                    <p>Standart CSV formatında (.csv)</p>
-                    <input type="file" id="csv-file-input" accept=".csv" hidden>
-                    <button type="button" class="btn btn-secondary" id="select-file-btn">
-                        Dosya Seç
-                    </button>
+        {# Export: the vault leaves for another app #}
+        <section class="ie-panel ie-export" id="ieExport" aria-labelledby="ieExportTitle">
+            <header class="ie-panel-head">
+                <span class="ie-panel-icon" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                </span>
+                <div>
+                    <h2 id="ieExportTitle" data-i18n="ie.export_heading">Dışa aktar</h2>
+                    <p data-i18n="ie.export_text">Tüm şifrelerinizi bir JSON dosyasına aktarın.</p>
                 </div>
+            </header>
 
-                <div class="file-info" id="file-info" style="display: none;">
-                    <div class="file-details">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
-                            <polyline points="13 2 13 9 20 9"></polyline>
-                        </svg>
-                        <div class="file-meta">
-                            <span class="file-name" id="file-name"></span>
-                            <span class="file-size" id="file-size"></span>
-                        </div>
-                    </div>
-                    <button type="button" class="btn-remove" id="remove-file-btn">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                    </button>
-                </div>
+            <fieldset class="ie-mode">
+                <legend class="visually-hidden" data-i18n="ie.mode_label">Dosya türü</legend>
+                <label class="ie-mode-option">
+                    <input type="radio" name="exportMode" id="exportModeEncrypted" value="encrypted" checked>
+                    <span><strong data-i18n="ie.mode_encrypted">Şifreli yedek</strong> <em data-i18n="generator.recommended">Önerilen</em><small data-i18n="ie.mode_encrypted_hint">Parolanla açılır, yalnızca SafePass'e geri yüklenir.</small></span>
+                </label>
+                <label class="ie-mode-option">
+                    <input type="radio" name="exportMode" id="exportModePlain" value="plain">
+                    <span><strong data-i18n="ie.mode_plain">Düz metin JSON</strong><small data-i18n="ie.mode_plain_hint">Başka bir şifre yöneticisine geçiş için.</small></span>
+                </label>
+            </fieldset>
 
-                <div class="import-info">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="12" y1="16" x2="12" y2="12"></line>
-                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                    </svg>
-                    <div>
-                        <strong>Akıllı İçe Aktarma:</strong>
-                        <p>Yeni kartlar eklenir, mevcut kartlardaki şifre değişiklikleri güncellenir (eski şifre geçmişe kaydedilir).</p>
-                    </div>
-                </div>
+            <label class="ie-check" id="ieMetaOption" hidden>
+                <input type="checkbox" id="include-metadata" checked>
+                <span data-i18n="ie.include_meta">Ekstra bilgileri dahil et (tarih, notlar vb.)</span>
+            </label>
 
-                <button type="button" class="btn btn-primary" id="import-btn" disabled>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                        <polyline points="17 8 12 3 7 8"></polyline>
-                        <line x1="12" y1="3" x2="12" y2="15"></line>
-                    </svg>
-                    İçe Aktar
-                </button>
-
-                <div class="csv-formats-info">
-                    <h4 style="margin-bottom: 1rem; color: var(--text-secondary); font-size: 0.9rem;">📋 Desteklenen CSV Formatları:</h4>
-                    <div class="format-box">
-                        <h5>KeePass Formatı</h5>
-                        <code>Group,Subcategory,Title,Username,Password,URL</code>
-                        <p class="format-example">finans,bankacilik,GitHub,user,pass123,https://github.com</p>
-                    </div>
-                    <div class="format-box">
-                        <h5>SafePass Formatı</h5>
-                        <code>title,username,password,website,category,subcategory</code>
-                        <p class="format-example">GitHub,user,pass123,https://github.com,finans,bankacilik</p>
-                    </div>
-                </div>
-
-                <div class="import-progress" id="import-progress" style="display: none;">
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progress-fill"></div>
-                    </div>
-                    <p class="progress-text" id="progress-text">İçe aktarılıyor...</p>
-                </div>
-
-                <div class="import-result" id="import-result" style="display: none;"></div>
+            <div class="ie-warning" id="ieWarnEncrypted" role="note">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                <p><strong data-i18n="ie.warning_title">Güvenlik Uyarısı</strong> <span data-i18n="ie.backup_warning">Yedek parolasını unutursan bu dosya bir daha açılamaz. Kurtarma anahtarı da bu dosyayı açmaz.</span></p>
             </div>
-        </div>
+
+            <div class="ie-warning" id="ieWarnPlain" role="note" hidden>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                <p><strong data-i18n="ie.warning_title">Güvenlik Uyarısı</strong> <span data-i18n="ie.warning_text">Dışa aktarılan dosya şifrelerinizi düz metin olarak içerir. Dosyayı güvenli bir yerde saklayın ve paylaşmayın.</span></p>
+            </div>
+
+            <button type="button" class="btn btn-primary ie-action" id="export-btn">
+                <span id="export-btn-label" data-i18n="ie.download_backup">Şifreli Yedek İndir</span>
+            </button>
+        </section>
     </div>
-</div>
+</main>
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/modules/import_export.js' %}?v={{ APP_VERSION }}" type="module"></script>
+<script src="{% static 'js/modules/import_export.js' %}?v={{ APP_VERSION }}-act1" type="module"></script>
 {% endblock %}

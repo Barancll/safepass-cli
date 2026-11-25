@@ -1,144 +1,202 @@
 {% extends "base.html" %}
 {% load static %}
 
+{% block title_key %}generator.title{% endblock %}
 {% block title %}Şifre Üret - SafePass{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/components/sidebar.css' %}?v={{ APP_VERSION }}">
-<link rel="stylesheet" href="{% static 'css/components/layout.css' %}?v={{ APP_VERSION }}">
-<link rel="stylesheet" href="{% static 'css/components/generator.css' %}?v={{ APP_VERSION }}">
-<link rel="stylesheet" href="{% static 'css/components/buttons.css' %}?v={{ APP_VERSION }}">
+<link rel="stylesheet" href="{% static 'css/components/sidebar.css' %}?v={{ APP_VERSION }}-act1">
+<link rel="stylesheet" href="{% static 'css/components/layout.css' %}?v={{ APP_VERSION }}-act1">
+<link rel="stylesheet" href="{% static 'css/components/generator.css' %}?v={{ APP_VERSION }}-sim1">
+<link rel="stylesheet" href="{% static 'css/components/buttons.css' %}?v={{ APP_VERSION }}-act1">
 {% endblock %}
 
 {% block body_class %}with-sidebar{% endblock %}
 
 {% block content %}
-{% include "partials/sidebar.html" %}
+{% include "partials/sidebar.html" with page_subtitle_key="generator.subtitle" page_subtitle="Kurallarını seçtiğin benzersiz ve güvenli şifreler oluştur." %}
 
 <div class="main-content">
-    <div class="page-header">
-        <h1>🔑 Güçlü Şifre Üret</h1>
-        <p>Özelleştirilmiş benzersiz ve güvenli şifreler oluşturun.</p>
-    </div>
 
-    <div class="generator-container">
-        <div class="generated-password-card">
-            <label>Oluşturulan Şifre</label>
-            <div class="password-display-wrapper">
-                <input type="text" id="generatedPassword" class="password-display" value="" readonly>
-                <button type="button" class="btn-icon" onclick="copyGeneratedPassword()" title="Kopyala">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                    </svg>
-                </button>
-                <button type="button" class="btn-icon" onclick="generateNewPassword()" title="Yenile">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    {# Console first in the markup (shown above the tips on narrow screens); on wide screens tips sit on the left #}
+    <div class="gen-layout">
+        <section class="gen-console" aria-labelledby="genSettingsTitle">
+            {# Result slot: fixed at the top, empty until the first password, so nothing moves when one arrives #}
+            <div class="gen-result is-empty" id="genResult">
+                {# Lokki keeps its eyes shut until a password is generated, then wakes up and stays beside it #}
+                {% include "partials/mascot.html" with uid="slot" lokki_class="gen-slot-lokki" mood="sleepy" %}
+                <div class="gen-result-empty" id="genResultEmpty">
+                    <span data-i18n="generator.empty">Aşağıdaki adımları izle; şifren burada görünecek.</span>
+                </div>
+                <div class="gen-result-filled" id="genResultFilled" hidden>
+                    <div class="gen-result-row">
+                        <output class="gen-password sp-private" id="generatedPassword" aria-label="Oluşturulan Şifre" data-i18n-aria-label="generator.generated"></output>
+                        <div class="gen-result-actions">
+                            <button type="button" class="gen-icon-btn" id="copyGeneratedBtn" title="Kopyala" aria-label="Kopyala" data-i18n-title="card.copy" data-i18n-aria-label="card.copy">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg>
+                            </button>
+                            <button type="button" class="gen-icon-btn" id="regenerateBtn" title="Yenile" aria-label="Yenile" data-i18n-title="generator.refresh" data-i18n-aria-label="generator.refresh">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <polyline points="23 4 23 10 17 10"></polyline>
+                                    <polyline points="1 20 1 14 7 14"></polyline>
+                                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="gen-strength">
+                        <div class="gen-meter" id="strengthMeter" data-level="" aria-hidden="true">
+                            <span></span><span></span><span></span><span></span>
+                        </div>
+                        <span class="gen-strength-text"><span data-i18n="generator.strength">Güç:</span> <strong id="strengthText">-</strong>
+                            <span class="gen-kind-badge" id="strengthKind" data-i18n="generator.pin_label" hidden>PIN</span></span>
+                        <span class="gen-entropy" id="entropyText"></span>
+                    </div>
+                    {# PINs only: what makes this code weak (or that 4 digits are few) #}
+                    <ul class="gen-pin-notes" id="pinNotes" hidden></ul>
+                    {# Straight to a new card with this password filled in (handed over in sessionStorage, never in the URL) #}
+                    <div class="gen-result-links">
+                    <button type="button" class="gen-save-card" id="saveAsCardBtn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <rect x="3" y="4" width="18" height="16" rx="2"></rect>
+                            <line x1="12" y1="9" x2="12" y2="15"></line>
+                            <line x1="9" y1="12" x2="15" y2="12"></line>
+                        </svg>
+                        <span data-i18n="generator.save_as_card">Bu şifreyle kart oluştur</span>
+                    </button>
+                    {# Cyber test: opens /siber-test with this password and starts the run (same tab, sessionStorage) #}
+                    <button type="button" class="gen-attack-test" id="attackTestBtn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="12" r="7"></circle>
+                            <line x1="12" y1="2" x2="12" y2="6"></line>
+                            <line x1="12" y1="18" x2="12" y2="22"></line>
+                            <line x1="2" y1="12" x2="6" y2="12"></line>
+                            <line x1="18" y1="12" x2="22" y2="12"></line>
+                            <circle cx="12" cy="12" r="1.5" fill="currentColor"></circle>
+                        </svg>
+                        <span data-i18n="generator.attack_test">Saldırıya karşı test et</span>
+                    </button>
+                    </div>
+                </div>
+            </div>
+
+            <h2 class="visually-hidden" id="genSettingsTitle" data-i18n="generator.settings">Şifre Ayarları</h2>
+
+            <fieldset class="gen-field">
+                <legend class="gen-step"><span class="gen-step-num" aria-hidden="true">1</span><span data-i18n="generator.step1">Uzunluğu seç</span></legend>
+                <div class="gen-lengths" role="radiogroup">
+                    <label class="gen-length"><input type="radio" name="passwordLength" value="4"><span class="gen-length-num">4</span></label>
+                    <label class="gen-length"><input type="radio" name="passwordLength" value="6"><span class="gen-length-num">6</span></label>
+                    <label class="gen-length"><input type="radio" name="passwordLength" value="8"><span class="gen-length-num">8</span></label>
+                    <label class="gen-length"><input type="radio" name="passwordLength" value="12"><span class="gen-length-num">12</span></label>
+                    <label class="gen-length is-recommended">
+                        <input type="radio" name="passwordLength" value="16" checked>
+                        <span class="gen-length-num">16</span>
+                        <span class="gen-length-tag" data-i18n="generator.recommended">Önerilen</span>
+                    </label>
+                    <label class="gen-length"><input type="radio" name="passwordLength" value="20"><span class="gen-length-num">20</span></label>
+                    <label class="gen-length"><input type="radio" name="passwordLength" value="24"><span class="gen-length-num">24</span></label>
+                </div>
+                <p class="gen-short-note" id="shortNote" hidden data-i18n="generator.short_warning">4 ve 6 karakter yalnızca PIN ve kısa kodlar için uygundur; hesap şifresi için en az 12 seçin.</p>
+            </fieldset>
+
+            <fieldset class="gen-field">
+                <legend class="gen-step"><span class="gen-step-num" aria-hidden="true">2</span><span data-i18n="generator.step2">Karakter tiplerini belirle</span></legend>
+                <div class="gen-types">
+                    <label class="gen-type">
+                        <input type="checkbox" id="includeUppercase" checked>
+                        <span class="gen-type-sample" aria-hidden="true">ABC</span>
+                        <span class="gen-type-name" data-i18n="generator.uppercase">Büyük Harfler</span>
+                        <span class="gen-switch" aria-hidden="true"></span>
+                    </label>
+                    <label class="gen-type">
+                        <input type="checkbox" id="includeLowercase" checked>
+                        <span class="gen-type-sample" aria-hidden="true">abc</span>
+                        <span class="gen-type-name" data-i18n="generator.lowercase">Küçük Harfler</span>
+                        <span class="gen-switch" aria-hidden="true"></span>
+                    </label>
+                    <label class="gen-type">
+                        <input type="checkbox" id="includeNumbers" checked>
+                        <span class="gen-type-sample is-digit" aria-hidden="true">123</span>
+                        <span class="gen-type-name" data-i18n="generator.numbers">Sayılar</span>
+                        <span class="gen-switch" aria-hidden="true"></span>
+                    </label>
+                    <label class="gen-type">
+                        <input type="checkbox" id="includeSymbols" checked>
+                        <span class="gen-type-sample is-symbol" aria-hidden="true">!@#</span>
+                        <span class="gen-type-name" data-i18n="generator.symbols">Özel Karakterler</span>
+                        <span class="gen-switch" aria-hidden="true"></span>
+                    </label>
+                </div>
+            </fieldset>
+
+            <div class="gen-submit">
+                <p class="gen-step"><span class="gen-step-num" aria-hidden="true">3</span><span data-i18n="generator.step3">Şifreni üret</span></p>
+                <button type="button" class="btn btn-primary gen-generate" id="generateBtn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <polyline points="23 4 23 10 17 10"></polyline>
                         <polyline points="1 20 1 14 7 14"></polyline>
                         <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
                     </svg>
+                    <span id="generateBtnLabel" data-i18n="generator.generate">Yeni Şifre Üret</span>
                 </button>
+                <p class="gen-limit-note" data-i18n="generator.limit_hint">Dakikada en fazla 10 şifre üretilebilir.</p>
             </div>
-            <div class="strength-indicator">
-                <div class="strength-label">Güç: <span id="strengthText">-</span></div>
-                <div class="strength-bar">
-                    <div id="strengthBar" class="strength-fill" style="width: 0%"></div>
-                </div>
-            </div>
-        </div>
+        </section>
 
-        <div class="generator-options">
-            <h3>Şifre Ayarları</h3>
-            
-            <div class="form-group-length">
-                <label for="passwordLength">Uzunluk</label>
-                <select id="passwordLength" class="form-select-styled">
-                    <option value="8">8 karakter</option>
-                    <option value="12">12 karakter</option>
-                    <option value="16" selected>16 karakter (Önerilen)</option>
-                    <option value="20">20 karakter</option>
-                    <option value="24">24 karakter</option>
-                </select>
-            </div>
-
-            <div class="options-section">
-                <h4>Karakter Tipleri</h4>
-                <div class="checkbox-grid">
-                    <label class="checkbox-card">
-                        <input type="checkbox" id="includeUppercase" checked>
-                        <div class="checkbox-content">
-                            <div class="checkbox-header">
-                                <span class="checkbox-icon">ABC</span>
-                                <span class="checkbox-check"></span>
-                            </div>
-                            <span class="checkbox-title">Büyük Harfler</span>
-                            <span class="checkbox-desc">A-Z</span>
-                        </div>
-                    </label>
-
-                    <label class="checkbox-card">
-                        <input type="checkbox" id="includeLowercase" checked>
-                        <div class="checkbox-content">
-                            <div class="checkbox-header">
-                                <span class="checkbox-icon">abc</span>
-                                <span class="checkbox-check"></span>
-                            </div>
-                            <span class="checkbox-title">Küçük Harfler</span>
-                            <span class="checkbox-desc">a-z</span>
-                        </div>
-                    </label>
-
-                    <label class="checkbox-card">
-                        <input type="checkbox" id="includeNumbers" checked>
-                        <div class="checkbox-content">
-                            <div class="checkbox-header">
-                                <span class="checkbox-icon">123</span>
-                                <span class="checkbox-check"></span>
-                            </div>
-                            <span class="checkbox-title">Sayılar</span>
-                            <span class="checkbox-desc">0-9</span>
-                        </div>
-                    </label>
-
-                    <label class="checkbox-card">
-                        <input type="checkbox" id="includeSymbols" checked>
-                        <div class="checkbox-content">
-                            <div class="checkbox-header">
-                                <span class="checkbox-icon">!@#</span>
-                                <span class="checkbox-check"></span>
-                            </div>
-                            <span class="checkbox-title">Özel Karakterler</span>
-                            <span class="checkbox-desc">!@#$%^&*</span>
-                        </div>
-                    </label>
+        {# Lokki presents the tips in three tabs so the panel matches the console's height #}
+        <aside class="gen-tips lokki-host" aria-labelledby="genTipsTitle">
+            <div class="gen-tips-head">
+                {% include "partials/mascot.html" with uid="gen" %}
+                <div class="gen-bubble">
+                    <h2 id="genTipsTitle" data-i18n="generator.tips_title_mascot">Lokki'nin güvenlik ipuçları</h2>
+                    <p id="genBubbleText" data-i18n="generator.lokki_strong">Güçlü bir şifre için bunlara dikkat et:</p>
                 </div>
             </div>
 
-            <button type="button" class="btn btn-primary btn-generate" onclick="generateNewPassword()">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
-                    <polyline points="23 4 23 10 17 10"></polyline>
-                    <polyline points="1 20 1 14 7 14"></polyline>
-                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-                </svg>
-                Yeni Şifre Üret
-            </button>
-        </div>
+            <div class="gen-tabs" role="tablist" aria-labelledby="genTipsTitle">
+                <button type="button" role="tab" id="genTabStrong" aria-controls="genPanelStrong" aria-selected="true" data-bubble="generator.lokki_strong"
+                    data-i18n="generator.tab_strong">Güçlü şifre</button>
+                <button type="button" role="tab" id="genTabAccounts" aria-controls="genPanelAccounts" aria-selected="false" tabindex="-1" data-bubble="generator.lokki_accounts"
+                    data-i18n="generator.tab_accounts">Hesaplar</button>
+                <button type="button" role="tab" id="genTabStorage" aria-controls="genPanelStorage" aria-selected="false" tabindex="-1" data-bubble="generator.lokki_storage"
+                    data-i18n="generator.tab_storage">Saklama</button>
+            </div>
 
-        <div class="generator-tips">
-            <h3>💡 Güvenlik İpuçları</h3>
-            <ul>
-                <li>En az 16 karakter uzunluğunda şifreler kullanın</li>
-                <li>Tüm karakter tiplerini (büyük, küçük, sayı, özel) ekleyin</li>
-                <li>Her hesap için farklı şifre kullanın</li>
-                <li>Sözlükte geçen kelimeleri kullanmayın</li>
-                <li>Kişisel bilgilerinizi (doğum tarihi, isim vb.) kullanmayın</li>
+            <ul class="gen-tip-list" role="tabpanel" id="genPanelStrong" aria-labelledby="genTabStrong">
+                <li data-i18n="generator.tip1">En az 16 karakter uzunluğunda şifreler kullanın</li>
+                <li data-i18n="generator.tip2">Tüm karakter tiplerini (büyük, küçük, sayı, özel) ekleyin</li>
+                <li data-i18n="generator.tip4">Sözlükte geçen kelimeleri kullanmayın</li>
+                <li data-i18n="generator.tip5">Kişisel bilgilerinizi (doğum tarihi, isim vb.) kullanmayın</li>
+                <li data-i18n="generator.tip6">Sifre123!, qwerty ya da yıl eklemek gibi tahmin edilebilir kalıplardan kaçının</li>
             </ul>
-        </div>
+            <ul class="gen-tip-list" role="tabpanel" id="genPanelAccounts" aria-labelledby="genTabAccounts" hidden>
+                <li data-i18n="generator.tip3">Her hesap için farklı şifre kullanın</li>
+                <li data-i18n="generator.tip7">Destekleyen her hesapta iki adımlı doğrulamayı (2FA) açın</li>
+                <li data-i18n="generator.tip8">Önce e-posta ve banka şifrelerinizi güçlendirin; diğer hesaplar e-postanızla sıfırlanır</li>
+                <li data-i18n="generator.tip9">Bir sitede veri sızıntısı olduğunu duyarsanız o sitedeki şifreyi hemen değiştirin</li>
+            </ul>
+            <ul class="gen-tip-list" role="tabpanel" id="genPanelStorage" aria-labelledby="genTabStorage" hidden>
+                <li data-i18n="generator.tip10">Şifreleri not defterine, e-postaya ya da mesajlara yazmayın; SafePass'te saklayın</li>
+                <li data-i18n="generator.tip11">Şifrenizi telefonda ya da e-postada isteyen kimseye vermeyin; bankalar ve kurumlar şifre sormaz</li>
+                <li data-i18n="generator.tip12">Ana şifrenizi başka hiçbir yerde kullanmayın ve kimseyle paylaşmayın</li>
+            </ul>
+
+            <a class="gen-tips-footer" href="/dashboard">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect>
+                    <rect x="14" y="14" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect>
+                </svg>
+                <span data-i18n="generator.tips_footer">Hangi şifrelerinin zayıf ya da eski olduğunu Gösterge Paneli'nde gör</span>
+            </a>
+        </aside>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/modules/generator.js' %}"></script>
+<script src="{% static 'js/modules/generator.js' %}?v={{ APP_VERSION }}-sim2"></script>
 {% endblock %}

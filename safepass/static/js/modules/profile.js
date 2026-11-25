@@ -6,18 +6,17 @@
 // Use global functions from app.js
 const showAlert = window.showAlert;
 const getCookie = window.getCookie;
+const t = (key, params) => (window.SafePassI18n ? window.SafePassI18n.t(key, params) : key);
 
 // Load stats on page load
 document.addEventListener('DOMContentLoaded', () => {
     loadProfileStats();
 });
 
-// Make functions globally accessible
-window.openChangeMasterPassword = openChangeMasterPassword;
-window.closeChangeMasterPassword = closeChangeMasterPassword;
-window.exportData = exportData;
-window.importData = importData;
-window.deleteAccount = deleteAccount;
+document.getElementById('changeMasterBtn').addEventListener('click', openChangeMasterPassword);
+document.getElementById('changeMasterClose').addEventListener('click', closeChangeMasterPassword);
+document.getElementById('changeMasterCancel').addEventListener('click', closeChangeMasterPassword);
+document.getElementById('deleteAccountBtn').addEventListener('click', deleteAccount);
 
 /**
  * Load profile statistics
@@ -40,8 +39,8 @@ async function loadProfileStats() {
         } else {
             document.getElementById('avgStrength').textContent = '0%';
         }
-    } catch (error) {
-        console.error('Load stats error:', error);
+    } catch {
+        // Keep the placeholders; nothing is logged to the console
     }
 }
 
@@ -62,21 +61,39 @@ function openChangeMasterPassword() {
         const confirmPassword = document.getElementById('confirmMasterPassword').value;
 
         if (newPassword !== confirmPassword) {
-            showAlert('Yeni şifreler eşleşmiyor!', 'error');
+            showAlert(t('profile.mismatch'), 'error');
             return;
         }
 
+        // Same rules as the server (views.master_password_error)
         if (newPassword.length < 8) {
-            showAlert('Şifre en az 8 karakter olmalıdır', 'error');
+            showAlert(t('auth.msg_master_min_short'), 'error');
             return;
         }
+
+        if (!/[A-Z]/.test(newPassword) || !/[a-z]/.test(newPassword) || !/[0-9]/.test(newPassword)) {
+            showAlert(t('auth.msg_master_weak'), 'error');
+            return;
+        }
+
+        if (newPassword === currentPassword) {
+            showAlert(t('srv.new_password_same'), 'error');
+            return;
+        }
+
+        // Re-encrypting every entry can take a moment
+        const submitButton = form.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        submitButton.setAttribute('data-i18n', 'profile.reencrypting');
+        submitButton.textContent = t('profile.reencrypting');
 
         try {
+            const csrfMeta = document.querySelector('meta[name="csrf-token"]');
             const response = await fetch('/api/auth/change-master-password', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken')
+                    'X-CSRFToken': csrfMeta ? csrfMeta.content : getCookie('csrftoken')
                 },
                 body: JSON.stringify({
                     current_password: currentPassword,
@@ -84,18 +101,22 @@ function openChangeMasterPassword() {
                 })
             });
 
-            const data = await response.json();
+            const data = await response.json().catch(() => ({}));
 
-            if (data.success) {
-                showAlert('Master şifre değiştirildi!', 'success');
+            if (response.ok && data.success) {
+                showAlert(t('profile.password_changed'), 'success');
                 closeChangeMasterPassword();
-                form.reset();
+                // The data key changed, so the old recovery key no longer opens anything
+                await window.SafePassRecovery.show(data.recovery_key, { username: document.querySelector('meta[name="sp-username"]')?.content, replaced: true });
             } else {
-                showAlert(data.error || 'Şifre değiştirilemedi', 'error');
+                showAlert(window.SafePassI18n.serverText(data) || t('srv.change_password_failed'), 'error');
             }
         } catch (error) {
-            console.error('Change password error:', error);
-            showAlert('Bir hata oluştu', 'error');
+            showAlert(t('common.error_generic'), 'error');
+        } finally {
+            submitButton.disabled = false;
+            submitButton.setAttribute('data-i18n', 'profile.change');
+            submitButton.textContent = t('profile.change');
         }
     };
 }
@@ -106,119 +127,48 @@ function openChangeMasterPassword() {
 function closeChangeMasterPassword() {
     const modal = document.getElementById('changeMasterPasswordModal');
     modal.style.display = 'none';
-}
-
-/**
- * Export data
- */
-function exportData() {
-    showAlert('Verileriniz indiriliyor...', 'info');
-    window.location.href = '/api/export';
-}
-
-/**
- * Import data
- */
-function importData() {
-    // Create file input
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.json';
-    
-    input.onchange = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        
-        // Validate file type
-        if (!file.name.endsWith('.json')) {
-            showAlert('Lütfen JSON dosyası seçin', 'error');
-            return;
-        }
-        
-        const formData = new FormData();
-        formData.append('file', file);
-        
-        try {
-            const response = await fetch('/api/import', {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': getCookie('csrftoken')
-                },
-                body: formData
-            });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                showAlert(data.message, 'success');
-                // Reload stats after import
-                setTimeout(() => {
-                    loadProfileStats();
-                }, 1000);
-            } else {
-                showAlert(data.error || 'İçe aktarma başarısız', 'error');
-            }
-        } catch (error) {
-            console.error('Import error:', error);
-            showAlert('İçe aktarma sırasında bir hata oluştu', 'error');
-        }
-    };
-    
-    // Trigger file selection
-    input.click();
+    // Typed master passwords do not stay in the page
+    document.getElementById('changeMasterPasswordForm').reset();
 }
 
 /**
  * Delete account
  */
-function deleteAccount() {
-    const confirmed = confirm(
-        'UYARI: Hesabınızı ve tüm verilerinizi kalıcı olarak silmek istediğinizden emin misiniz?\n\n' +
-        'Bu işlem GERİ ALINAMAZ!\n\n' +
-        'Devam etmek için "Tamam" düğmesine basın.'
-    );
+async function deleteAccount() {
+    // The confirmation word is in the UI language (SİL / DELETE / ELIMINAR / LÖSCHEN)
+    const word = () => t('profile.delete_word');
+    let deleted = null;
 
-    if (!confirmed) return;
-
-    const masterPassword = prompt('Şifrenizi girin:');
-    if (!masterPassword) {
-        showAlert('Şifre gerekli', 'error');
-        return;
-    }
-
-    const doubleConfirm = prompt(
-        'Son onay: Devam etmek için "SİL" yazın (büyük harflerle):'
-    );
-
-    if (doubleConfirm !== 'SİL') {
-        showAlert('İşlem iptal edildi', 'info');
-        return;
-    }
-
-    fetch('/api/profile/delete-account', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            master_password: masterPassword
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showAlert(data.message, 'success');
-            setTimeout(() => {
-                window.location.href = '/auth/login';
-            }, 2000);
-        } else {
-            showAlert(data.error || 'Hesap silinirken hata oluştu', 'error');
+    const result = await window.SafePassDialog.confirm({
+        danger: true,
+        title: () => t('profile.delete_title'),
+        text: () => t('profile.delete_modal_text'),
+        confirmLabel: () => t('profile.delete_forever'),
+        fields: [
+            { name: 'password', type: 'password', autocomplete: 'current-password', label: () => t('profile.delete_password_label') },
+            { name: 'word', type: 'text', label: () => t('profile.delete_word_label', { word: word() }), mustEqual: word }
+        ],
+        // Runs while the dialog stays open, so a wrong password is shown right there
+        onConfirm: async (values) => {
+            const response = await fetch('/api/profile/delete-account', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ master_password: values.password })
+            });
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok || !data.success) {
+                return () => window.SafePassI18n.serverText(data) || t('srv.delete_account_failed');
+            }
+            deleted = data;
+            return null;
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showAlert('Hesap silinirken hata oluştu', 'error');
     });
+
+    if (!result || !deleted) return;
+    showAlert(window.SafePassI18n.serverText(deleted, 'message'), 'success');
+    setTimeout(() => {
+        window.location.href = '/auth/login';
+    }, 2000);
 }
 
 // Close modal on ESC key

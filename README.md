@@ -1,344 +1,157 @@
-# SafePass - Offline Password Manager
+# SafePass
 
-SafePass, şifrelerinizi güvenli bir şekilde yerel bilgisayarınızda saklayan offline bir şifre yöneticisidir.
-
-## 🔐 Özellikler
-
-- ✅ **Offline Çalışma**: Tüm veriler yerel bilgisayarınızda
-- ✅ **Güçlü Şifreleme**: AES-256-GCM ile şifreleme
-- ✅ **Ana Şifre**: Master password ile tüm verilerinizi koruyun
-- ✅ **Şifre Üretici**: Güçlü şifreler otomatik oluşturun
-- ✅ **Gerçek Zamanlı Şifre Doğrulama**: Kayıt sırasında canlı şifre gücü göstergesi
-- ✅ **Güvenlik Analizi**: Şifrelerinizi otomatik değerlendirin
-- ✅ **Dashboard**: Gerçek zamanlı güvenlik skoru ve istatistikler
-- ✅ **Hiyerarşik Kategoriler**: 5 ana kategori ve 18 alt kategori ile şifrelerinizi organize edin
-- ✅ **Şifre Geçmişi**: Eski şifrelerinizi görüntüleyin ve geri yükleyin
-- ✅ **Import/Export**: JSON ve CSV formatlarında yedekleme ve geri yükleme
-- ✅ **Akıllı İçe Aktarma**: Mevcut kartlardaki şifre değişikliklerini otomatik algılama
-- ✅ **Oturum Timeout**: 1 saat inaktivite sonrası otomatik çıkış
-- ✅ **Otomatik Güncelleme Kontrolü**: PyPI üzerinden yeni sürüm bildirimleri
-
-## 📊 Güvenlik Analizi
-
-SafePass, şifrelerinizi otomatik olarak analiz eder ve güvenlik seviyenizi değerlendirir.
-
-### Şifre Gücü Kategorileri
-
-Şifreler üç kategoriye ayrılır:
-- **🛡️ Güçlü** (80+ puan): Uzun, çeşitli karakter içeren şifreler
-- **⚠️ Orta** (50-79 puan): İyileştirilebilir şifreler
-- **🔴 Zayıf** (<50 puan): Acilen değiştirilmesi gereken şifreler
-
-### Şifre Puanlama Sistemi
-
-Her şifre aşağıdaki kriterlere göre 100 üzerinden puanlanır:
-
-**Uzunluk Puanı:**
-- 16+ karakter → 40 puan
-- 12-15 karakter → 30 puan
-- 8-11 karakter → 20 puan
-- 8'den az → 0 puan
-
-**Karakter Çeşitliliği** (her biri +15 puan):
-- ✓ Küçük harf (a-z)
-- ✓ Büyük harf (A-Z)
-- ✓ Rakam (0-9)
-- ✓ Sembol (!@#$%...)
-
-**Örnek Hesaplamalar:**
-```
-"password"         → 20 + 15 = 35 puan  (Zayıf)
-"Password123"      → 30 + 45 = 75 puan  (Orta)
-"P@ssw0rd!2024"    → 30 + 60 = 90 puan  (Güçlü)
-"MyS3cur3P@ss!"    → 30 + 60 = 90 puan  (Güçlü)
-"C0mpl3x!P@ssW0rd" → 40 + 60 = 100 puan (Güçlü)
-```
-
-### Güvenlik Skoru
-
-Dashboard'daki güvenlik skoru, tüm şifrelerinizi değerlendirerek hesaplanır:
-
-```
-Hesaplama Formülü:
-- Güçlü şifre: 100 puan
-- Orta şifre: 60 puan
-- Zayıf şifre: 20 puan
-
-Baz Skor = (Güçlü×100 + Orta×60 + Zayıf×20) / Toplam Şifre Sayısı
-
-Cezalar:
-- Her zayıf şifre için: -5 puan
-- Her tekrarlanan şifre grubu için: -10 puan
-```
-
-**Tekrar Eden Şifreler:**
-Birden fazla hesap için aynı şifreyi kullanmak büyük güvenlik riski oluşturur. Bir hesap ele geçirildiğinde diğer hesaplarınız da tehlikeye girer.
-
-Dashboard'da "Tekrar Eden Şifreler" bölümünde hangi şifrelerin tekrarlandığını görebilirsiniz.
-
-**Skor Yorumlama:**
-- 90-100: Mükemmel güvenlik 🏆
-- 75-89: İyi güvenlik ✅
-- 50-74: Orta güvenlik ⚠️
-- 0-49: Zayıf güvenlik 🚨
-
-### Dashboard İstatistikleri
-
-Ana sayfada şu bilgileri görebilirsiniz:
-- 📊 Toplam şifre sayısı
-- 🛡️ Güçlü şifre sayısı
-- ⚠️ Orta şifre sayısı
-- 🔴 Zayıf şifre sayısı
-- 🔒 Genel güvenlik skoru (0-100)
-- 📋 Son eklenen şifreler
-
-## 📁 Kategori Sistemi
-
-SafePass, şifrelerinizi organize etmek için hiyerarşik kategori sistemi sunar:
-
-### Ana Kategoriler ve Alt Kategoriler
-
-| Ana Kategori | Alt Kategoriler |
-|--------------|-----------------|
-| 📁 **Genel** | E-Posta, Sosyal Medya, Alışveriş, Forumlar & Üyelikler |
-| 💰 **Finans** | Bankacılık, Kredi Kartları, Kripto Paralar, Faturalar |
-| 💼 **İş & Geliştirici** | Şirket Hesapları, Sunucular & SSH, Veritabanları, Git & Repolar, API & Lisanslar |
-| 🌐 **Sistem & Ağ** | Wi-Fi Şifreleri, Cihaz Pinleri, Modem Arayüzleri, Yazılım Lisansları |
-| 👤 **Kişisel** | E-Devlet & Resmi Kurum, Sağlık, Notlar & Güvenli Dosyalar |
-
-Şifrelerim sayfasında kategoriye göre filtreleme yapabilirsiniz.
-
-## 🕒 Şifre Geçmişi
-
-SafePass, şifrelerinizin geçmiş versiyonlarını saklar:
-
-- Her şifre değişikliğinde eski şifre geçmişe eklenir
-- Şifre kartlarındaki 🕒 ikonuna tıklayarak geçmişi görüntüleyin
-- Eski bir şifreyi tek tıkla geri yükleyin
-- Değişiklik tarihleri ile birlikte görüntüleme
-
-## 💾 Import / Export
-
-Verilerinizi yedekleyin ve geri yükleyin:
-
-### Dışa Aktarma (Export)
-- **JSON Formatı**: Tüm şifrelerinizi JSON dosyası olarak indirin
-- İçe/Dışa Aktar > Json Veri Yönetimi sayfasından erişin
-
-### İçe Aktarma (Import)
-
-**JSON İçe Aktarma:**
-- Daha önce SafePass'ten dışa aktarılan JSON dosyalarını yükleyin
-- **Akıllı Güncelleme**: Mevcut kartlardaki şifre değişiklikleri otomatik algılanır
-- Eski şifre geçmişe kaydedilir, yeni şifre güncellenir
-- Yeni kartlar otomatik olarak eklenir
-
-**CSV İçe Aktarma:**
-- Diğer şifre yönetim uygulamalarınızdaki şifrelerinizi SafePass'e taşıyın
-- **İki Format Desteği:**
-  - **KeePass Formatı**: `Group,Subcategory,Title,Username,Password,URL`
-  - **SafePass Formatı**: `title,username,password,website,category,subcategory`
-- Aynı akıllı güncelleme sistemi CSV için de geçerlidir
-
-**Akıllı İçe Aktarma Özellikleri:**
-- Aynı kullanıcı adı, başlık, URL ve kategoriye sahip kartlar tespit edilir
-- Şifre farklıysa: Eski şifre geçmişe kaydedilir, yeni şifre güncellenir
-- Şifre aynıysa: Atlanır, çift kayıt oluşmaz
-- Farklı bilgilere sahip kartlar: Yeni kart olarak eklenir
-
-⚠️ **Güvenlik Notu**: Dışa aktarılan dosyalar şifrelerinizi düz metin olarak içerir. Güvenli bir yerde saklayın!
-
-## 📦 Kurulum
+Şifrelerini yalnızca kendi bilgisayarında saklayan, tarayıcıdan kullanılan çevrimdışı şifre yöneticisi. Hesap açtırmaz, kasandan hiçbir şeyi dışarı göndermez. İnternete kendiliğinden yalnızca yeni sürüm kontrolü için çıkar; bunu da Ayarlar'dan kapatabilirsin.
 
 ```bash
 pip install safepass-cli
-```
-
-## 🚀 Kullanım
-
-### İlk Kurulum
-
-Kurulumdan sonra SafePass otomatik olarak varsayılan port olan **2025**'te başlar.
-
-### Komutlar
-
-```bash
-# Veritabanını manuel başlat (opsiyonel - start komutu otomatik yapar)
-safepass init
-
-# Web sunucusunu başlat (varsayılan port: 2025)
 safepass start
+```
 
-# Uygulamayı güncelle
-safepass-cli update
+`safepass start` tarayıcını giriş sayfasında kendisi açar; orada hesabını oluştur. SafePass ana şifreni yalnızca bu komutun açtığı pencerede ister, yer iminden açılan bir sayfa şifre istiyorsa o sayfa SafePass değildir. Python 3.10 veya üstü gerekir.
 
-# Çalışan sunucuyu durdur
+> ⚠️ **Kurtarma anahtarını sakla.** Kayıtta bir kez gösterilir. Ana şifreni unutursan yalnızca bu anahtarla yeni şifre belirleyebilirsin; ikisini birden kaybedersen verilerine kimse ulaşamaz.
+
+## Neler yapabilir?
+
+**Kasa**
+- Her kayıt için başlık, kullanıcı adı, şifre, adres, kategori ve not
+- Arama, kategori filtreleri ve değişen şifrelerin geçmişi
+- Kullanılmayan hesapları silmeden pasife alma
+- 7 gün saklanan çöp kutusu
+- Kopyalanan şifrenin panodan otomatik silinmesi
+
+**Güvenlik takibi**
+- Gösterge panelinde güvenlik skoru
+- Zayıf, tekrar eden ve eskiyen şifrelerin listesi
+- Eskiyen şifreler ve hatalı giriş denemeleri için bildirimler
+- Yapılandırılabilir şifre üretici
+- **Siber Test:** Bir şifreye karşı yapılan saldırıyı beş adımda canlandırır (sızan şifre listesi, sözlük, örüntü, tarih/PIN, kaba kuvvet) ve dört senaryo için tahmini kırılma süresini gösterir. Şifre yazılarak ya da Şifre Üret'teki "Saldırıya karşı test et" ile gönderilir. Hesap tarayıcıda yapılır; şifre denenmez, kaydedilmez, hiçbir yere gönderilmez. Sonuçlar örnek amaçlıdır.
+
+**Düzen ve arayüz**
+- Kendi kategorilerini, alt kategorilerini ve hazır servislerini düzenleme
+- Sayfanın özelliklerini adım adım anlatan **Yardım** turu (maskotumuz Lokki eşliğinde)
+- Açık ve koyu tema, görünüm ayarları
+- Türkçe, İngilizce, İspanyolca, Almanca ve Rusça
+
+Arayüz masaüstü tarayıcılar için tasarlandı; telefon ekranlarında menüye ulaşılamıyor.
+
+## Komutlar
+
+| Komut | Ne yapar |
+|---|---|
+| `safepass start` | Arka planda başlatır ve giriş sayfasını açar (bu kuruluma özel portta) |
+| `safepass start --port 8080` | Başka bir portta başlatır |
+| `safepass start --foreground` | Bu terminalde çalıştırır, `Ctrl+C` ile durur |
+| `safepass stop` | Çalışan sunucuyu durdurur |
+| `safepass update` | En son sürüme günceller |
+| `safepass rollback` | Geri dönülebilecek sürümleri listeler |
+| `safepass rollback 1.2.4` | Daha önce kullandığın bir sürüme döner |
+| `safepass reset` | Tüm verileri silip boş bir kasa açar |
+| `safepass clean` | SafePass'in tüm verilerini siler |
+| `safepass --help` | Yardımı gösterir |
+
+`reset` ve `clean` geri alınamaz; önce silinecek klasörü ve dosyaları gösterir, onay için `delete` yazmanı ister.
+
+**Port:** SafePass ilk başlatıldığında 20000–32000 arasından rastgele bir port seçer ve veri klasöründeki `port` dosyasına yazar; sonraki her başlatmada aynı portu kullanır. Herkesin bildiği sabit bir port olmadığı için bilgisayardaki başka bir programın SafePass kapalıyken o adrese sahte bir giriş sayfası koyması zorlaşır. 2.50.152 ve öncesi hep 2025'i kullanıyordu: güncellemeden sonra adres değişir, eski yer imini sil. Bu geçişte tema, görünüm ayarları ve güvenilir cihaz kaydı da bir kez sıfırlanır, çünkü tarayıcı bunları adrese göre saklar. SafePass'i her zaman `safepass start` ile aç; doğru adresi o açar.
+
+## Güncelleme ve geri dönüş
+
+```bash
 safepass stop
-
-# Tüm verileri sıfırla (GERİ ALINAMAZ!)
-safepass reset
-
-# Tüm kullanıcı verilerini ve veritabanını kaldır
-safepass clean
-
-# Yardım
-safepass --help
+safepass update
+safepass start
 ```
 
-### Tarayıcıdan Erişim
+Verilerin korunur. Sürüm değişmeden hemen önce veritabanının kopyası alınır ve 30 gün saklanır.
 
+Yeni sürüm çıkınca üst bardaki zil haber verir ve bu komutları gösterir.
+
+**1.x sürümünden geçiyorsan:**
+- Verilerin ilk girişte yeni güvenlik biçimine geçirilir, ana şifren değişmez.
+- İlk açılışta yenilikler anlatılır. Kurtarma anahtarın olmadığı için onu **Ayarlar**'dan ya da bu turdan oluşturmayı unutma.
+- Yeni biçimi eski sürümler okuyamaz. Dönmek istersen `pip` ile eski sürümü kurma, `safepass rollback 1.2.4` komutunu kullan.
+
+**Geri dönüş nasıl çalışır?** `safepass rollback <sürüm>` eski sürümü kurar ve o sürümün kopyasını geri yükler.
+- Kopyadan sonra eklediğin veya değiştirdiğin kayıtlar eski sürümde görünmez. Güncel verilerin silinmez, yana kaydedilir.
+- Vazgeçersen `safepass update` ve ardından `safepass rollback <yeni sürüm>` ile geri gelir.
+- Yalnızca bu bilgisayarda kullandığın ve kopyasının süresi dolmamış sürümlere dönebilirsin.
+
+## Yedekleme ve taşıma
+
+**İçe/Dışa Aktar** sayfasından, ana şifreni girerek dışa aktarabilirsin:
+
+| Biçim | Ne için | Dikkat |
+|---|---|---|
+| **Şifreli yedek** (`.safepass`) | Yedek almak ve başka bir bilgisayardaki SafePass'e taşımak | Belirlediğin yedek parolasını unutursan dosya açılamaz; kurtarma anahtarı da açmaz |
+| **Düz metin JSON** | Başka bir şifre yöneticisine geçmek | Tüm şifrelerin açıkça yazılıdır; işin bitince dosyayı sil |
+
+Yedekten şifreler, notlar, kategoriler ve pasif durumu döner. Şifre geçmişi, tarihler ve çöp kutusu dönmez.
+
+İçe aktarmada `.safepass`, `.json` ve şu sütunlara sahip `.csv` dosyaları kabul edilir:
+
+```text
+KeePass:   Group,Subcategory,Title,Username,Password,URL
+SafePass:  title,username,password,website,category,subcategory
 ```
-http://localhost:2025
-```
 
-## 🎨 Kullanıcı Arayüzü Özellikleri
+Aynı kayıt yeniden eklenmez. Şifresi değişmiş bir kayıtta yeni şifre yazılır, eskisi geçmişe kaydedilir.
 
-### Kayıt & Giriş
+## Güvenlik
 
-- **Gerçek Zamanlı Şifre Doğrulama**: Kayıt sırasında şifrenizin gücünü anlık görün
-- **Şifre Gereksinimleri Göstergesi**: 
-  - ✅ En az 8 karakter
-  - ✅ Büyük harf (A-Z)
-  - ✅ Küçük harf (a-z)
-  - ✅ Rakam (0-9)
-  - ✨ Sembol (!@#$%) - isteğe bağlı
-- **Şifre Görünürlük Kontrolü**: Göz ikonu ile şifreleri göster/gizle
-- **Ana Şifre Uyarısı**: Şifrenizi unutma riskine karşı bilgilendirme
+- **Şifreleme:** Şifreler, başlıklar, kullanıcı adları, adresler ve notlar AES-256-GCM ile şifrelenir.
+- **Ana şifre:** Saklanmaz. Her denemesi 64 MB bellek isteyen Argon2id ile anahtara çevrilir, bu da veritabanı çalınsa bile tahmin etmeyi pahalılaştırır.
+- **Kurtarma anahtarı:** Saklanmaz. Değiştiğinde veya ana şifre değiştiğinde eskisi geçersiz olur.
+- **Oturum:** Hareketsizlikte kapanır (varsayılan 7 dakika, 5–120 dakika arası seçilebilir). Anahtar yalnızca bellekte, tek bir kopya olarak tutulur. Çıkışta, süre dolunca, ana şifre değişince ve hesap silinince bu kopya sıfırlanır. SafePass kapanınca oturum da biter.
+- **Tarayıcı:** İçerik Güvenlik Politikası (CSP) ve CSRF koruması vardır, tekrarlanan hatalı girişlerde hesap geçici olarak kilitlenir.
+- **Ağ:** Sunucu varsayılan olarak yalnızca bu bilgisayardan erişilebilir. Yazı tipleri pakete dahildir, sayfalar dışarıya istek göndermez.
+- **Sürüm kontrolü:** Giriş yapılmışken günde en fazla bir kez PyPI'a en son sürüm numarası sorulur; kasandan hiçbir şey gönderilmez, ama PyPI IP adresini görür. **Ayarlar**'dan kapatınca SafePass kendiliğinden internete hiç çıkmaz; yalnızca `update` ve `rollback` komutları çıkar.
 
-### Bildirimler
+**Bilmen gerekenler**
+- Kategori adları ve Tanımlar'daki servisler veritabanında şifresiz durur.
+- Bilgisayarına bulaşmış zararlı bir yazılım, oturumun açıkken şifrelerini görebilir. Hiçbir yerel şifre yöneticisi buna karşı tam koruma sağlamaz.
+- SafePass, isteklerin ve yanıtların ham baytlarını işi bitince sıfırlar. Ama Python, metne çevrilmiş kopyaları (ana şifre, açılan kart şifreleri) silmeye izin vermez. Bunlar, üzerlerine başka veri yazılana kadar sunucu belleğinde kalabilir. Bellek dökümü, çökme dökümü veya hazırda bekletme dosyası alabilen biri onları okuyabilir. En temiz yol, işin bitince `safepass stop` ile SafePass'i kapatmaktır.
+- 1.x'ten gelen bir hesabın verileri ilk girişe kadar eski, zayıf biçimde kalır. Bu sürümün geri dönüş kopyası da aynı biçimdedir ve 30 gün diskte durur.
+- SafePass kişisel bir projedir, bağımsız bir güvenlik denetiminden geçmemiştir.
 
-- **Toast Bildirimleri**: Sağ üst köşede modern bildirimler
-- **Hata Yönetimi**: Detaylı ve kullanıcı dostu hata mesajları
-- **Güncelleme Kontrolü**: PyPI üzerinden otomatik sürüm kontrolü
+Verilerin `~/.safepass` klasöründedir. Bu klasörü kopyalamak yedek sayılmaz: içinde 30 günlük sürüm kopyaları da vardır. Yedek için **Şifreli yedek** kullan.
 
-### Şifrelerim Sayfası
+## Sorun giderme
 
-- **Hızlı Eylemler**: Şifre kopyalama, düzenleme, silme, geçmiş görüntüleme
-- **Kategori Filtreleme**: Ana ve alt kategorilere göre filtreleme
-- **Arama**: Anlık şifre arama
+| Sorun | Çözüm |
+|---|---|
+| Port kullanımda | `safepass start --port 2026` |
+| Sayfa açılmıyor | `safepass stop`, ardından `safepass start`; hata sürerse `~/.safepass/safepass.log` dosyasına bak |
+| Ana şifremi unuttum | Giriş ekranında **Ana şifremi unuttum**'a tıkla, kurtarma anahtarını gir |
+| Kurtarma anahtarımı kaybettim | Ana şifrenle giriş yapıp **Ayarlar**'dan yenisini oluştur |
+| Sayfa bozuk görünüyor | Tarayıcıda `Ctrl+F5` ile yenile |
+| Eski sürüme geçince "Yanlış şifre" diyor | Yeni sürümü yeniden kurup `safepass rollback <eski sürüm>` komutunu kullan |
 
-### Yardımcı Butonlar
-
-Sağ alt köşede sabit butonlar:
-- **ℹ️ Nasıl Çalışır**: SafePass hakkında detaylı bilgi (sadece kayıt sayfasında)
-- **🔔 Güncelleme**: Yeni sürüm mevcut olduğunda görünür
-- **❤️ Geliştirici**: Geliştirici bilgileri ve iletişim
-
-## 🗑️ Kaldırma
-
-### Veritabanını Temizle (Şifreleri Sil)
+## Kaldırma
 
 ```bash
-# Tüm şifrelerinizi ve veritabanını sil
-safepass clean
+safepass clean              # verileri siler (isteğe bağlı, geri alınamaz)
+pip uninstall safepass-cli  # uygulamayı kaldırır, verilere dokunmaz
 ```
 
-⚠️ **Uyarı:** Bu komut tüm şifrelerinizi kalıcı olarak siler!
+## Geliştirme
 
-### Uygulamayı Tamamen Kaldır
+Kaynak koddan çalıştırmak için:
 
 ```bash
-# 1. Önce veritabanını temizle (opsiyonel)
-safepass clean
-
-# 2. Uygulamayı kaldır
-pip uninstall safepass-cli
+git clone https://github.com/Barancll/safepass-cli.git
+cd safepass-cli
+python -m venv .venv
+pip install -r requirements.txt
+pip install -e .
+safepass start
 ```
 
-**Not:** `pip uninstall` sadece uygulamayı kaldırır, verilerinizi silmez. Verilerinizi de silmek için önce `safepass clean` komutunu çalıştırın.
+Django 5.2, SQLite ve saf JavaScript ile yazıldı.
 
-## 🔄 Güncelleme
+## Geliştirici
 
-SafePass, PyPI üzerinden yeni sürümleri otomatik kontrol eder. Yeni bir sürüm mevcut olduğunda:
+**Baran Celal Tonyalı** · [Web sitesi](https://barancelaltonyali.com/) · [LinkedIn](https://www.linkedin.com/in/baran-celal-tonyali/) · [GitHub](https://github.com/Barancll) · [PyPI](https://pypi.org/project/safepass-cli/)
 
-1. Sağ alt köşede 🔔 güncelleme butonu görünür
-2. Butona tıklayarak güncelleme talimatlarını görün
-3. Terminalde `safepass-cli update` komutunu çalıştırın
-4. Uygulamayı yeniden başlatın
+## Lisans
 
-**Manuel Güncelleme:**
-```bash
-safepass-cli update
-# veya
-pip install --upgrade safepass-cli
-```
-
-## 🎯 Teknolojiler
-
-**Backend:**
-- Django 5.1.x
-- SQLite
-- Python 3.8+
-
-**Frontend:**
-- Modern CSS (Glassmorphism, Gradient tasarımlar, animasyonlar)
-- Vanilla JavaScript
-- Responsive Design
-
-**Güvenlik:**
-- AES-256-GCM şifreleme
-- PBKDF2 anahtar türetme
-- CSRF koruması
-
-## 🔒 Güvenlik
-
-- Tüm şifreler AES-256-GCM ile şifrelenir
-- Ana şifre asla saklanmaz
-- Veriler `~/.safepass/` dizininde saklanır
-- Offline çalışır, internet bağlantısı gerektirmez (güncelleme kontrolü hariç)
-- CSRF token koruması
-- Session timeout (1 saat inaktivite)
-
-## ⚙️ Yapılandırma
-
-### Varsayılan Ayarlar
-
-- **Port**: 2025
-- **Session Timeout**: 1 saat
-- **Veritabanı**: `~/.safepass/db.sqlite3`
-- **Otomatik Güncelleme Kontrolü**: Aktif
-
-## ⚠️ Önemli Notlar
-
-- **Ana şifrenizi unutmayın!** Unutursanız verileriniz kurtarılamaz.
-- Düzenli olarak verilerinizi yedekleyin (Profil > Import/Export > JSON İndir)
-- Güçlü ve benzersiz bir ana şifre kullanın
-- Ana şifrenizi güvenli bir yerde saklayın
-- Uygulamayı güncel tutun (`safepass-cli update`)
-
-## 📱 Tarayıcı Desteği
-
-SafePass modern tarayıcılarda sorunsuz çalışır:
-- ✅ Chrome/Edge (önerilen)
-- ✅ Firefox
-- ✅ Safari
-- ✅ Opera
-
-## 🐛 Sorun Giderme
-
-### Veritabanı Hatası
-```bash
-# Veritabanını sıfırla (VERİLER SİLİNİR!)
-safepass clean
-```
-
-### Güncelleme Sorunu
-```bash
-# Manuel güncelleme
-pip install --upgrade safepass-cli --force-reinstall
-```
-
-## 👨‍💻 Geliştirici
-
-**Baran Celal Tonyalı**
-
-- 🌐 Website: [barancelaltonyali.com](https://barancelaltonyali.com/)
-- 💼 LinkedIn: [linkedin.com/in/baran-celal-tonyali](https://www.linkedin.com/in/baran-celal-tonyali/)
-- 📦 PyPI: [pypi.org/project/safepass-cli](https://pypi.org/project/safepass-cli/)
-- 💻 GitHub: [github.com/Barancll/safepass-cli](https://github.com/Barancll/safepass-cli)
-
-## 📄 Lisans
-
-MIT License - Detaylar için LICENSE dosyasına bakın.
-
-**SafePass v1.2.3** - Made with ❤️ by Baran Celal Tonyalı
+[MIT](https://github.com/Barancll/safepass-cli/blob/main/LICENSE). Yazılım hiçbir garanti olmadan sunulur.

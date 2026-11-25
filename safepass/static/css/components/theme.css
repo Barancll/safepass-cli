@@ -1,0 +1,216 @@
+/* ============================================================
+   SafePass v2 - Theme System (Pinx-Inspired)
+   Dark & Light theme variables with Liquid Glass effects
+   ============================================================ */
+
+/* ── Dark Theme (Default) ─────────────────────────────────── */
+[data-theme="dark"],
+:root {
+    /* Primary & Accent */
+    --sp-primary: #a855f7;
+    --sp-primary-rgb: 168, 85, 247;
+    --sp-primary-hover: #9333ea;
+    --sp-primary-light: rgba(168, 85, 247, 0.14);
+    --sp-primary-soft: rgba(168, 85, 247, 0.08);
+
+    /* Backgrounds */
+    --sp-bg-body: #08090c;
+    --sp-bg-sidebar: #0f1116;
+    --sp-bg-card: #14171d;
+    --sp-bg-card-hover: #191d24;
+    --sp-bg-input: #0c0e13;
+    --sp-bg-topbar: rgba(10, 11, 15, 0.94);
+    --sp-bg-dropdown: #151920;
+    --sp-bg-modal-overlay: rgba(0, 0, 0, 0.78);
+
+    /* Text */
+    --sp-text-primary: #d5dae3;
+    --sp-text-secondary: #9aa3b2;
+    --sp-text-muted: #6b7382;
+    --sp-text-heading: #f2f4f8;
+    --sp-text-inverse: #111827;
+
+    /* Borders */
+    --sp-border: rgba(255, 255, 255, 0.08);
+    --sp-border-light: rgba(255, 255, 255, 0.04);
+    --sp-border-active: rgba(168, 85, 247, 0.35);
+
+    /* Shadows */
+    --sp-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+    --sp-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.3);
+    --sp-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.4);
+    --sp-shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.5);
+    --sp-shadow-glow: 0 0 20px rgba(168, 85, 247, 0.18);
+
+    /* Liquid Glass */
+    --sp-glass-bg: rgba(14, 16, 22, 0.9);
+    --sp-glass-border: rgba(255, 255, 255, 0.06);
+    --sp-glass-blur: 16px;
+    --sp-glass-shine: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 50%);
+
+    /* Semantic Colors */
+    --sp-success: #10b981;
+    --sp-success-light: rgba(16, 185, 129, 0.12);
+    --sp-warning: #f59e0b;
+    --sp-warning-light: rgba(245, 158, 11, 0.12);
+    --sp-danger: #ef4444;
+    --sp-danger-light: rgba(239, 68, 68, 0.12);
+    --sp-info: #3b82f6;
+    --sp-info-light: rgba(59, 130, 246, 0.12);
+
+    /* Sidebar */
+    --sp-sidebar-width: 260px;
+    --sp-sidebar-collapsed-width: 80px;
+    --sp-sidebar-menu-hover: rgba(168, 85, 247, 0.08);
+    --sp-sidebar-menu-active-bg: rgba(168, 85, 247, 0.14);
+    --sp-sidebar-menu-active-text: #c084fc;
+
+    /* Topbar */
+    --sp-topbar-height: 70px;
+
+    /* Radius */
+    --sp-radius-sm: 6px;
+    --sp-radius-md: 10px;
+    --sp-radius-lg: 14px;
+    --sp-radius-xl: 20px;
+    --sp-radius-full: 9999px;
+
+    /* Transitions */
+    --sp-transition-fast: 0.15s ease;
+    --sp-transition: 0.25s ease;
+    --sp-transition-slow: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Scrollbar */
+    --sp-scrollbar-track: transparent;
+    --sp-scrollbar-thumb: rgba(255, 255, 255, 0.1);
+    --sp-scrollbar-thumb-hover: rgba(168, 85, 247, 0.35);
+
+    /* Color palette for settings */
+    --sp-palette-1: #a855f7;
+    --sp-palette-2: #3b82f6;
+    --sp-palette-3: #8b5cf6;
+    --sp-palette-4: #ec4899;
+    --sp-palette-5: #f59e0b;
+    --sp-palette-6: #ef4444;
+}
+
+/* ── Light Theme ──────────────────────────────────────────── */
+[data-theme="light"] {
+    /* Primary & Accent (stays same or slightly adjusted) */
+    --sp-primary: #7c3aed;
+    --sp-primary-rgb: 124, 58, 237;
+    --sp-primary-hover: #6d28d9;
+    --sp-primary-light: rgba(124, 58, 237, 0.10);
+    --sp-primary-soft: rgba(124, 58, 237, 0.05);
+
+    /* Backgrounds */
+    --sp-bg-body: #f1f5f9;
+    --sp-bg-sidebar: #ffffff;
+    --sp-bg-card: #ffffff;
+    --sp-bg-card-hover: #f8fafc;
+    --sp-bg-input: #f1f5f9;
+    --sp-bg-topbar: rgba(255, 255, 255, 0.85);
+    --sp-bg-dropdown: #ffffff;
+    --sp-bg-modal-overlay: rgba(0, 0, 0, 0.3);
+
+    /* Text */
+    --sp-text-primary: #1e293b;
+    --sp-text-secondary: #64748b;
+    --sp-text-muted: #94a3b8;
+    --sp-text-heading: #0f172a;
+    --sp-text-inverse: #ffffff;
+
+    /* Borders */
+    --sp-border: rgba(0, 0, 0, 0.08);
+    --sp-border-light: rgba(0, 0, 0, 0.04);
+    --sp-border-active: rgba(124, 58, 237, 0.3);
+
+    /* Shadows */
+    --sp-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+    --sp-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+    --sp-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.10);
+    --sp-shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.12);
+    --sp-shadow-glow: 0 0 20px rgba(124, 58, 237, 0.12);
+
+    /* Liquid Glass */
+    --sp-glass-bg: rgba(255, 255, 255, 0.7);
+    --sp-glass-border: rgba(0, 0, 0, 0.06);
+    --sp-glass-blur: 16px;
+    --sp-glass-shine: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, transparent 50%);
+
+    /* Semantic Colors */
+    --sp-success: #059669;
+    --sp-success-light: rgba(5, 150, 105, 0.08);
+    --sp-warning: #d97706;
+    --sp-warning-light: rgba(217, 119, 6, 0.08);
+    --sp-danger: #dc2626;
+    --sp-danger-light: rgba(220, 38, 38, 0.08);
+    --sp-info: #2563eb;
+    --sp-info-light: rgba(37, 99, 235, 0.08);
+
+    /* Sidebar */
+    --sp-sidebar-menu-hover: rgba(124, 58, 237, 0.06);
+    --sp-sidebar-menu-active-bg: rgba(124, 58, 237, 0.10);
+    --sp-sidebar-menu-active-text: #7c3aed;
+
+    /* Scrollbar */
+    --sp-scrollbar-track: transparent;
+    --sp-scrollbar-thumb: rgba(0, 0, 0, 0.1);
+    --sp-scrollbar-thumb-hover: rgba(124, 58, 237, 0.3);
+}
+
+/* ── Legacy v1 variable aliases ───────────────────────────────
+   Component CSS still uses v1 names; their definitions were removed
+   in v2, so those rules silently failed (transparent buttons, missing
+   borders/backgrounds). Map them onto the v2 tokens for both themes.
+   Auth pages override a few of these with the brand purple (auth.css). */
+:root,
+[data-theme] {
+    --primary: var(--sp-primary);
+    --primary-light: var(--sp-primary);
+    --primary-dark: var(--sp-primary-hover);
+    --secondary: var(--sp-primary-hover);
+    --success: var(--sp-success);
+    --warning: var(--sp-warning);
+    --danger: var(--sp-danger);
+
+    --bg-primary: var(--sp-bg-input);
+    --bg-secondary: var(--sp-bg-card-hover);
+    --bg-darker: var(--sp-bg-input);
+    --bg-card: var(--sp-bg-card);
+
+    --text-primary: var(--sp-text-primary);
+    --text-secondary: var(--sp-text-secondary);
+
+    --border: var(--sp-border);
+    --border-color: var(--sp-border);
+}
+
+/* ── Brand colour ────────────────────────────────────────────
+   SafePass purple. Form fields use it for focus rings regardless of
+   the app accent (--sp-primary). */
+:root,
+[data-theme="dark"] {
+    --sp-brand: #a855f7;
+    --sp-brand-ring: rgba(168, 85, 247, 0.22);
+}
+
+[data-theme="light"] {
+    --sp-brand: #7c3aed;
+    --sp-brand-ring: rgba(124, 58, 237, 0.16);
+}
+
+/* Edge/IE add their own reveal/clear buttons to inputs; the app ships its own eye toggle */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear,
+input::-ms-clear {
+    display: none;
+}
+
+/* ── Page gutter ──────────────────────────────────────────────
+   Side space for the page content and the top bar. Wider than the
+   layout-settings tab (42px) on the right edge so content never sits under it. */
+:root { --sp-content-gutter: 3.5rem; }
+@media (max-width: 1366px) { :root { --sp-content-gutter: 3rem; } }
+@media (max-width: 1024px) { :root { --sp-content-gutter: 2.5rem; } }
+@media (max-width: 768px)  { :root { --sp-content-gutter: 1.25rem; } }

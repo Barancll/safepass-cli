@@ -5,172 +5,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}SafePass - Şifre Yöneticisi{% endblock %}</title>
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    {% if SP_USER %}<meta name="sp-authenticated" content="1">
+    <meta name="sp-username" content="{{ SP_USER.username }}">
+    <meta name="sp-clipboard-clear" content="{{ SP_USER.clipboard_clear_seconds }}">
+    <meta name="sp-has-recovery-key" content="{{ SP_HAS_RECOVERY_KEY|yesno:'1,0' }}">
+    {% if SP_SHOW_WHATS_NEW %}<meta name="sp-whats-new" content="1">{% endif %}{% endif %}
+    <title data-i18n-page="{% block title_key %}{% endblock %}">{% block title %}SafePass - Şifre Yöneticisi{% endblock %}</title>
+    <link rel="icon" type="image/png" sizes="96x96" href="{% static 'images/favicon-96x96.png' %}">
 
     <!-- CSS -->
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}?v={{ APP_VERSION }}">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}?v={{ APP_VERSION }}-act1">
     {% block extra_css %}{% endblock %}
+    <!-- Theme and appearance first, so the page never paints with the wrong look -->
+    <script src="{% static 'js/modules/theme.js' %}?v={{ APP_VERSION }}-act1"></script>
+    <script src="{% static 'js/modules/appearance.js' %}?v={{ APP_VERSION }}-act1"></script>
 </head>
 
 <body class="{% block body_class %}{% endblock %}">
 
     {% block content %}{% endblock %}
-    <!-- Update Notification Button -->
-    <button class="update-btn" id="updateBtn" title="Yeni güncelleme mevcut">
-        <span class="update-badge">1</span>
-        <span class="bell-icon">🔔</span>
-    </button>
-    <!-- Developer Info Button -->
-    <button class="dev-info-btn" id="devInfoBtn" title="Geliştirici Bilgileri">
-        ❤️
-    </button>
-    <!-- Developer Info Modal -->
-    <div class="dev-modal" id="devModal">
-        <div class="dev-modal-content">
-            <button class="dev-modal-close" id="closeModal">&times;</button>
-            <div class="dev-modal-header">
-                <span class="dev-logo">🔐</span>
-                <h2>SafePass</h2>
-                <p class="dev-tagline">Çevrimdışı Şifre Yönetimi</p>
-            </div>
-            <div class="dev-modal-body">
-                <div class="dev-info-item">
-                    <span class="dev-label">Geliştirici</span>
-                    <span class="dev-value">Baran Celal Tonyalı</span>
-                </div>
-                <div class="dev-info-item">
-                    <span class="dev-label">Versiyon</span>
-                    <span class="dev-value" id="appVersion">{{ APP_VERSION }}</span>
-                </div>
-                <div class="dev-info-item">
-                    <span class="dev-label">Pypl</span>
-                    <a href="https://pypi.org/project/safepass-cli/" target="_blank" class="dev-link">
-                        pypi.org/project/safepass-cli
-                    </a>
-                </div>
-                <div class="dev-info-item">
-                    <span class="dev-label">GitHub</span>
-                    <a href="https://github.com/Barancll/safepass-cli" target="_blank" class="dev-link">
-                        github.com/Barancll/safepass-cli
-                    </a>
-                </div>
-                <div class="dev-info-item">
-                    <span class="dev-label">LinkedIn</span>
-                    <a href="https://www.linkedin.com/in/baran-celal-tonyali/" target="_blank" class="dev-link">
-                        linkedin.com/in/baran-celal-tonyali
-                    </a>
-                </div>
-                <div class="dev-info-item">
-                    <span class="dev-label">Website</span>
-                    <a href="https://barancelaltonyali.com/" target="_blank" class="dev-link">
-                        barancelaltonyali.com
-                    </a>
-                </div>
-            </div>
-            <div class="dev-modal-footer">
-                Made with <span class="heart-pulse">❤️</span> in Turkey
-            </div>
-        </div>
-    </div>
 
     <!-- Scripts -->
-    <script src="{% static 'js/app.js' %}"></script>
-    <script>
-        // Update Notification Button Logic
-        document.addEventListener('DOMContentLoaded', function () {
-            // Developer Info Modal
-            const devBtn = document.getElementById('devInfoBtn');
-            const devModal = document.getElementById('devModal');
-            const closeBtn = document.getElementById('closeModal');
-            if (devBtn && devModal) {
-                devBtn.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    devModal.style.display = 'flex';
-                    setTimeout(() => devModal.classList.add('show'), 10);
-                });
-                if (closeBtn) {
-                    closeBtn.addEventListener('click', function (e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        devModal.classList.remove('show');
-                        setTimeout(() => devModal.style.display = 'none', 300);
-                    });
-                }
-                devModal.addEventListener('click', function (e) {
-                    if (e.target === devModal) {
-                        devModal.classList.remove('show');
-                        setTimeout(() => devModal.style.display = 'none', 300);
-                    }
-                });
-            }
-        });
-
-        // Timeout wrapper fonksiyonu - PyPI gibi dış servislere istek atarken kullan
-        function fetchWithTimeout(url, options = {}, timeout = 5000) {
-            return Promise.race([
-                fetch(url, options),
-                new Promise((_, reject) =>
-                    setTimeout(() => reject(new Error('Request timeout')), timeout)
-                )
-            ]);
-        }
-
-        // Update Button Logic
-        const updateBtn = document.getElementById('updateBtn');
-        const currentVersion = '{{ APP_VERSION }}';
-
-        // Test için butonu her zaman tıklanabilir yap
-        updateBtn.onclick = function () {
-            alert('🔄 Güncelleme kontrolü yapılıyor...\n\nBu test modunda. Gerçek güncelleme için PyPI\'dan veri çekilecek.');
-        };
-
-        // Versiyon kontrolü için PyPI'dan en son sürümü çek (5 saniye timeout ile)
-        fetchWithTimeout('https://pypi.org/pypi/safepass-cli/json', {}, 5000)
-            .then(resp => resp.json())
-            .then(data => {
-                const latest = data.info.version;
-
-                // Gerçek onclick handler - her durumda çalışır
-                updateBtn.onclick = function () {
-                    let msg = `🚀 SafePass Güncelleme Bilgisi\n\n`;
-                    msg += `📦 PyPI Sürümü: ${latest}\n`;
-                    msg += `📦 Mevcut Sürüm: ${currentVersion}\n\n`;
-
-                    if (latest !== currentVersion) {
-                        msg += `✨ YENİ GÜNCELLEME MEVCUT!\n\n`;
-                        msg += `⚡ Güncelleme Adımları:\n`;
-                        msg += `━━━━━━━━━━━━━━━━━━━━━━\n`;
-                        msg += `1️⃣ Terminal'i açın\n\n`;
-                        msg += `2️⃣ Şu komutu çalıştırın:\n`;
-                        msg += `   $ safepass update\n\n`;
-                        msg += `3️⃣ Güncelleme tamamlandıktan sonra\n`;
-                        msg += `   uygulamayı kapatıp yeniden başlatın\n`;
-                        msg += `━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-                        msg += `📝 Detaylı bilgi için:\n`;
-                        msg += `https://pypi.org/project/safepass-cli/${latest}/`;
-                    } else {
-                        msg += `✅ Uygulamanız güncel!\n\n`;
-                        msg += `En son sürümü kullanıyorsunuz.`;
-                    }
-
-                    alert(msg);
-                };
-
-                // Sadece yeni sürüm varsa butonu göster
-                if (latest !== currentVersion) {
-                    updateBtn.classList.add('visible');
-                    updateBtn.title = `Yeni sürüm mevcut: ${latest}`;
-                }
-            })
-            .catch(err => {
-                // PyPI'a erişilemezse veya timeout olursa bildirim gösterme
-                console.log('Update check failed (timeout or network error):', err);
-                updateBtn.onclick = function () {
-                    alert('⚠️ Güncelleme kontrolü yapılamadı.\n\nİnternet bağlantınızı kontrol edin veya daha sonra tekrar deneyin.');
-                };
-            });
-    </script>
+    <script src="{% static 'js/modules/i18n.js' %}?v={{ APP_VERSION }}-sim2"></script>
+    <script src="{% static 'js/app.js' %}?v={{ APP_VERSION }}-act2"></script>
+    {% if SP_USER %}<script src="{% static 'js/modules/vault_fields.js' %}?v={{ APP_VERSION }}-act1"></script>
+    <script src="{% static 'js/modules/notifications.js' %}?v={{ APP_VERSION }}-act1"></script>
+    <script src="{% static 'js/modules/tour.js' %}?v={{ APP_VERSION }}-sim1"></script>
+    <script src="{% static 'js/modules/about.js' %}?v={{ APP_VERSION }}-act1"></script>{% endif %}
     {% block extra_js %}{% endblock %}
 </body>
 

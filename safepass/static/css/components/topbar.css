@@ -1,0 +1,1393 @@
+/* ============================================================
+   SafePass v2 - Topbar & Profile Card (Pinx-Inspired)
+   ============================================================ */
+
+/* ── Topbar ────────────────────────────────────────────────── */
+.sp-topbar {
+    position: fixed;
+    top: 0;
+    left: var(--sp-sidebar-width);
+    right: 0;
+    height: var(--sp-topbar-height);
+    background: var(--sp-bg-body);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border-bottom: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--sp-content-gutter);
+    z-index: 90;
+    transition: left var(--sp-transition);
+}
+
+.sp-topbar::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: none;
+    pointer-events: none;
+    border-radius: inherit;
+}
+
+.sp-topbar-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.2rem;
+    min-width: 0;
+}
+
+/* The page's one-line introduction, under the breadcrumb */
+.sp-topbar-subtitle {
+    margin: 0;
+    overflow: hidden;
+    color: var(--sp-text-muted);
+    font-size: 0.78rem;
+    line-height: 1.3;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+    .sp-topbar-subtitle { display: none; }
+}
+
+#spTopbarLangLabel {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+/* ── Breadcrumb ───────────────────────────────────────────── */
+.sp-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--sp-text-secondary);
+}
+
+.sp-breadcrumb a {
+    color: var(--sp-text-secondary);
+    text-decoration: none;
+    transition: color var(--sp-transition-fast);
+    display: flex;
+    align-items: center;
+}
+
+.sp-breadcrumb a:hover {
+    color: var(--sp-primary);
+}
+
+.sp-breadcrumb svg {
+    width: 16px;
+    height: 16px;
+}
+
+.sp-breadcrumb-sep {
+    color: var(--sp-text-muted);
+    font-size: 0.75rem;
+}
+
+.sp-breadcrumb-current {
+    color: var(--sp-text-primary);
+    font-weight: 600;
+}
+
+/* ── Topbar Actions ───────────────────────────────────────── */
+.sp-topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+}
+
+.sp-topbar-btn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--sp-radius-md);
+    border: none;
+    background: transparent;
+    color: var(--sp-text-secondary);
+    cursor: pointer;
+    transition: all var(--sp-transition-fast);
+    position: relative;
+}
+
+.sp-topbar-btn:hover {
+    background: var(--sp-primary-light);
+    color: var(--sp-primary);
+}
+
+.sp-topbar-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* ── Notifications (bell menu; the item styles are shared with /notifications) ── */
+.sp-topbar-notification {
+    position: relative;
+}
+
+/* Unread count on the bell */
+.sp-notif-count {
+    position: absolute;
+    top: 2px;
+    right: 1px;
+    display: grid;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    place-items: center;
+    border: 2px solid var(--sp-bg-topbar);
+    border-radius: var(--sp-radius-full);
+    background: var(--sp-danger);
+    color: #fff;
+    font-size: 0.64rem;
+    font-weight: 800;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    animation: notif-pop 0.3s ease-out;
+}
+
+.sp-notif-count[hidden] {
+    display: none;
+}
+
+@keyframes notif-pop {
+    from { transform: scale(0.4); }
+    to { transform: scale(1); }
+}
+
+.sp-notification-dropdown {
+    position: absolute;
+    top: calc(100% + 0.6rem);
+    right: -0.25rem;
+    z-index: 200;
+    display: flex;
+    width: 380px;
+    max-width: calc(100vw - 1.5rem);
+    flex-direction: column;
+    border: 1px solid var(--sp-border);
+    border-radius: var(--sp-radius-lg);
+    background: var(--sp-bg-dropdown, var(--sp-bg-card));
+    box-shadow: var(--sp-shadow-xl);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px) scale(0.97);
+    transform-origin: top right;
+    transition: all var(--sp-transition);
+    overflow: hidden;
+}
+
+.sp-notification-dropdown.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+}
+
+.sp-notif-head {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.7rem 0.6rem 0.7rem 1rem;
+    border-bottom: 1px solid var(--sp-border);
+    background: linear-gradient(135deg, rgba(var(--sp-primary-rgb), 0.12), rgba(var(--sp-primary-rgb), 0.02));
+}
+
+.sp-notif-heading {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sp-notif-heading h2 {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--sp-text-heading);
+}
+
+.sp-notif-new {
+    padding: 0.12rem 0.5rem;
+    border-radius: var(--sp-radius-full);
+    background: var(--sp-primary-light);
+    color: var(--sp-primary);
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+.sp-notif-new[hidden] {
+    display: none;
+}
+
+/* Small square icon buttons (header, footer and item actions) */
+.sp-notif-icon {
+    display: grid;
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    place-items: center;
+    border: 0;
+    border-radius: var(--sp-radius-sm);
+    background: transparent;
+    color: var(--sp-text-secondary);
+    cursor: pointer;
+    text-decoration: none;
+    transition: background var(--sp-transition-fast), color var(--sp-transition-fast);
+}
+
+.sp-notif-icon svg {
+    width: 16px;
+    height: 16px;
+}
+
+.sp-notif-icon:hover,
+.sp-notif-icon:focus-visible {
+    background: rgba(var(--sp-primary-rgb), 0.12);
+    color: var(--sp-primary);
+    outline: none;
+}
+
+.sp-notif-icon.is-danger:hover,
+.sp-notif-icon.is-danger:focus-visible {
+    background: var(--sp-danger-light);
+    color: var(--sp-danger);
+}
+
+.sp-notif-icon:disabled {
+    opacity: 0.35;
+    pointer-events: none;
+}
+
+/* The list: three items, then it scrolls */
+.sp-notification-dropdown .sp-notif-list {
+    max-height: calc(3 * var(--sp-notif-item-height, 84px));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+}
+
+.sp-notif-item {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    min-height: var(--sp-notif-item-height, 84px);
+    padding: 0.8rem 0.6rem 0.8rem 1rem;
+    border-bottom: 1px solid var(--sp-border-light, var(--sp-border));
+    transition: background var(--sp-transition-fast), opacity 0.2s ease, transform 0.2s ease;
+}
+
+.sp-notification-dropdown .sp-notif-item {
+    height: var(--sp-notif-item-height, 84px);
+}
+
+.sp-notif-item:last-child {
+    border-bottom: 0;
+}
+
+.sp-notif-item:hover,
+.sp-notif-item:focus-within {
+    background: rgba(var(--sp-primary-rgb), 0.06);
+}
+
+.sp-notif-item.is-unread {
+    background: rgba(var(--sp-primary-rgb), 0.07);
+}
+
+.sp-notif-item.is-unread::before {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 3px;
+    background: var(--sp-primary);
+    content: '';
+}
+
+.sp-notif-item.is-leaving {
+    opacity: 0;
+    transform: translateX(10px);
+}
+
+.sp-notif-kind {
+    display: grid;
+    flex: 0 0 36px;
+    width: 36px;
+    height: 36px;
+    place-items: center;
+    border-radius: var(--sp-radius-md);
+    background: var(--sp-primary-light);
+    color: var(--sp-primary);
+}
+
+.sp-notif-kind svg {
+    width: 18px;
+    height: 18px;
+}
+
+.kind-stale .sp-notif-kind { background: var(--sp-warning-light); color: var(--sp-warning); }
+.kind-failed_login .sp-notif-kind,
+.kind-trash_expiring .sp-notif-kind { background: var(--sp-danger-light); color: var(--sp-danger); }
+.kind-master_changed .sp-notif-kind { background: var(--sp-success-light, rgba(16, 185, 129, 0.14)); color: var(--sp-success); }
+
+.sp-notif-body {
+    display: grid;
+    flex: 1;
+    min-width: 0;
+    gap: 0.15rem;
+}
+
+.sp-notif-title {
+    overflow: hidden;
+    color: var(--sp-text-heading);
+    font-size: 0.86rem;
+    font-weight: 700;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+a.sp-notif-title:hover,
+a.sp-notif-title:focus-visible {
+    color: var(--sp-primary);
+    outline: none;
+}
+
+.sp-notif-item:not(.is-unread) .sp-notif-title {
+    font-weight: 600;
+    color: var(--sp-text-primary);
+}
+
+.sp-notif-text {
+    display: -webkit-box;
+    margin: 0;
+    overflow: hidden;
+    color: var(--sp-text-secondary);
+    font-size: 0.78rem;
+    line-height: 1.4;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+.sp-notification-dropdown .sp-notif-text {
+    -webkit-line-clamp: 1;
+}
+
+.sp-notif-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 0.15rem;
+    font-size: 0.72rem;
+    color: var(--sp-text-muted);
+}
+
+.sp-notif-go {
+    color: var(--sp-primary);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.sp-notif-go:hover {
+    text-decoration: underline;
+}
+
+.sp-notif-actions {
+    display: flex;
+    flex-shrink: 0;
+    gap: 0.1rem;
+}
+
+/* Bell menu: actions show on hover / keyboard focus; always on touch screens */
+.sp-notification-dropdown .sp-notif-actions {
+    opacity: 0;
+    transition: opacity var(--sp-transition-fast);
+}
+
+.sp-notification-dropdown .sp-notif-item:hover .sp-notif-actions,
+.sp-notification-dropdown .sp-notif-item:focus-within .sp-notif-actions {
+    opacity: 1;
+}
+
+@media (hover: none) {
+    .sp-notification-dropdown .sp-notif-actions { opacity: 1; }
+}
+
+.sp-notif-empty {
+    display: grid;
+    justify-items: center;
+    gap: 0.35rem;
+    padding: 2rem 1.25rem;
+    text-align: center;
+}
+
+.sp-notif-empty-icon {
+    display: grid;
+    width: 52px;
+    height: 52px;
+    margin-bottom: 0.35rem;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--sp-primary-light);
+    color: var(--sp-primary);
+}
+
+.sp-notif-empty-icon svg {
+    width: 24px;
+    height: 24px;
+}
+
+.sp-notif-empty strong {
+    color: var(--sp-text-heading);
+    font-size: 0.9rem;
+}
+
+.sp-notif-empty span {
+    color: var(--sp-text-muted);
+    font-size: 0.78rem;
+}
+
+.sp-notif-foot {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.45rem 0.6rem 0.45rem 0.45rem;
+    border-top: 1px solid var(--sp-border);
+}
+
+.sp-notif-all {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.5rem;
+    border-radius: var(--sp-radius-sm);
+    color: var(--sp-primary);
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background var(--sp-transition-fast);
+}
+
+.sp-notif-all svg {
+    width: 15px;
+    height: 15px;
+    transition: transform var(--sp-transition-fast);
+}
+
+.sp-notif-all:hover,
+.sp-notif-all:focus-visible {
+    background: var(--sp-primary-light);
+    outline: none;
+}
+
+.sp-notif-all:hover svg {
+    transform: translateX(3px);
+}
+
+@media (max-width: 600px) {
+    .sp-notification-dropdown {
+        position: fixed;
+        top: calc(var(--sp-topbar-height, 64px) + 0.4rem);
+        right: 0.75rem;
+        left: 0.75rem;
+        width: auto;
+        max-width: none;
+    }
+}
+
+/* ── Language dropdown (flag + code, listbox) ─────────────── */
+/* Follows the app accent (appearance.css) */
+.sp-lang-dropdown {
+    --sp-lang-accent: var(--sp-primary);
+    --sp-lang-accent-bg: var(--sp-primary-light);
+    position: relative;
+}
+
+.sp-topbar-btn.sp-lang-trigger:hover {
+    background: var(--sp-lang-accent-bg);
+    color: var(--sp-lang-accent);
+}
+
+.sp-topbar-btn.sp-lang-trigger {
+    width: auto;
+    gap: 0.4rem;
+    padding: 0 0.55rem 0 0.6rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+}
+
+.sp-lang-trigger-flag {
+    display: flex;
+}
+
+.sp-flag {
+    display: block;
+    width: 20px;
+    height: 14px;
+    flex: 0 0 20px;
+    border-radius: 2px;
+}
+
+.sp-topbar-btn .sp-lang-chevron {
+    width: 14px;
+    height: 14px;
+    opacity: 0.7;
+    transition: transform var(--sp-transition-fast);
+}
+
+.sp-lang-trigger[aria-expanded="true"] {
+    background: var(--sp-lang-accent-bg);
+    color: var(--sp-lang-accent);
+}
+
+.sp-lang-trigger[aria-expanded="true"] .sp-lang-chevron {
+    transform: rotate(180deg);
+}
+
+.sp-lang-menu {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 0;
+    right: 0; /* same width as the trigger */
+    z-index: 200;
+    padding: 0.3rem;
+    background: var(--sp-bg-card);
+    border: 1px solid var(--sp-border);
+    border-radius: var(--sp-radius-lg);
+    box-shadow: var(--sp-shadow-xl);
+    animation: sp-lang-menu-in 0.15s ease-out;
+}
+
+.sp-lang-menu[hidden] {
+    display: none;
+}
+
+@keyframes sp-lang-menu-in {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: none; }
+}
+
+.sp-lang-menu button {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    width: 100%;
+    padding: 0.45rem 0.4rem;
+    border: 0;
+    border-radius: var(--sp-radius-sm);
+    background: transparent;
+    color: var(--sp-text-secondary);
+    font: inherit;
+    font-size: 0.84rem;
+    text-align: left;
+    cursor: pointer;
+    transition: background var(--sp-transition-fast), color var(--sp-transition-fast);
+}
+
+.sp-lang-menu button:hover,
+.sp-lang-menu button:focus-visible {
+    background: var(--sp-lang-accent-bg);
+    color: var(--sp-lang-accent);
+    outline: none;
+}
+
+.sp-lang-menu button:hover .sp-lang-code,
+.sp-lang-menu button:focus-visible .sp-lang-code {
+    color: var(--sp-lang-accent);
+}
+
+.sp-lang-code {
+    width: auto;
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    color: var(--sp-text-muted);
+}
+
+/* Selected language: purple text + a purple bar on the left, nothing else */
+.sp-lang-menu button {
+    position: relative;
+}
+
+.sp-lang-menu button.active {
+    color: var(--sp-lang-accent);
+}
+
+.sp-lang-menu button.active .sp-lang-code {
+    color: var(--sp-lang-accent);
+}
+
+.sp-lang-menu button.active::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 22%;
+    bottom: 22%;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background: var(--sp-lang-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sp-lang-menu { animation: none; }
+}
+
+/* Divider */
+
+/* ── Profile Trigger ──────────────────────────────────────── */
+.sp-profile-trigger {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    cursor: pointer;
+    padding: 0.375rem;
+    border-radius: var(--sp-radius-md);
+    transition: all var(--sp-transition-fast);
+    border: none;
+    background: transparent;
+    position: relative;
+}
+
+.sp-profile-trigger:hover {
+    background: var(--sp-primary-light);
+}
+
+.sp-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--sp-radius-md);
+    background: linear-gradient(135deg, var(--sp-primary), var(--sp-primary-hover));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.875rem;
+    color: white;
+    text-transform: uppercase;
+    flex-shrink: 0;
+    position: relative;
+    /* No overflow: hidden — it clipped the status dot that sits on the corner */
+}
+
+.sp-avatar::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit; /* keeps the shine inside the rounded corners */
+    background: var(--sp-glass-shine);
+    pointer-events: none;
+}
+
+.sp-avatar-status {
+    position: absolute;
+    bottom: -3px;
+    right: -3px;
+    z-index: 2;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--sp-success);
+    border: 2px solid var(--sp-bg-body);
+}
+
+/* ── Profile Dropdown Card ────────────────────────────────── */
+.sp-profile-dropdown {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    width: 200px;
+    background: var(--sp-glass-bg);
+    backdrop-filter: blur(var(--sp-glass-blur));
+    -webkit-backdrop-filter: blur(var(--sp-glass-blur));
+    border: 1px solid var(--sp-glass-border);
+    border-radius: var(--sp-radius-lg);
+    box-shadow: var(--sp-shadow-xl);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px) scale(0.97);
+    transition: all var(--sp-transition);
+    z-index: 200;
+    overflow: hidden;
+}
+
+.sp-profile-dropdown::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--sp-glass-shine);
+    pointer-events: none;
+    border-radius: inherit;
+}
+
+.sp-profile-dropdown.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+}
+
+.sp-profile-card-header {
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-bottom: 1px solid var(--sp-border);
+    position: relative;
+    z-index: 1;
+}
+
+.sp-profile-card-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--sp-radius-md);
+    background: linear-gradient(135deg, var(--sp-primary), var(--sp-primary-hover));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.125rem;
+    color: white;
+    text-transform: uppercase;
+}
+
+.sp-profile-card-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.sp-profile-card-name {
+    font-weight: 600;
+    font-size: 0.9375rem;
+    color: var(--sp-text-heading);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sp-profile-card-role {
+    font-size: 0.75rem;
+    color: var(--sp-text-muted);
+    margin-top: 0.125rem;
+}
+
+.sp-profile-card-menu {
+    padding: 0.5rem 0;
+    position: relative;
+    z-index: 1;
+}
+
+.sp-profile-card-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 1.25rem;
+    font-size: 0.8375rem;
+    color: var(--sp-text-secondary);
+    text-decoration: none;
+    transition: all var(--sp-transition-fast);
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+}
+
+.sp-profile-card-item:hover,
+.sp-profile-card-item.active {
+    color: var(--sp-primary);
+    background: var(--sp-primary-light);
+}
+
+/* Current page marker for topbar shortcuts (help) */
+.sp-topbar-btn.active {
+    background: var(--sp-primary-light);
+    color: var(--sp-primary);
+}
+
+.sp-profile-card-item svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+.sp-profile-card-item.danger {
+    color: var(--sp-danger);
+}
+
+.sp-profile-card-item.danger:hover {
+    background: var(--sp-danger-light);
+}
+
+/* ── Layout Settings Panel ────────────────────────────────── */
+/* Shared by the panel and the edge toggle that sits on its left edge */
+:root {
+    --sp-settings-panel-width: 300px;
+    --sp-settings-panel-right: 1.15rem;
+}
+
+.sp-settings-panel {
+    position: fixed;
+    /* Vertically centred in the space below the top bar */
+    top: calc(50% + var(--sp-topbar-height) / 2);
+    right: var(--sp-settings-panel-right);
+    width: var(--sp-settings-panel-width);
+    max-width: calc(100vw - 2rem);
+    /* Short window; the body scrolls instead of the panel growing */
+    max-height: min(520px, calc(100vh - var(--sp-topbar-height) - 2rem));
+    background: var(--sp-bg-card);
+    backdrop-filter: blur(var(--sp-glass-blur));
+    -webkit-backdrop-filter: blur(var(--sp-glass-blur));
+    border: 1px solid var(--sp-border);
+    border-radius: var(--sp-radius-lg);
+    box-shadow: var(--sp-shadow-xl);
+    z-index: 1000;
+    transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.26s ease;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transform: translate(115%, -50%);
+    opacity: 0;
+}
+
+.sp-settings-panel.open {
+    transform: translate(0, -50%);
+    opacity: 1;
+}
+
+.sp-settings-panel-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--sp-bg-modal-overlay);
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all var(--sp-transition);
+}
+
+.sp-settings-panel-overlay.open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.sp-layout-edge-toggle {
+    position: fixed;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    width: 42px;
+    height: 72px;
+    border: 1px solid var(--sp-glass-border);
+    border-right: 0;
+    border-radius: 12px 0 0 12px;
+    background: var(--sp-glass-bg);
+    color: var(--sp-text-secondary);
+    backdrop-filter: blur(var(--sp-glass-blur));
+    -webkit-backdrop-filter: blur(var(--sp-glass-blur));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1002;
+    box-shadow: var(--sp-shadow-lg);
+    transition: right 0.42s cubic-bezier(0.22, 1, 0.36, 1), color var(--sp-transition-fast), background var(--sp-transition-fast);
+}
+
+.sp-layout-edge-toggle:hover {
+    color: var(--sp-primary);
+    background: var(--sp-bg-card);
+}
+
+.sp-layout-edge-toggle svg {
+    width: 18px;
+    height: 18px;
+}
+
+.sp-layout-edge-toggle.open {
+    right: calc(var(--sp-settings-panel-width) + var(--sp-settings-panel-right) - 1px); /* tab on the panel's left edge */
+}
+
+.sp-settings-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.8rem 1rem;
+    border-bottom: 1px solid var(--sp-border);
+    flex-shrink: 0;
+}
+
+.sp-settings-title {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--sp-text-heading);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.sp-settings-close {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: var(--sp-bg-input);
+    border-radius: var(--sp-radius-sm);
+    color: var(--sp-text-secondary);
+    cursor: pointer;
+    transition: all var(--sp-transition-fast);
+}
+
+.sp-settings-close:hover {
+    background: var(--sp-danger-light);
+    color: var(--sp-danger);
+}
+
+.sp-settings-body {
+    flex: 1;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0.8rem 1rem;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(var(--sp-primary-rgb), 0.45) transparent;
+}
+
+.sp-settings-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sp-settings-body::-webkit-scrollbar-thumb {
+    border-radius: 3px;
+    background: rgba(var(--sp-primary-rgb), 0.45);
+}
+
+.sp-settings-section {
+    margin-bottom: 0.6rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--sp-border);
+}
+
+.sp-settings-label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--sp-text-secondary);
+    text-transform: none;
+    letter-spacing: 0;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+/* Primary Color Picker */
+
+.sp-color-palette {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: nowrap;
+}
+
+.sp-color-swatch {
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    background: var(--swatch);
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all var(--sp-transition-fast);
+    position: relative;
+}
+
+.sp-color-swatch:hover {
+    transform: translateY(-1px);
+}
+
+.sp-color-swatch.active {
+    border-color: #fff;
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.12);
+}
+
+.sp-color-swatch.active::after {
+    content: '✓';
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.68rem;
+    font-weight: 700;
+}
+
+/* Theme Toggle */
+.sp-theme-toggle-group {
+    display: flex;
+    background: var(--sp-bg-input);
+    border-radius: var(--sp-radius-md);
+    padding: 3px;
+    border: 1px solid var(--sp-border);
+    width: 100%;
+}
+
+.sp-theme-toggle-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    padding: 0.35rem 0.75rem;
+    border: none;
+    background: transparent;
+    color: var(--sp-text-muted);
+    font-size: 0.84rem;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: var(--sp-radius-sm);
+    transition: all var(--sp-transition-fast);
+}
+
+.sp-theme-toggle-btn:hover {
+    color: var(--sp-text-primary);
+}
+
+.sp-theme-toggle-btn.active {
+    background: var(--sp-primary);
+    color: white;
+    box-shadow: var(--sp-shadow-sm);
+}
+
+.sp-theme-toggle-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* Language Toggle */
+
+/* Settings Switch Row */
+.sp-settings-switch-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.3rem 0;
+}
+
+.sp-settings-switch-label {
+    font-size: 0.84rem;
+    color: var(--sp-text-secondary);
+}
+
+/* Custom Toggle Switch */
+.sp-toggle {
+    position: relative;
+    flex-shrink: 0;   /* keep its size next to a long hint */
+    width: 36px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.sp-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+
+.sp-toggle-slider {
+    position: absolute;
+    inset: 0;
+    background: var(--sp-bg-input);
+    border: 1px solid var(--sp-border);
+    border-radius: var(--sp-radius-full);
+    transition: all var(--sp-transition-fast);
+}
+
+.sp-toggle-slider::before {
+    content: '';
+    position: absolute;
+    height: 14px;
+    width: 14px;
+    left: 2px;
+    bottom: 2px;
+    background: var(--sp-text-muted);
+    border-radius: 50%;
+    transition: all var(--sp-transition-fast);
+}
+
+.sp-toggle input:checked + .sp-toggle-slider {
+    background: var(--sp-primary);
+    border-color: var(--sp-primary);
+}
+
+.sp-toggle input:checked + .sp-toggle-slider::before {
+    transform: translateX(16px);
+    background: white;
+}
+
+/* Restore Default Button */
+.sp-restore-btn {
+    width: 100%;
+    padding: 0.55rem;
+    background: var(--sp-primary);
+    color: white;
+    border: none;
+    border-radius: var(--sp-radius-md);
+    font-weight: 600;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all var(--sp-transition-fast);
+    margin-top: 0.4rem;
+    margin-bottom: 0.6rem;
+}
+
+.sp-restore-btn:hover {
+    background: var(--sp-primary-hover);
+    box-shadow: var(--sp-shadow-glow);
+    transform: translateY(-1px);
+}
+
+/* Value shown next to a label (e.g. the chosen accent's name) */
+.sp-settings-label .sp-settings-value {
+    margin-left: 0.35rem;
+    color: var(--sp-primary);
+    font-size: 0.76rem;
+    font-weight: 600;
+}
+
+.sp-color-swatch:focus-visible,
+.sp-theme-toggle-btn:focus-visible,
+.sp-restore-btn:focus-visible {
+    outline: 2px solid var(--sp-primary);
+    outline-offset: 2px;
+}
+
+/* Three options in one segmented control */
+.sp-seg-3 .sp-theme-toggle-btn {
+    padding-left: 0.4rem;
+    padding-right: 0.4rem;
+}
+
+.sp-font-sample {
+    font-weight: 700;
+    font-size: 0.82rem;
+    line-height: 1;
+}
+
+.sp-font-sample.sm { font-size: 0.68rem; }
+.sp-font-sample.lg { font-size: 0.98rem; }
+
+.sp-radius-sample {
+    width: 11px;
+    height: 11px;
+    border: 2px solid currentColor;
+    border-right: 0;
+    border-bottom: 0;
+    border-top-left-radius: 5px;
+}
+
+.sp-radius-sample.sharp { border-top-left-radius: 0; }
+.sp-radius-sample.round { border-top-left-radius: 9px; }
+
+/* Switch rows are labels, so the whole row toggles */
+label.sp-settings-switch-row {
+    cursor: pointer;
+    gap: 0.75rem;
+}
+
+.sp-settings-switch-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    min-width: 0;
+}
+
+.sp-settings-hint {
+    font-size: 0.7rem;
+    line-height: 1.35;
+    color: var(--sp-text-muted);
+}
+
+.sp-toggle input:focus-visible + .sp-toggle-slider {
+    outline: 2px solid var(--sp-primary);
+    outline-offset: 2px;
+}
+
+/* Themed listbox (page transition); opens upwards, it sits at the bottom of the panel */
+.sp-listbox {
+    position: relative;
+}
+
+.sp-listbox-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 36px;
+    padding: 0 0.75rem;
+    border: 1px solid var(--sp-border);
+    border-radius: var(--sp-radius-md);
+    background: var(--sp-bg-input);
+    color: var(--sp-text-primary);
+    font: inherit;
+    font-size: 0.84rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color var(--sp-transition-fast);
+}
+
+.sp-listbox-trigger:hover,
+.sp-listbox-trigger[aria-expanded="true"] {
+    border-color: rgba(var(--sp-primary-rgb), 0.55);
+}
+
+.sp-listbox-trigger:focus-visible {
+    outline: 2px solid var(--sp-primary);
+    outline-offset: 2px;
+}
+
+.sp-listbox-trigger svg {
+    width: 16px;
+    height: 16px;
+    color: var(--sp-text-muted);
+    transition: transform var(--sp-transition-fast);
+}
+
+.sp-listbox-trigger[aria-expanded="true"] svg {
+    transform: rotate(180deg);
+}
+
+.sp-listbox-menu {
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 6px);
+    left: 0;
+    z-index: 5;
+    padding: 0.3rem;
+    border: 1px solid var(--sp-border);
+    border-radius: var(--sp-radius-md);
+    background: var(--sp-bg-dropdown);
+    box-shadow: var(--sp-shadow-lg);
+}
+
+.sp-listbox-menu[hidden] {
+    display: none;
+}
+
+.sp-listbox-option {
+    position: relative;
+    display: block;
+    width: 100%;
+    padding: 0.45rem 0.7rem 0.45rem 0.85rem;
+    border: 0;
+    border-radius: var(--sp-radius-sm);
+    background: transparent;
+    color: var(--sp-text-secondary);
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+}
+
+.sp-listbox-option:hover,
+.sp-listbox-option:focus-visible {
+    outline: none;
+    background: var(--sp-primary-light);
+    color: var(--sp-text-heading);
+}
+
+/* Chosen option: accent bar on the left, no tick */
+.sp-listbox-option.active {
+    background: var(--sp-primary-light);
+    color: var(--sp-primary);
+    font-weight: 700;
+}
+
+.sp-listbox-option.active::before {
+    content: '';
+    position: absolute;
+    top: 6px;
+    bottom: 6px;
+    left: 3px;
+    width: 3px;
+    border-radius: 2px;
+    background: var(--sp-primary);
+}
+
+.sp-settings-list {
+    border-bottom: 1px solid var(--sp-border);
+}
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media (max-width: 1024px) {
+    .sp-topbar {
+        left: var(--sp-sidebar-collapsed-width);
+        padding: 0 var(--sp-content-gutter);
+    }
+
+    .sp-topbar {
+        padding: 0 var(--sp-content-gutter);
+    }
+}
+
+@media (max-width: 768px) {
+    .sp-topbar {
+        left: 0;
+        padding: 0 var(--sp-content-gutter);
+    }
+
+    .sp-breadcrumb span {
+        display: none;
+    }
+
+    .sp-settings-panel {
+        --sp-settings-panel-width: calc(100vw - 1.5rem);
+        --sp-settings-panel-right: 0.75rem;
+        right: var(--sp-settings-panel-right);
+        width: var(--sp-settings-panel-width);
+        max-width: var(--sp-settings-panel-width);
+    }
+
+    .sp-layout-edge-toggle.open {
+        right: calc(var(--sp-settings-panel-width) + var(--sp-settings-panel-right) - 1px); /* tab on the panel's left edge */
+    }
+}
+
+/* New-version notification: the commands to run. Taller than the bell's fixed rows, and its
+   sentence wraps instead of being cut, since people need all of it to act on it. */
+.sp-notification-dropdown .sp-notif-item.kind-update {
+    height: auto;
+}
+
+.sp-notif-item.kind-update .sp-notif-text {
+    display: block;
+    overflow: visible;
+    white-space: normal;
+    -webkit-line-clamp: unset;
+}
+
+.sp-notif-commands {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin: 0.4rem 0;
+    padding: 0.5rem 0.6rem;
+    border-radius: 8px;
+    background: var(--sp-bg-input);
+}
+
+.sp-notif-commands code {
+    color: var(--sp-text-primary);
+    font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+    font-size: 0.78rem;
+    line-height: 1.5;
+    white-space: pre;
+}

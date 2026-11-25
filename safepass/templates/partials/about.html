@@ -1,0 +1,28 @@
+{# Who made SafePass: opened from the topbar button by js/modules/about.js #}
+<dialog class="sp-about" id="spAboutDialog" aria-labelledby="spAboutName">
+    <button type="button" class="sp-about-close" id="spAboutClose" title="Kapat" aria-label="Kapat" data-i18n-title="common.close" data-i18n-aria-label="common.close">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </button>
+
+    <span class="sp-about-lokki">{% include "partials/mascot.html" with uid="about" %}</span>
+    <p class="sp-about-role" data-i18n="about.made_by">SafePass'i geliştiren</p>
+    <h2 class="sp-about-name" id="spAboutName">Baran Celal Tonyalı</h2>
+    <p class="sp-about-text" data-i18n="about.tagline">SafePass, şifrelerini kendi bilgisayarında tutan çevrimdışı bir şifre yöneticisi.</p>
+
+    <ul class="sp-about-links">
+        <li><a href="https://barancelaltonyali.com/" target="_blank" rel="noopener noreferrer">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+            <span><strong data-i18n="about.website">Web sitesi</strong><small>barancelaltonyali.com</small></span>
+        </a></li>
+        <li><a href="https://www.linkedin.com/in/baran-celal-tonyali/" target="_blank" rel="noopener noreferrer">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+            <span><strong>LinkedIn</strong><small>baran-celal-tonyali</small></span>
+        </a></li>
+        <li><a href="https://github.com/Barancll" target="_blank" rel="noopener noreferrer">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2-5-2"></path></svg>
+            <span><strong>GitHub</strong><small>Barancll</small></span>
+        </a></li>
+    </ul>
+
+    <p class="sp-about-version">safepass-cli v{{ APP_VERSION }}</p>
+</dialog>

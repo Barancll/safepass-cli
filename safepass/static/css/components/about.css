@@ -1,0 +1,130 @@
+/* ============================================================
+   "Who made SafePass" card (partials/about.html, js/modules/about.js)
+   ============================================================ */
+
+.sp-about {
+    width: min(380px, calc(100vw - 32px));
+    max-height: calc(100vh - 32px);
+    margin: auto; /* the page's reset removes the browser's centring of <dialog> */
+    padding: 1.75rem 1.5rem 1.25rem;
+    border: 1px solid var(--sp-border-active);
+    border-radius: 18px;
+    background: var(--sp-bg-dropdown);
+    color: var(--sp-text-secondary);
+    box-shadow: var(--sp-shadow-xl);
+    text-align: center;
+}
+
+.sp-about::backdrop {
+    background: var(--sp-bg-modal-overlay);
+}
+
+.sp-about-close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border: 0;
+    border-radius: 10px;
+    background: none;
+    color: var(--sp-text-muted);
+    cursor: pointer;
+}
+
+.sp-about-close:hover {
+    background: var(--sp-bg-card-hover);
+    color: var(--sp-text-primary);
+}
+
+.sp-about-lokki {
+    display: block;
+    width: 84px;
+    margin: 0 auto 0.5rem;
+}
+
+.sp-about-lokki .lokki {
+    width: 84px;
+    height: 84px;
+}
+
+.sp-about-role {
+    margin: 0;
+    color: var(--sp-primary);
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.sp-about-name {
+    margin: 0.15rem 0 0.5rem;
+    color: var(--sp-text-heading);
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.sp-about-text {
+    margin: 0 0 1.1rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.sp-about-links {
+    display: grid;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    text-align: left;
+}
+
+.sp-about-links a {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--sp-border);
+    border-radius: 12px;
+    color: var(--sp-primary);
+    text-decoration: none;
+    transition: border-color var(--sp-transition), background var(--sp-transition);
+}
+
+.sp-about-links a:hover {
+    border-color: var(--sp-primary);
+    background: rgba(var(--sp-primary-rgb), 0.08);
+}
+
+.sp-about-links svg {
+    flex: none;
+}
+
+.sp-about-links span {
+    min-width: 0;
+}
+
+.sp-about-links strong {
+    display: block;
+    color: var(--sp-text-heading);
+    font-size: 0.875rem;
+}
+
+.sp-about-links small {
+    display: block;
+    color: var(--sp-text-muted);
+    font-size: 0.78rem;
+    overflow-wrap: anywhere;
+}
+
+.sp-about-close:focus-visible,
+.sp-about-links a:focus-visible {
+    outline: 2px solid var(--sp-primary);
+    outline-offset: 2px;
+}
+
+.sp-about-version {
+    margin: 1rem 0 0;
+    color: var(--sp-text-muted);
+    font-size: 0.75rem;
+}

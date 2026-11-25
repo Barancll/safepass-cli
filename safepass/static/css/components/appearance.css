@@ -1,0 +1,163 @@
+/* ============================================================
+   Appearance preferences (layout settings panel)
+   appearance.js puts each preference on <html> as a data-* attribute.
+   ============================================================ */
+
+/* ── Accent colour ────────────────────────────────────────────
+   Each accent has a dark-theme and a light-theme shade, both dark
+   enough for white button text. The accent only applies inside the
+   app (body.with-sidebar); sign-in pages keep the SafePass purple. */
+:root {
+    --accent: #a855f7; --accent-rgb: 168, 85, 247; --accent-hover: #9333ea; --accent-text: #c084fc;
+}
+[data-theme="light"] {
+    --accent: #7c3aed; --accent-rgb: 124, 58, 237; --accent-hover: #6d28d9; --accent-text: #7c3aed;
+}
+
+html[data-accent="emerald"] { --accent: #059669; --accent-rgb: 5, 150, 105; --accent-hover: #047857; --accent-text: #34d399; }
+html[data-accent="indigo"]  { --accent: #6366f1; --accent-rgb: 99, 102, 241; --accent-hover: #4f46e5; --accent-text: #a5b4fc; }
+html[data-accent="pink"]    { --accent: #db2777; --accent-rgb: 219, 39, 119; --accent-hover: #be185d; --accent-text: #f472b6; }
+html[data-accent="amber"]   { --accent: #d97706; --accent-rgb: 217, 119, 6; --accent-hover: #b45309; --accent-text: #fbbf24; }
+
+html[data-theme="light"][data-accent="emerald"] { --accent: #047857; --accent-rgb: 4, 120, 87; --accent-hover: #065f46; --accent-text: #047857; }
+html[data-theme="light"][data-accent="indigo"]  { --accent: #4f46e5; --accent-rgb: 79, 70, 229; --accent-hover: #4338ca; --accent-text: #4338ca; }
+html[data-theme="light"][data-accent="pink"]    { --accent: #be185d; --accent-rgb: 190, 24, 93; --accent-hover: #9d174d; --accent-text: #be185d; }
+html[data-theme="light"][data-accent="amber"]   { --accent: #b45309; --accent-rgb: 180, 83, 9; --accent-hover: #92400e; --accent-text: #b45309; }
+
+/* Everything that used to be a fixed purple follows the accent here */
+body.with-sidebar {
+    --sp-primary: var(--accent);
+    --sp-primary-rgb: var(--accent-rgb);
+    --sp-primary-hover: var(--accent-hover);
+    --sp-primary-light: rgba(var(--accent-rgb), 0.14);
+    --sp-primary-soft: rgba(var(--accent-rgb), 0.08);
+    --sp-border-active: rgba(var(--accent-rgb), 0.35);
+    --sp-shadow-glow: 0 0 20px rgba(var(--accent-rgb), 0.18);
+    --sp-sidebar-menu-hover: rgba(var(--accent-rgb), 0.08);
+    --sp-sidebar-menu-active-bg: rgba(var(--accent-rgb), 0.14);
+    --sp-sidebar-menu-active-text: var(--accent-text);
+    --sp-scrollbar-thumb-hover: rgba(var(--accent-rgb), 0.35);
+    --sp-brand: var(--accent);
+    --sp-brand-ring: rgba(var(--accent-rgb), 0.22);
+    /* legacy aliases (theme.css) resolve on <html>, so restate them */
+    --primary: var(--accent);
+    --primary-light: var(--accent);
+    --primary-dark: var(--accent-hover);
+    --secondary: var(--accent-hover);
+}
+
+[data-theme="light"] body.with-sidebar {
+    --sp-primary-light: rgba(var(--accent-rgb), 0.10);
+    --sp-primary-soft: rgba(var(--accent-rgb), 0.05);
+    --sp-border-active: rgba(var(--accent-rgb), 0.3);
+    --sp-shadow-glow: 0 0 20px rgba(var(--accent-rgb), 0.12);
+    --sp-sidebar-menu-hover: rgba(var(--accent-rgb), 0.06);
+    --sp-sidebar-menu-active-bg: rgba(var(--accent-rgb), 0.10);
+    --sp-scrollbar-thumb-hover: rgba(var(--accent-rgb), 0.3);
+    --sp-brand-ring: rgba(var(--accent-rgb), 0.16);
+}
+
+/* ── Text size ───────────────────────────────────────────────── */
+html[data-font-size="sm"] { font-size: 15px; }
+html[data-font-size="md"] { font-size: 16px; }
+html[data-font-size="lg"] { font-size: 17.5px; }
+
+/* ── Corners ─────────────────────────────────────────────────── */
+html[data-radius="sharp"] { --sp-radius-sm: 3px; --sp-radius-md: 5px; --sp-radius-lg: 7px; --sp-radius-xl: 9px; }
+html[data-radius="round"] { --sp-radius-sm: 9px; --sp-radius-md: 14px; --sp-radius-lg: 20px; --sp-radius-xl: 26px; }
+
+/* ── Glass effect off: solid surfaces, no blur, no shine ─────── */
+html[data-glass="false"] {
+    --sp-glass-bg: var(--sp-bg-card);
+    --sp-glass-blur: 0px;
+    --sp-glass-shine: none;
+}
+
+html[data-glass="false"] body::before,
+html[data-glass="false"] body::after {
+    opacity: 0.35;
+}
+
+/* ── Compact sidebar: icons only ─────────────────────────────── */
+html[data-sidebar="compact"] {
+    --sp-sidebar-width: var(--sp-sidebar-collapsed-width);
+}
+
+html[data-sidebar="compact"] .sidebar .sidebar-brand .brand-mark-word,
+html[data-sidebar="compact"] .sidebar .sidebar-version-name,
+html[data-sidebar="compact"] .sidebar .sidebar-menu a span,
+html[data-sidebar="compact"] .sidebar .sidebar-menu-label {
+    display: none;
+}
+
+html[data-sidebar="compact"] .sidebar .sidebar-menu a {
+    justify-content: center;
+    padding: 0.75rem;
+    position: relative;
+}
+
+html[data-sidebar="compact"] .sidebar .sidebar-menu li {
+    padding: 0 0.5rem;
+}
+
+html[data-sidebar="compact"] .sidebar .sidebar-header {
+    justify-content: center;
+    padding: 1.25rem 0.5rem;
+}
+
+html[data-sidebar="compact"] .sidebar .sidebar-version {
+    font-size: 0.62rem;
+}
+
+html[data-sidebar="compact"] .sidebar .sidebar-menu a .sidebar-badge {
+    position: absolute;
+    top: 4px;
+    right: 6px;
+    min-width: 1rem;
+    padding: 0 0.25rem;
+    font-size: 0.6rem;
+}
+
+/* ── Boxed layout: page content (and top bar) at a fixed width ── */
+html[data-boxed="true"] .main-content > * {
+    max-width: 1240px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+html[data-boxed="true"] .sp-topbar {
+    padding-left: max(var(--sp-content-gutter), calc((100vw - var(--sp-sidebar-width) - 1240px) / 2));
+    padding-right: max(var(--sp-content-gutter), calc((100vw - var(--sp-sidebar-width) - 1240px) / 2));
+}
+
+/* ── Privacy mode: usernames and notes blurred until hovered ─── */
+html[data-privacy="true"] .sp-private {
+    filter: blur(5px);
+    transition: filter 0.2s ease;
+}
+
+html[data-privacy="true"] .sp-private:hover,
+html[data-privacy="true"] :focus-within > .sp-private,
+html[data-privacy="true"] .sp-private:focus {
+    filter: none;
+}
+
+/* ── Page transition ─────────────────────────────────────────── */
+@keyframes sp-page-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes sp-page-fade-up { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes sp-page-zoom { from { opacity: 0; transform: scale(0.985); } to { opacity: 1; transform: none; } }
+
+html[data-transition="fade"] .main-content { animation: sp-page-fade 0.35s ease both; }
+html[data-transition="fadeUp"] .main-content { animation: sp-page-fade-up 0.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
+html[data-transition="zoom"] .main-content { animation: sp-page-zoom 0.35s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+html[data-motion="off"] *,
+html[data-motion="off"] *::before,
+html[data-motion="off"] *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html[data-transition] .main-content { animation: none; }
+}

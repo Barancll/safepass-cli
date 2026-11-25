@@ -1,0 +1,31 @@
+{% load sp_icons %}{% comment %}
+Live preview of the card as a row of My Passwords, with Lokki reacting to the password (card_preview.js).
+Used by card_add.html and password_edit.html; say_key is Lokki's opening line.
+{% endcomment %}
+<aside class="cw-preview" aria-labelledby="cwPreviewHeading">
+    <div class="cw-preview-head">
+        <span class="cw-preview-lokki">{% include "partials/mascot.html" with uid="cw" %}</span>
+        <p class="cw-say" id="cwSay" aria-live="polite" data-i18n="{{ say_key }}">{{ say_text }}</p>
+    </div>
+    <h2 class="cw-preview-heading" id="cwPreviewHeading" data-i18n="wizard.preview">Listede böyle görünecek</h2>
+    <div class="vault-list cw-preview-list">
+        <div class="vault-row" id="cwPreviewRow">
+            <div class="cw-preview-line">
+                <span class="vault-tile" id="cwPreviewTile" aria-hidden="true"></span>
+                <span class="vault-name">
+                    <span class="vault-title" id="cwPreviewTitle" data-i18n="form.title">Başlık</span>
+                    <span class="vault-user" id="cwPreviewUser"></span>
+                </span>
+            </div>
+            <div class="cw-preview-meta">
+                <span class="vault-dots" id="cwPreviewDots" aria-hidden="true">••••••••</span>
+                <span class="vault-cat">
+                    <span id="cwPreviewCat"></span>
+                    <span class="vault-cat-sub" id="cwPreviewSub"></span>
+                </span>
+            </div>
+        </div>
+    </div>
+    {# Icon and colour of each main category, for the preview tile #}
+    {% for main in category_tree %}<template data-cat-icon="{{ main.slug }}" data-color="{{ main.color }}">{% sp_icon main.icon 18 %}</template>{% endfor %}
+</aside>

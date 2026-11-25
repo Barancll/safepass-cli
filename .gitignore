@@ -22,6 +22,7 @@ wheels/
 
 # Virtual Environment
 venv/
+.venv/
 env/
 ENV/
 
@@ -33,12 +34,37 @@ ENV/
 
 # SafePass User Data
 *.sqlite3
+*.sqlite3.bak*
 *.db
 .safepass/
+# Development data folder (SAFEPASS_DATA_DIR, see BASLATMA.md): vault, encryption key, backups
+.safepass-dev/
+# Data-folder files, in case one ends up in the repo root
+secret.key
+safepass.pid
+*.log
+.env
+.env.*
 
-# Documentation (optional - keep only README.md)
+# Private / internal files: the public repo carries only README.md and LICENSE
+# as documentation. Changelog, dev guide, specs, reports and dev scripts stay local.
+*.md
+!README.md
 *.docx
 *.pdf
+docs/
+reports/
+tools/
+website/
+bump_version.py
+update_css_versions.py
+
+# AI / editor tooling
+.superpowers/
+.claude/
+graphify-out/
+CLAUDE.md
+AGENTS.md
 
 # OS
 .DS_Store

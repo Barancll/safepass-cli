@@ -1,0 +1,227 @@
+/* ── Security picture (safepass/pictures.py) ─────────────────
+   Picker (templates/partials/picture_picker.html), the "choose your picture" dialog
+   after sign-up/sign-in, and the picture under the user name on the login page. */
+
+.sp-picture-picker {
+    --picked: var(--sp-primary);
+    display: grid;
+    gap: 1rem;
+    text-align: left;
+}
+
+.sp-picture-preview {
+    display: grid;
+    width: 72px;
+    height: 72px;
+    margin: 0 auto;
+    place-items: center;
+    border: 1px solid var(--sp-border);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.sp-picture-preview svg {
+    width: 44px;
+    height: 44px;
+}
+
+.sp-picture-preview.is-empty {
+    border-style: dashed;
+}
+
+.sp-picture-group {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.sp-picture-group-label {
+    color: var(--sp-text-heading);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.sp-picture-shapes {
+    display: grid;
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    gap: 0.4rem;
+}
+
+.sp-picture-shape {
+    display: grid;
+    aspect-ratio: 1;
+    place-items: center;
+    padding: 0;
+    border: 1px solid var(--sp-border);
+    border-radius: 10px;
+    background: transparent;
+    color: var(--sp-text-secondary);
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.sp-picture-shape svg {
+    width: 62%;
+    height: 62%;
+}
+
+.sp-picture-shape:hover {
+    color: var(--sp-text-heading);
+    border-color: var(--sp-text-secondary);
+}
+
+.sp-picture-shape.is-selected {
+    border-color: var(--picked);
+    background: color-mix(in srgb, var(--picked) 14%, transparent);
+    color: var(--picked);
+    box-shadow: 0 0 0 1px var(--picked);
+}
+
+.sp-picture-colors {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+}
+
+.sp-picture-color {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 2px solid transparent;
+    border-radius: 50%;
+    background: var(--swatch);
+    box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.25);
+    cursor: pointer;
+    transition: transform 0.15s ease;
+}
+
+.sp-picture-color:hover {
+    transform: scale(1.1);
+}
+
+.sp-picture-color.is-selected {
+    border-color: var(--sp-text-heading);
+    box-shadow: inset 0 0 0 3px var(--sp-bg-card, #111);
+}
+
+.sp-picture-shape:focus-visible,
+.sp-picture-color:focus-visible {
+    outline: 2px solid var(--sp-primary);
+    outline-offset: 2px;
+}
+
+/* Dialog after sign-up / sign-in (reuses the session dialog look) */
+.sp-picture-dialog {
+    width: min(100%, 460px);
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+}
+
+.sp-picture-dialog .sp-picture-picker {
+    margin-bottom: 1.25rem;
+}
+
+.sp-session-dialog .sp-picture-error {
+    margin: -0.5rem 0 1rem;
+    color: var(--sp-danger);
+    font-size: 0.85rem;
+}
+
+.sp-picture-error[hidden] {
+    display: none;
+}
+
+/* Login page: a small badge at the right end of the user name field */
+.auth-username-field {
+    position: relative;
+}
+
+.auth-username-field .form-input.has-picture {
+    padding-right: 3rem;
+}
+
+.auth-picture {
+    position: absolute;
+    top: 50%;
+    right: 0.6rem;
+    display: grid;
+    width: 30px;
+    height: 30px;
+    place-items: center;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    transform: translateY(-50%);
+    cursor: help;
+}
+
+.auth-picture[hidden],
+.auth-picture-image[hidden],
+.auth-picture-missing[hidden] {
+    display: none;
+}
+
+.auth-picture-image {
+    display: grid;
+    place-items: center;
+}
+
+.auth-picture-image svg,
+.auth-picture-missing {
+    width: 20px;
+    height: 20px;
+}
+
+/* The rule, for everyone: no picture, no master password */
+.auth-picture-hint {
+    margin: 0.45rem 0 0;
+    color: var(--sp-text-secondary);
+    font-size: 0.8rem;
+    line-height: 1.45;
+}
+
+/* No picture yet: yellow warning sign, the tooltip says how to get one */
+.auth-picture.is-empty {
+    background: rgba(245, 158, 11, 0.14);
+    color: #f59e0b;
+}
+
+[data-theme="light"] .auth-picture,
+[data-theme="light"] .sp-picture-preview {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .auth-picture.is-empty {
+    background: rgba(217, 119, 6, 0.12);
+    color: #b45309;
+}
+
+/* Settings page: picker under the description, buttons at the end */
+.setting-item-picture {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.setting-item-picture .sp-picture-picker {
+    max-width: 460px;
+}
+
+.setting-item-picture .sp-picture-preview {
+    margin: 0;
+}
+
+.settings-picture-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+@media (max-width: 420px) {
+    .sp-picture-shapes {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sp-picture-shape,
+    .sp-picture-color {
+        transition: none;
+    }
+}

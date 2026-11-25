@@ -1,4 +1,4 @@
 """SafePass - Offline Password Manager"""
 
-__version__ = "1.2.4"
+__version__ = "2.50.156"
 __author__ = "SafePass Team"

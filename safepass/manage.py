@@ -1,7 +1,29 @@
 #!/usr/bin/env python
 """Django's command-line utility for administrative tasks."""
 import os
+import socket
 import sys
+
+
+def _exclusive_port():
+    """Windows lets a socket opened with SO_REUSEADDR (Django's default) bind a port another
+    program already listens on, and lets others bind beside it. The SafePass server asks for the
+    port exclusively instead: it fails to start when the port is taken, and nobody can join it later."""
+    if sys.platform != 'win32' or not hasattr(socket, 'SO_EXCLUSIVEADDRUSE'):
+        return
+    from django.core.management.commands import runserver
+    from django.core.servers.basehttp import WSGIServer
+
+    class ExclusiveWSGIServer(WSGIServer):
+        def __init__(self, *args, **kwargs):
+            kwargs['allow_reuse_address'] = False
+            super().__init__(*args, **kwargs)
+
+        def server_bind(self):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
+            super().server_bind()
+
+    runserver.Command.server_cls = ExclusiveWSGIServer
 
 
 def main():
@@ -21,6 +43,8 @@ def main():
         # runserver komutundan sonra port yoksa ekle
         if len(argv) == idx + 1 or not argv[idx + 1].isdigit():
             argv.insert(idx + 1, '2025')
+    if 'runserver' in argv:
+        _exclusive_port()
     execute_from_command_line(argv)
 
 

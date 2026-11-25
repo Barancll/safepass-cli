@@ -1,263 +1,184 @@
 /**
- * Card Form Module
- * Handles add/edit card functionality
+ * New-card wizard: 1 account → 2 sign-in details → 3 category and notes.
+ * Strength meter, preview, Lokki, show/hide and Generate live in card_preview.js.
  */
 
-// Subcategory options based on main category
-const subcategoryOptions = {
-    'genel': [
-        { value: 'e-posta', label: 'E-Posta' },
-        { value: 'sosyal-medya', label: 'Sosyal Medya' },
-        { value: 'alisveris', label: 'Alışveriş (E-Ticaret)' },
-        { value: 'forumlar-uyelikler', label: 'Forumlar & Üyelikler' }
-    ],
-    'finans': [
-        { value: 'bankacilik', label: 'Bankacılık' },
-        { value: 'kredi-kartlari', label: 'Kredi Kartları' },
-        { value: 'kripto-paralar', label: 'Kripto Paralar' },
-        { value: 'faturalar', label: 'Faturalar' }
-    ],
-    'is-gelistirici': [
-        { value: 'sirket-hesaplari', label: 'Şirket Hesapları' },
-        { value: 'sunucular-ssh', label: 'Sunucular & SSH' },
-        { value: 'veritabanlari', label: 'Veritabanları' },
-        { value: 'git-repolar', label: 'Git & Repolar' },
-        { value: 'api-lisanslar', label: 'API & Lisanslar' }
-    ],
-    'sistem-ag': [
-        { value: 'wifi-sifreleri', label: 'Wi-Fi Şifreleri' },
-        { value: 'cihaz-pinleri', label: 'Cihaz Pinleri' },
-        { value: 'modem-arayuzleri', label: 'Modem Arayüzleri' },
-        { value: 'yazilim-lisanslari', label: 'Yazılım Lisansları' }
-    ],
-    'kisisel': [
-        { value: 'e-devlet-resmi-kurum', label: 'E-Devlet & Resmi Kurum' },
-        { value: 'saglik', label: 'Sağlık' },
-        { value: 'notlar-guvenli-dosyalar', label: 'Notlar & Güvenli Dosyalar' }
-    ]
-};
-
-function updateSubcategoryOptions(categoryValue, selectedSubcategory = '') {
-    console.log('updateSubcategoryOptions called with:', categoryValue);
-    const subcategorySelect = document.getElementById('subcategory');
-    if (!subcategorySelect) {
-        console.log('Subcategory select NOT found!');
-        return;
-    }
-    
-    // Clear current options
-    subcategorySelect.innerHTML = '<option value="">Seçiniz...</option>';
-    
-    // Get subcategories for selected category
-    const subcategories = subcategoryOptions[categoryValue] || [];
-    console.log('Found subcategories:', subcategories);
-    
-    // Add new options
-    subcategories.forEach(sub => {
-        const option = document.createElement('option');
-        option.value = sub.value;
-        option.textContent = sub.label;
-        if (sub.value === selectedSubcategory) {
-            option.selected = true;
-        }
-        subcategorySelect.appendChild(option);
-    });
-    console.log('Subcategory options updated, total:', subcategories.length);
+function t(key, params) {
+    return window.SafePassI18n ? window.SafePassI18n.t(key, params) : key;
 }
 
-// Service button handlers
-document.addEventListener('DOMContentLoaded', function() {
+// Subcategories come from the user's definitions (modules/categories.js)
+function updateSubcategoryOptions(categoryValue, selectedSubcategory = '') {
+    window.SafePassCategories.fillSubSelect(document.getElementById('subcategory'), categoryValue, selectedSubcategory);
+    window.SafePassCardForm.updatePreview();
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('addCardForm');
+    if (!form) return;
     const showAlert = window.showAlert;
-    const getCookie = window.getCookie;
-    
-    // Get form elements
-    const addCardForm = document.getElementById('addCardForm');
+    const titleInput = document.getElementById('title');
+    const usernameInput = document.getElementById('username');
     const passwordInput = document.getElementById('password');
-    const passwordStrengthBar = document.getElementById('passwordStrengthBar');
-    const passwordStrengthText = document.getElementById('passwordStrengthText');
+    const urlInput = document.getElementById('url');
     const categorySelect = document.getElementById('category');
-    
-    // Category change handler - update subcategories
-    if (categorySelect) {
-        console.log('Category select found:', categorySelect.value);
-        categorySelect.addEventListener('change', function() {
-            console.log('Category changed to:', this.value);
-            updateSubcategoryOptions(this.value);
-        });
-        // Initialize subcategories for default category
-        console.log('Initializing subcategories for:', categorySelect.value);
-        updateSubcategoryOptions(categorySelect.value);
-    } else {
-        console.log('Category select NOT found!');
+    const prev = document.getElementById('cwPrev');
+    const next = document.getElementById('cwNext');
+    const save = document.getElementById('cwSave');
+    const LAST = 3;
+    let step = 1;
+
+    window.SafePassCardForm.init({ emptyKey: 'strength.enter', sayKey: 'wizard.say_new' });
+
+    categorySelect.addEventListener('change', function () { updateSubcategoryOptions(this.value); });
+    updateSubcategoryOptions(categorySelect.value);
+
+    // ── steps ─────────────────────────────────────────────────
+
+    function stepError() {
+        if (step === 1 && !titleInput.value.trim()) return [titleInput, 'form.title_required'];
+        // No minimum length: vault entries include PINs and short codes (the meter shows how weak they are)
+        if (step === 2 && !passwordInput.value) return [passwordInput, 'auth.msg_password_required'];
+        return null;
     }
 
-    // Service button click handlers
-    const serviceButtons = document.querySelectorAll('.service-btn');
-    
-    if (serviceButtons.length > 0) {
-        serviceButtons.forEach(function(btn) {
-            btn.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                // Remove selected class from all buttons
-                serviceButtons.forEach(function(b) {
-                    b.classList.remove('selected');
-                });
-                
-                // Add selected class to clicked button
-                btn.classList.add('selected');
-                
-                // Get data from button attributes
-                const serviceName = btn.getAttribute('data-service');
-                const serviceUrl = btn.getAttribute('data-url');
-                
-                // Fill form fields
-                const titleInput = document.getElementById('title');
-                const urlInput = document.getElementById('url');
-                const usernameInput = document.getElementById('username');
-                
-                if (titleInput && serviceName) {
-                    titleInput.value = serviceName;
-                }
-                
-                if (urlInput && serviceUrl) {
-                    urlInput.value = serviceUrl;
-                }
-                
-                // Focus username field
-                if (usernameInput) {
-                    setTimeout(function() {
-                        usernameInput.focus();
-                    }, 100);
-                }
-            });
+    function goTo(target, focus) {
+        step = target;
+        form.querySelectorAll('.cw-step').forEach((section) => {
+            section.hidden = Number(section.dataset.step) !== step;
         });
+        form.querySelectorAll('.cw-step-dot').forEach((dot) => {
+            const n = Number(dot.dataset.step);
+            dot.classList.toggle('is-done', n < step);
+            if (n === step) dot.setAttribute('aria-current', 'step'); else dot.removeAttribute('aria-current');
+        });
+        prev.hidden = step === 1;
+        next.hidden = step === LAST;
+        save.hidden = step !== LAST;
+        if (focus !== false) {
+            const first = form.querySelector(`.cw-step[data-step="${step}"] input, .cw-step[data-step="${step}"] select`);
+            if (first) first.focus();
+        }
     }
 
-    // Password toggle handler
-    const toggleButtons = document.querySelectorAll('.btn-toggle-password');
-    toggleButtons.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            const targetId = btn.dataset.target;
-            const input = document.getElementById(targetId);
-            const eyeOpen = btn.querySelector('.icon-eye-open');
-            const eyeClosed = btn.querySelector('.icon-eye-closed');
-            
-            if (input) {
-                if (input.type === 'password') {
-                    input.type = 'text';
-                    if (eyeOpen) eyeOpen.style.display = 'none';
-                    if (eyeClosed) eyeClosed.style.display = 'block';
-                } else {
-                    input.type = 'password';
-                    if (eyeOpen) eyeOpen.style.display = 'block';
-                    if (eyeClosed) eyeClosed.style.display = 'none';
-                }
-            }
+    function forward() {
+        const error = stepError();
+        if (error) {
+            error[0].focus();
+            showAlert(t(error[1]), 'error');
+            return;
+        }
+        if (step < LAST) goTo(step + 1);
+    }
+
+    next.addEventListener('click', forward);
+    prev.addEventListener('click', () => goTo(step - 1));
+
+    // Enter moves on instead of submitting early (notes keep their new lines)
+    form.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' && step < LAST && event.target.tagName !== 'TEXTAREA' && event.target.tagName !== 'BUTTON') {
+            event.preventDefault();
+            forward();
+        }
+    });
+
+    // Earlier steps can be revisited from the step list
+    form.querySelectorAll('.cw-step-dot').forEach((dot) => {
+        dot.addEventListener('click', () => {
+            const n = Number(dot.dataset.step);
+            if (n < step) goTo(n);
         });
     });
 
-    // Password strength check on input
-    if (passwordInput) {
-        passwordInput.addEventListener('input', () => {
-            const password = passwordInput.value;
+    // ── step 1: a service fills title, URL and category, then moves on ─────
 
-            if (!password) {
-                passwordStrengthBar.style.width = '0%';
-                passwordStrengthText.textContent = 'Şifre girin';
-                passwordStrengthText.style.color = '#94a3b8';
-                return;
+    const serviceButtons = form.querySelectorAll('.cw-service');
+    serviceButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+            serviceButtons.forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+            titleInput.value = btn.dataset.service || '';
+            if (btn.dataset.url) urlInput.value = btn.dataset.url;
+            if (btn.dataset.category) {
+                categorySelect.value = btn.dataset.category;
+                updateSubcategoryOptions(btn.dataset.category, btn.dataset.subcategory || '');
             }
-
-            // Simple client-side strength check
-            let score = 0;
-            
-            // Length
-            if (password.length >= 8) score += 20;
-            if (password.length >= 12) score += 20;
-            if (password.length >= 16) score += 10;
-            
-            // Character types
-            if (/[a-z]/.test(password)) score += 15;
-            if (/[A-Z]/.test(password)) score += 15;
-            if (/[0-9]/.test(password)) score += 15;
-            if (/[^a-zA-Z0-9]/.test(password)) score += 15;
-
-            const percentage = Math.min(score, 100);
-            passwordStrengthBar.style.width = percentage + '%';
-
-            let label = 'Zayıf';
-            let color = '#ef4444';
-
-            if (percentage >= 80) {
-                label = 'Çok Güçlü';
-                color = '#10b981';
-            } else if (percentage >= 60) {
-                label = 'Güçlü';
-                color = '#3b82f6';
-            } else if (percentage >= 40) {
-                label = 'Orta';
-                color = '#f59e0b';
-            }
-
-            passwordStrengthText.textContent = label;
-            passwordStrengthText.style.color = color;
-            passwordStrengthBar.style.backgroundColor = color;
+            titleInput.dispatchEvent(new Event('input'));
+            window.SafePassCardForm.say('happy', 'wizard.say_service');
+            goTo(2);
         });
+    });
+    serviceButtons.forEach((b) => b.setAttribute('aria-pressed', 'false'));
+    // Typing a title by hand un-picks the service
+    titleInput.addEventListener('input', (event) => {
+        if (event.isTrusted) serviceButtons.forEach((b) => b.setAttribute('aria-pressed', 'false'));
+    });
+
+    // ── password handed over by the generator ("Bu şifreyle kart oluştur"): read once, then delete ──
+
+    let handoff = null;
+    try {
+        handoff = JSON.parse(sessionStorage.getItem('sp-generated-for-card') || 'null');
+        sessionStorage.removeItem('sp-generated-for-card');
+    } catch (e) {
+        handoff = null;
+    }
+    if (handoff && typeof handoff.password === 'string' && Date.now() - handoff.at < 2 * 60 * 1000) {
+        passwordInput.value = handoff.password;
+        passwordInput.dispatchEvent(new Event('input'));
+        if (handoff.pin) {
+            categorySelect.value = 'sistem-ag';
+            updateSubcategoryOptions('sistem-ag', 'cihaz-pinleri');
+        }
+        titleInput.focus();
+        showAlert(t('form.generated_filled'), 'success');
+    } else {
+        titleInput.focus();
     }
 
-    // Form submit handler
-    if (addCardForm) {
-        addCardForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
+    // ── save ──────────────────────────────────────────────────
 
-            const formData = {
-                app_name: document.getElementById('title').value.trim(),
-                username: document.getElementById('username').value.trim(),
-                password: document.getElementById('password').value,
-                url: document.getElementById('url')?.value.trim() || '',
-                notes: document.getElementById('notes')?.value.trim() || '',
-                category: document.getElementById('category')?.value || 'genel',
-                subcategory: document.getElementById('subcategory')?.value || ''
-            };
-
-            // Validation
-            if (!formData.app_name) {
-                showAlert('Başlık gereklidir', 'error');
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        if (step < LAST) { forward(); return; }
+        // A step left invalid (e.g. title cleared later): go back to it
+        for (const [n, input, key] of [[1, titleInput, 'form.title_required'], [2, passwordInput, 'auth.msg_password_required']]) {
+            if (!(n === 1 ? input.value.trim() : input.value)) {
+                goTo(n, false);
+                input.focus();
+                showAlert(t(key), 'error');
                 return;
             }
+        }
 
-            if (!formData.password || formData.password.length < 8) {
-                showAlert('Şifre en az 8 karakter olmalıdır', 'error');
+        const formData = {
+            app_name: titleInput.value.trim(),
+            username: usernameInput.value.trim(),
+            password: passwordInput.value,
+            url: urlInput.value.trim(),
+            notes: document.getElementById('notes').value.trim(),
+            category: categorySelect.value || 'genel',
+            subcategory: document.getElementById('subcategory').value || ''
+        };
+
+        save.disabled = true;
+        try {
+            const response = await fetch('/api/passwords', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': window.getCookie('csrftoken') },
+                body: JSON.stringify(formData)
+            });
+            const data = await response.json().catch(() => ({}));
+            if (data.success) {
+                form.reset(); // Back must not bring typed values back
+                window.SafePassCardForm.say('happy', 'wizard.say_saved');
+                showAlert(t('form.added'), 'success');
+                setTimeout(() => { window.location.href = '/passwords'; }, 1000);
                 return;
             }
-
-            try {
-                const response = await fetch('/api/passwords', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': getCookie('csrftoken')
-                    },
-                    body: JSON.stringify(formData)
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    showAlert('Şifre başarıyla eklendi!', 'success');
-                    setTimeout(() => {
-                        window.location.href = '/passwords';
-                    }, 1000);
-                } else {
-                    showAlert(data.error || 'Şifre eklenemedi', 'error');
-                }
-            } catch (error) {
-                console.error('Add card error:', error);
-                showAlert('Bir hata oluştu', 'error');
-            }
-        });
-    }
+            showAlert(window.SafePassI18n.serverText(data) || t('form.add_failed'), 'error');
+        } catch (error) {
+            showAlert(t('common.error_generic'), 'error');
+        }
+        save.disabled = false;
+    });
 });

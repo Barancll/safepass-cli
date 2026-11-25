@@ -1,0 +1,409 @@
+/* ============================================================
+   Cyber test page (siber_test.html)
+   Target panel on top, then the arena: Lokki attacks from a terminal
+   on the left, the five defence layers hold or fall on the right.
+   The terminal stays dark in both themes; everything else uses tokens.
+   ============================================================ */
+
+.sim-layout {
+    max-width: 1120px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.sim-panel {
+    background: var(--sp-glass-bg);
+    border: 1px solid var(--sp-glass-border);
+    border-radius: var(--sp-radius-xl);
+    backdrop-filter: blur(var(--sp-glass-blur));
+    -webkit-backdrop-filter: blur(var(--sp-glass-blur));
+    box-shadow: var(--sp-shadow-md);
+    padding: 1.25rem 1.5rem;
+    min-width: 0;
+}
+
+/* ── Target ──────────────────────────────────────────────── */
+
+.sim-target-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    margin-bottom: 0.9rem;
+}
+
+.sim-target-head h2 {
+    font-size: 1.05rem;
+    color: var(--sp-text-heading);
+}
+
+.sim-summary {
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--sp-radius-full);
+    border: 1px solid var(--sp-border-active);
+    background: var(--sp-primary-soft);
+    color: var(--sp-primary);
+    font-size: 0.8125rem;
+    font-weight: 600;
+}
+
+.sim-summary.is-error {
+    border-color: var(--sp-danger);
+    background: var(--sp-danger-light);
+    color: var(--sp-danger);
+}
+
+.sim-input-label {
+    display: block;
+    margin-bottom: 0.4rem;
+    color: var(--sp-text-secondary);
+    font-size: 0.8125rem;
+    font-weight: 600;
+}
+
+.sim-input {
+    width: 100%;
+    padding: 0.7rem 0.9rem;
+    border-radius: var(--sp-radius-md);
+    border: 1px solid var(--sp-border);
+    background: var(--sp-bg-input);
+    color: var(--sp-text-primary);
+    font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+    font-size: 1rem;
+    letter-spacing: 0.02em;
+}
+
+.sim-input::placeholder {
+    color: var(--sp-text-muted);
+    font-family: inherit;
+    letter-spacing: 0;
+}
+
+.sim-input-note {
+    margin-top: 0.5rem;
+    color: var(--sp-text-muted);
+    font-size: 0.8125rem;
+}
+
+.sim-input:focus {
+    outline: none;
+    border-color: var(--sp-primary);
+    box-shadow: 0 0 0 3px var(--sp-primary-soft);
+}
+
+/* ── Arena ───────────────────────────────────────────────── */
+
+.sim-arena {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    grid-template-areas:
+        "attacker defense"
+        "outcome outcome"
+        "note note";
+    gap: 1.25rem 1.5rem;
+}
+
+.sim-attacker { grid-area: attacker; display: flex; flex-direction: column; gap: 0.75rem; min-width: 0; }
+.sim-defense { grid-area: defense; min-width: 0; }
+.sim-outcome { grid-area: outcome; }
+.sim-disclaimer { grid-area: note; }
+
+.sim-attacker-head {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.sim-lokki {
+    position: relative;
+    flex: none;
+    width: 76px;
+    height: 76px;
+}
+
+.sim-lokki .lokki {
+    width: 76px;
+    height: 76px;
+}
+
+/* The hood that turns Lokki into the attacker; it follows Lokki's float */
+.sim-hood {
+    position: absolute;
+    inset: 0;
+    width: 76px;
+    height: 76px;
+    pointer-events: none;
+}
+
+.sim-hood path { fill: #241833; }
+.sim-hood .sim-hood-edge { fill: none; stroke: #4c3670; stroke-width: 2.5; }
+
+.sim-bubble {
+    flex: 1;
+    min-width: 0;
+    padding: 0.6rem 0.85rem;
+    border-radius: var(--sp-radius-lg);
+    background: var(--sp-bg-input);
+    border: 1px solid var(--sp-border);
+}
+
+.sim-role {
+    display: block;
+    color: var(--sp-text-muted);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.sim-bubble p {
+    color: var(--sp-text-heading);
+    font-size: 0.9375rem;
+    font-weight: 600;
+}
+
+.sim-terminal {
+    height: 196px;
+    overflow-y: auto;
+    padding: 0.75rem 0.9rem;
+    border-radius: var(--sp-radius-lg);
+    background: #06040b;
+    border: 1px solid #2e2245;
+    color: #cbbfe3;
+    font: 500 0.8rem/1.6 ui-monospace, 'Cascadia Mono', Consolas, monospace;
+}
+
+.sim-terminal:empty::before {
+    content: '$ _';
+    color: #6f6290;
+}
+
+.sim-line { white-space: pre-wrap; word-break: break-word; }
+.sim-line.is-cmd { color: #c4a6ff; }
+.sim-line.is-miss { color: #4ade80; padding-left: 1.2em; }
+.sim-line.is-miss::before { content: '✗ '; }
+.sim-line.is-hit { color: #ff6b8a; padding-left: 1.2em; font-weight: 700; }
+.sim-line.is-hit::before { content: '✓ '; }
+
+.sim-counter {
+    min-height: 1.3em;
+    color: var(--sp-text-muted);
+    font: 500 0.8rem ui-monospace, 'Cascadia Mono', Consolas, monospace;
+}
+
+
+/* ── Defence ─────────────────────────────────────────────── */
+
+.sim-shield-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.6rem;
+}
+
+.sim-shield {
+    width: 54px;
+    height: 60px;
+    flex: none;
+    transition: transform 0.3s ease, filter 0.4s ease;
+}
+
+.sim-shield-body { fill: url(#simShieldFill); }
+.sim-shield-lock rect { fill: #f5f3ff; }
+.sim-shield-shackle { stroke: #f5f3ff; stroke-width: 5; stroke-linecap: round; }
+.sim-shield-crack {
+    stroke: #1a0d2b;
+    stroke-width: 3;
+    stroke-linejoin: round;
+    stroke-dasharray: 130;
+    stroke-dashoffset: 130;
+    opacity: 0;
+}
+
+.sim-shield-state {
+    color: var(--sp-text-secondary);
+    font-weight: 700;
+}
+
+.sim-arena[data-state="running"] .sim-shield { animation: sim-shake 0.35s ease-in-out infinite; }
+.sim-arena[data-state="held"] .sim-shield { filter: drop-shadow(0 0 12px rgba(var(--sp-primary-rgb), 0.75)); }
+.sim-arena[data-state="held"] .sim-shield-state { color: var(--sp-success); }
+.sim-arena[data-state="broken"] .sim-shield { filter: grayscale(0.7) brightness(0.75); transform: rotate(-6deg); }
+.sim-arena[data-state="broken"] .sim-shield-crack { opacity: 1; animation: sim-crack 0.5s ease-out forwards; }
+.sim-arena[data-state="broken"] .sim-shield-shackle { transform: translateY(-6px) rotate(-14deg); transform-origin: 59px 50px; }
+.sim-arena[data-state="broken"] .sim-shield-state { color: var(--sp-danger); }
+
+@keyframes sim-shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-1.5px) rotate(-1deg); }
+    75% { transform: translateX(1.5px) rotate(1deg); }
+}
+
+@keyframes sim-crack { to { stroke-dashoffset: 0; } }
+
+.sim-tests {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.sim-test {
+    display: grid;
+    grid-template-columns: 1.6rem minmax(0, 1fr) auto;
+    gap: 0.6rem;
+    align-items: start;
+    padding: 0.55rem 0.7rem;
+    border-radius: var(--sp-radius-md);
+    border: 1px solid var(--sp-border);
+    background: var(--sp-bg-input);
+    transition: border-color 0.25s ease, background 0.25s ease, opacity 0.25s ease;
+}
+
+.sim-test-num {
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--sp-primary-light);
+    color: var(--sp-primary);
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.sim-test-body strong {
+    display: block;
+    color: var(--sp-text-heading);
+    font-size: 0.875rem;
+}
+
+.sim-test-body small {
+    display: block;
+    color: var(--sp-text-muted);
+    font-size: 0.775rem;
+    line-height: 1.4;
+}
+
+.sim-test-log:empty { display: none; }
+.sim-test-log { margin-top: 0.15rem; font-weight: 600; }
+
+.sim-test-status {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--sp-text-muted);
+    white-space: nowrap;
+}
+
+.sim-test[data-status="running"] { border-color: var(--sp-primary); }
+.sim-test[data-status="running"] .sim-test-status { color: var(--sp-primary); }
+.sim-test[data-status="held"] .sim-test-status,
+.sim-test[data-status="held"] .sim-test-log { color: var(--sp-success); }
+.sim-test[data-status="broken"] { border-color: var(--sp-danger); background: var(--sp-danger-light); }
+.sim-test[data-status="broken"] .sim-test-num { background: var(--sp-danger); color: #fff; }
+.sim-test[data-status="broken"] .sim-test-status,
+.sim-test[data-status="broken"] .sim-test-log { color: var(--sp-danger); }
+.sim-test[data-status="skipped"] { opacity: 0.45; }
+
+.sim-budget {
+    margin-top: 0.6rem;
+    color: var(--sp-text-muted);
+    font-size: 0.775rem;
+}
+
+/* ── Outcome ─────────────────────────────────────────────── */
+
+.sim-verdict {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.9rem 1rem;
+    border-radius: var(--sp-radius-lg);
+    border: 1px solid var(--sp-success);
+    background: var(--sp-success-light);
+}
+
+.sim-verdict strong { color: var(--sp-success); font-size: 1rem; }
+.sim-verdict span { color: var(--sp-text-primary); font-size: 0.875rem; }
+.sim-verdict.is-broken { border-color: var(--sp-danger); background: var(--sp-danger-light); }
+.sim-verdict.is-broken strong { color: var(--sp-danger); }
+
+.sim-tip {
+    align-self: flex-start;
+    margin-top: 0.35rem;
+    color: var(--sp-primary);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.sim-tip::after { content: ' →'; }
+
+.sim-scn-title {
+    margin: 1rem 0 0.5rem;
+    color: var(--sp-text-heading);
+    font-size: 0.95rem;
+}
+
+.sim-scenarios {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.6rem;
+}
+
+.sim-scn {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: 0.7rem 0.8rem;
+    border-radius: var(--sp-radius-md);
+    border: 1px solid var(--sp-border);
+    background: var(--sp-bg-input);
+}
+
+.sim-scn strong { color: var(--sp-text-heading); font-size: 0.85rem; }
+.sim-scn small { color: var(--sp-text-muted); font-size: 0.75rem; line-height: 1.4; }
+.sim-scn-verdict { margin-top: 0.3rem; font-size: 0.8125rem; font-weight: 700; }
+.sim-scn[data-falls="1"] { border-color: var(--sp-danger); }
+.sim-scn[data-falls="1"] .sim-scn-verdict { color: var(--sp-danger); }
+.sim-scn[data-falls="0"] .sim-scn-verdict { color: var(--sp-success); }
+.sim-scn[data-na="1"] { opacity: 0.5; }
+.sim-scn[data-na="1"] .sim-scn-verdict { color: var(--sp-text-muted); }
+
+.sim-note,
+.sim-disclaimer {
+    color: var(--sp-text-muted);
+    font-size: 0.75rem;
+}
+
+.sim-note { margin-top: 0.5rem; }
+
+.sim-disclaimer {
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--sp-border);
+}
+
+/* ── Narrow screens ──────────────────────────────────────── */
+
+@media (max-width: 900px) {
+    .sim-arena {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas: "attacker" "defense" "outcome" "note";
+    }
+    .sim-scenarios { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 520px) {
+    .sim-panel { padding: 1rem; }
+    .sim-scenarios { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sim-arena[data-state="running"] .sim-shield { animation: none; }
+    .sim-arena[data-state="broken"] .sim-shield-crack { animation: none; stroke-dashoffset: 0; }
+}

@@ -1,455 +1,852 @@
-/* Generator Page Styles */
+/* ============================================================
+   Generator page
+   Tips on the left, one console on the right. The console starts with a
+   fixed result slot (empty until the first password), then the settings.
+   ============================================================ */
 
-.generator-container {
-    max-width: 700px;
+.gen-layout {
+    max-width: 1120px;
     margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(250px, 1fr) minmax(0, 1.7fr);
+    grid-template-areas: "tips console";
+    gap: 1.5rem;
+    align-items: stretch;  /* tips panel matches the console height */
+}
+
+/* Same glass surface as the other cards */
+.gen-console,
+.gen-tips {
+    background: var(--sp-glass-bg);
+    border: 1px solid var(--sp-glass-border);
+    border-radius: var(--sp-radius-xl);
+    backdrop-filter: blur(var(--sp-glass-blur));
+    -webkit-backdrop-filter: blur(var(--sp-glass-blur));
+    box-shadow: var(--sp-shadow-md);
+}
+
+.gen-console {
+    grid-area: console;
+    padding: 1.5rem;
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+    min-width: 0;
 }
 
-.generated-password-card {
-    background: var(--bg-card);
-    border-radius: 12px;
-    padding: 1.5rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+/* ── Result slot ─────────────────────────────────────────── */
+
+.gen-result {
+    position: relative;
+    min-height: 136px;
+    border-radius: var(--sp-radius-lg);
+    background: var(--sp-bg-input);
+    border: 1px solid var(--sp-border);
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    transition: border-color var(--sp-transition), box-shadow var(--sp-transition);
 }
 
-.generated-password-card label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    color: var(--text-primary);
+.gen-result.is-empty {
+    border-style: dashed;
+    border-color: var(--sp-border-active);
 }
 
-.password-display-wrapper {
+.gen-result:not(.is-empty) {
+    border-color: var(--sp-border-active);
+    box-shadow: inset 0 0 0 1px rgba(var(--sp-primary-rgb), 0.08), var(--sp-shadow-glow);
+}
+
+.gen-result-empty {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: var(--sp-text-secondary);
+    font-size: 0.95rem;
+}
+
+.gen-result-empty[hidden],
+.gen-result-filled[hidden],
+.gen-short-note[hidden] {
+    display: none !important;
+}
+
+/* Lokki sits on the left of the slot: asleep while empty, awake beside the password */
+.gen-result {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: 1rem;
+    align-items: center;
+}
+
+.gen-result > .gen-slot-lokki {
+    grid-column: 1;
+    grid-row: 1;
+    width: 64px;
+    height: 64px;
+}
+
+.gen-result-empty,
+.gen-result-filled {
+    grid-column: 2;
+    grid-row: 1;
+    min-width: 0;
+}
+
+/* Filled state */
+.gen-result-filled {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.gen-result-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.gen-password {
+    flex: 1;
+    min-width: 0;
+    font-family: ui-monospace, 'Cascadia Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+    font-size: clamp(1.15rem, 2.2vw, 1.6rem);
+    line-height: 1.35;
+    letter-spacing: 0.06em;
+    color: var(--sp-text-heading);
+    overflow-wrap: anywhere;
+    user-select: all;
+}
+
+/* Character classes are tinted so similar-looking ones are easy to tell apart */
+.gen-password .ch-digit { color: var(--sp-primary); }
+.gen-password .ch-symbol { color: var(--sp-warning); }
+
+.gen-password.is-scrambling {
+    color: var(--sp-text-muted);
+}
+
+.gen-result-actions {
     display: flex;
     gap: 0.5rem;
-    align-items: center;
+    flex: 0 0 auto;
 }
 
-.password-display {
-    flex: 1;
-    padding: 0.875rem;
-    font-size: 1.1rem;
-    font-family: 'Courier New', monospace;
-    background: var(--bg-primary);
-    border: 2px solid var(--border-color);
-    border-radius: 8px;
-    color: var(--text-primary);
-}
-
-.btn-icon {
-    background: var(--bg-secondary);
-    border: none;
-    padding: 0.625rem;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
+.gen-icon-btn {
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    color: var(--text-secondary);
+    border-radius: var(--sp-radius-md);
+    border: 1px solid var(--sp-border);
+    background: var(--sp-bg-card);
+    color: var(--sp-text-secondary);
+    cursor: pointer;
+    transition: color var(--sp-transition-fast), border-color var(--sp-transition-fast), background var(--sp-transition-fast);
 }
 
-.btn-icon:hover {
-    background: var(--primary);
-    color: white;
-    transform: translateY(-1px);
+.gen-icon-btn:hover:not(:disabled) {
+    color: var(--sp-primary);
+    border-color: var(--sp-border-active);
+    background: var(--sp-primary-soft);
 }
 
-.btn-icon svg {
-    display: block;
+.gen-icon-btn:focus-visible,
+.gen-generate:focus-visible {
+    outline: 2px solid var(--sp-primary);
+    outline-offset: 2px;
 }
 
-.strength-indicator {
-    margin-top: 1rem;
+.gen-icon-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
-.strength-label {
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    color: var(--text-secondary);
-}
-
-.strength-bar {
-    height: 8px;
-    background: var(--bg-secondary);
-    border-radius: 4px;
-    overflow: hidden;
-}
-
-.strength-fill {
-    height: 100%;
-    transition: all 0.3s ease;
-    border-radius: 4px;
-}
-
-.strength-strong {
-    background: linear-gradient(90deg, #10b981, #059669);
-}
-
-.strength-good {
-    background: linear-gradient(90deg, #3b82f6, #2563eb);
-}
-
-.strength-medium {
-    background: linear-gradient(90deg, #f59e0b, #d97706);
-}
-
-.strength-weak {
-    background: linear-gradient(90deg, #ef4444, #dc2626);
-}
-
-.generator-options {
-    background: var(--bg-card);
-    border-radius: 12px;
-    padding: 1.5rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.generator-options h3 {
-    margin-bottom: 1.25rem;
-    color: var(--text-primary);
-}
-
-.form-group-inline {
+/* Strength: four segments + entropy */
+.gen-strength {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    background: var(--bg-secondary);
-    padding: 0.75rem 0.875rem;
-    border-radius: 8px;
-    margin-bottom: 1.25rem;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    font-size: 0.875rem;
+    color: var(--sp-text-secondary);
 }
 
-.form-group-inline label {
-    font-weight: 500;
-    color: var(--text-primary);
-    white-space: nowrap;
-    min-width: fit-content;
+.gen-meter {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+    width: 140px;
 }
 
-/* Yeni uzunluk seçici stili */
-.form-group-length {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    background: rgba(15, 23, 42, 0.4);
-    padding: 0.875rem 1rem;
-    border-radius: 10px;
-    margin-bottom: 1.5rem;
-    border: 1px solid rgba(99, 102, 241, 0.2);
+.gen-meter span {
+    height: 6px;
+    border-radius: var(--sp-radius-full);
+    background: var(--sp-border);
+    transition: background-color 0.3s ease;
 }
 
-.form-group-length label {
+.gen-meter[data-level="weak"] span:nth-child(1) { background: var(--sp-danger); }
+.gen-meter[data-level="medium"] span:nth-child(-n+2) { background: var(--sp-warning); }
+.gen-meter[data-level="good"] span:nth-child(-n+3) { background: var(--sp-primary); }
+.gen-meter[data-level="strong"] span { background: var(--sp-success); }
+
+/* Segments fill one after another */
+.gen-meter span:nth-child(2) { transition-delay: 0.06s; }
+.gen-meter span:nth-child(3) { transition-delay: 0.12s; }
+.gen-meter span:nth-child(4) { transition-delay: 0.18s; }
+
+.gen-strength-text strong {
     font-weight: 600;
-    font-size: 0.95rem;
-    color: var(--text-primary);
-    white-space: nowrap;
 }
 
-.form-select-styled {
-    padding: 0.625rem 1rem;
-    font-size: 0.9375rem;
-    background: rgba(30, 41, 59, 0.6);
-    border: 2px solid rgba(99, 102, 241, 0.3);
-    border-radius: 8px;
-    color: var(--text-primary);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%236366f1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 0.75rem center;
-    padding-right: 2.5rem;
-    min-width: 220px;
+.gen-entropy {
+    margin-left: auto;
+    color: var(--sp-text-muted);
+    font-variant-numeric: tabular-nums;
 }
 
-.form-select-styled:hover {
-    border-color: rgba(99, 102, 241, 0.5);
-    background: rgba(30, 41, 59, 0.8);
+/* PIN results: a small badge next to the label and the reasons under the meter */
+.gen-kind-badge {
+    margin-left: 0.35rem;
+    padding: 0.05rem 0.45rem;
+    border-radius: var(--sp-radius-full);
+    border: 1px solid var(--sp-border-active);
+    color: var(--sp-primary);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    vertical-align: 1px;
 }
 
-.form-select-styled:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+.gen-kind-badge[hidden],
+.gen-pin-notes[hidden] {
+    display: none;
 }
 
-.form-select {
-    width: 100%;
-    padding: 0.625rem 0.875rem;
-    font-size: 0.9375rem;
-    background: var(--bg-primary);
-    border: 1.5px solid var(--border-color);
-    border-radius: 6px;
-    color: var(--text-primary);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 0.75rem center;
-    padding-right: 2.5rem;
+.gen-pin-notes {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
 }
 
-.form-select-compact {
-    max-width: 280px;
+.gen-pin-notes li {
+    padding: 0.25rem 0.6rem;
+    border-radius: var(--sp-radius-full);
+    background: var(--sp-danger-light);
+    color: var(--sp-danger);
+    font-size: 0.78rem;
+    line-height: 1.4;
 }
 
-.form-select:hover {
-    border-color: var(--primary);
-    background-color: var(--bg-secondary);
+.gen-pin-notes li.is-info {
+    background: var(--sp-primary-soft);
+    color: var(--sp-text-secondary);
 }
 
-.form-select:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+/* Next step after generating: make a card with it */
+/* Card and cyber-test buttons side by side under the password */
+.gen-result-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
 }
 
-.form-select option {
-    padding: 0.625rem 0.875rem;
-    background: #1e293b;
-    color: #e2e8f0;
-    font-size: 0.9375rem;
-}
-
-.form-select option:hover,
-.form-select option:focus {
-    background: var(--primary);
-    color: white;
-}
-
-.form-select option:checked {
-    background: var(--primary);
-    color: white;
-    font-weight: 500;
-}
-
-.options-section {
-    margin-top: 1.5rem;
-    margin-bottom: 2rem;
-}
-
-.options-section h4 {
+.gen-save-card {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 0.95rem;
+    border-radius: var(--sp-radius-md);
+    border: 1px solid var(--sp-border-active);
+    background: var(--sp-primary-soft);
+    color: var(--sp-primary);
+    font: inherit;
     font-size: 0.875rem;
     font-weight: 600;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 1rem;
-}
-
-.checkbox-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
-}
-
-.btn-generate {
-    margin-top: 1.5rem;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.checkbox-card {
-    position: relative;
-    display: flex;
     cursor: pointer;
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
-    border: 2px solid var(--border-color);
-    border-radius: 10px;
-    padding: 0.875rem;
-    transition: all 0.2s ease;
+    transition: background var(--sp-transition-fast), color var(--sp-transition-fast);
 }
 
-.checkbox-card:hover {
-    border-color: var(--primary);
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+.gen-save-card:hover {
+    background: var(--sp-primary);
+    color: #fff;
 }
 
-.checkbox-card input[type="checkbox"] {
-    position: absolute;
-    opacity: 0;
-    width: 0;
-    height: 0;
+.gen-save-card:focus-visible {
+    outline: 2px solid var(--sp-primary);
+    outline-offset: 2px;
 }
 
-.checkbox-card input[type="checkbox"]:checked~.checkbox-content {
-    opacity: 1;
+/* Cyber test: terminal look borrowed from /siber-test (mono type, dashed
+   frame, green "held" colour, square corners) so it doesn't read as a
+   second copy of the card button */
+.gen-attack-test {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 0.95rem;
+    border-radius: var(--sp-radius-sm);
+    border: 1px dashed var(--sp-success);
+    background: transparent;
+    color: var(--sp-success);
+    font: 600 0.8rem/1.2 ui-monospace, 'Cascadia Mono', Consolas, monospace;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    transition: background var(--sp-transition-fast), border-style var(--sp-transition-fast);
 }
 
-.checkbox-card input[type="checkbox"]:checked~.checkbox-content .checkbox-icon {
-    color: var(--primary);
-    transform: scale(1.05);
+.gen-attack-test::before {
+    content: '>';
+    font-weight: 700;
+    opacity: 0.7;
 }
 
-.checkbox-card input[type="checkbox"]:checked~.checkbox-content .checkbox-check {
-    opacity: 1;
-    transform: scale(1);
+.gen-attack-test:hover {
+    border-style: solid;
+    background: var(--sp-success-light);
 }
 
-.checkbox-card input[type="checkbox"]:not(:checked)~.checkbox-content {
+.gen-attack-test:hover svg {
+    transform: rotate(90deg);
+}
+
+.gen-attack-test svg {
+    transition: transform var(--sp-transition);
+}
+
+.gen-attack-test:focus-visible {
+    outline: 2px solid var(--sp-success);
+    outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .gen-attack-test svg { transition: none; }
+    .gen-attack-test:hover svg { transform: none; }
+}
+
+/* Waiting out the limit: settings are locked as well */
+.gen-console.is-cooling .gen-field {
     opacity: 0.5;
 }
 
-.checkbox-content {
+.gen-console.is-cooling .gen-length,
+.gen-console.is-cooling .gen-type {
+    cursor: not-allowed;
+}
+
+/* ── Settings ────────────────────────────────────────────── */
+
+/* Numbered steps: length, character types, generate */
+.gen-step {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0 0 0.75rem;
+    padding: 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--sp-text-heading);
+}
+
+.gen-step-num {
+    display: inline-grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    flex: 0 0 26px;
+    border-radius: 50%;
+    background: var(--sp-primary-light);
+    border: 1px solid var(--sp-border-active);
+    color: var(--sp-primary);
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.gen-field {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+}
+
+/* Length: one row of choices */
+.gen-lengths {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 0.75rem 0.5rem;
+    padding-top: 0.5rem;  /* room for the "recommended" pill */
+}
+
+.gen-length {
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: 0.375rem;
-    width: 100%;
-}
-
-.checkbox-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.25rem;
-}
-
-.checkbox-icon {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--text-secondary);
-    font-family: 'Courier New', monospace;
-    transition: all 0.2s ease;
-}
-
-.checkbox-check {
-    width: 22px;
-    height: 22px;
-    background: var(--primary);
-    border-radius: 50%;
-    display: flex;
     align-items: center;
     justify-content: center;
+    min-height: 52px;
+    border-radius: var(--sp-radius-md);
+    border: 1px solid var(--sp-border);
+    background: var(--sp-bg-input);
+    cursor: pointer;
+    transition: border-color var(--sp-transition-fast), background var(--sp-transition-fast), color var(--sp-transition-fast);
+}
+
+.gen-length input {
+    position: absolute;
     opacity: 0;
-    transform: scale(0);
-    transition: all 0.2s ease;
+    pointer-events: none;
 }
 
-.checkbox-check::after {
-    content: "✓";
-    color: white;
-    font-size: 0.875rem;
-    font-weight: bold;
+.gen-length-num {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--sp-text-primary);
+    font-variant-numeric: tabular-nums;
 }
 
-.checkbox-title {
-    font-size: 0.875rem;
+/* "Recommended" sits on the top edge as a pill, so long translations don't need to fit inside */
+.gen-length-tag {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 0.1rem 0.45rem;
+    border-radius: var(--sp-radius-full);
+    background: var(--sp-bg-card);
+    border: 1px solid var(--sp-border-active);
+    font-size: 0.65rem;
     font-weight: 600;
-    color: var(--text-primary);
     line-height: 1.3;
+    white-space: nowrap;
+    color: var(--sp-primary);
+    pointer-events: none;
 }
 
-.checkbox-desc {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    font-family: 'Courier New', monospace;
-    letter-spacing: 0.5px;
+.gen-length:hover {
+    border-color: var(--sp-border-active);
 }
 
-.checkbox-group {
-    margin-bottom: 0.5rem;
+.gen-length:has(input:checked) {
+    border-color: var(--sp-primary);
+    background: var(--sp-primary-light);
 }
 
-.checkbox-label {
+.gen-length:has(input:checked) .gen-length-num {
+    color: var(--sp-primary);
+}
+
+.gen-length:has(input:checked) .gen-length-tag {
+    background: var(--sp-primary);
+    border-color: var(--sp-primary);
+    color: #fff;
+}
+
+.gen-length:has(input:focus-visible) {
+    outline: 2px solid var(--sp-primary);
+    outline-offset: 2px;
+}
+
+.gen-short-note {
+    margin: 0.75rem 0 0;
+    padding: 0.625rem 0.875rem;
+    border-radius: var(--sp-radius-md);
+    background: var(--sp-warning-light);
+    color: var(--sp-warning);
+    font-size: 0.85rem;
+    line-height: 1.45;
+}
+
+/* Character types: compact switch rows */
+.gen-types {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+}
+
+.gen-type {
     display: flex;
     align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 0.875rem;
+    border-radius: var(--sp-radius-md);
+    border: 1px solid var(--sp-border);
+    background: var(--sp-bg-input);
     cursor: pointer;
-    padding: 0.5rem 0.75rem;
-    border-radius: 6px;
-    transition: background 0.2s ease;
+    transition: border-color var(--sp-transition-fast);
 }
 
-.checkbox-label:hover {
-    background: var(--bg-secondary);
+.gen-type:hover {
+    border-color: var(--sp-border-active);
 }
 
-.checkbox-label input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
-    margin-right: 0.625rem;
-    cursor: pointer;
-    accent-color: var(--primary);
-}
-
-.checkbox-label span {
-    color: var(--text-primary);
-    font-weight: 400;
-    font-size: 0.9375rem;
-}
-
-.generator-tips {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 12px;
-    padding: 1.5rem;
-    color: white;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-}
-
-.generator-tips h3 {
-    margin-bottom: 1rem;
-}
-
-.generator-tips ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.generator-tips li {
-    padding: 0.5rem 0;
-    padding-left: 1.5rem;
-    position: relative;
-}
-
-.generator-tips li::before {
-    content: "✓";
+.gen-type input {
     position: absolute;
-    left: 0;
-    font-weight: bold;
-    color: #10b981;
+    opacity: 0;
+    pointer-events: none;
 }
 
-/* 13-14" Laptop optimization */
-@media (max-width: 1440px) {
-    .generator-container {
-        max-width: 700px;
-    }
+.gen-type-sample {
+    width: 2.75rem;
+    font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+    font-weight: 700;
+    color: var(--sp-text-heading);
+}
 
-    .password-display {
-        font-size: 1.15rem;
-        padding: 0.875rem;
+.gen-type-sample.is-digit { color: var(--sp-primary); }
+.gen-type-sample.is-symbol { color: var(--sp-warning); }
+
+.gen-type-name {
+    flex: 1;
+    min-width: 0;
+    font-size: 0.9rem;
+    color: var(--sp-text-primary);
+}
+
+/* Switch */
+.gen-switch {
+    position: relative;
+    width: 34px;
+    height: 20px;
+    flex: 0 0 34px;
+    border-radius: var(--sp-radius-full);
+    background: var(--sp-border);
+    transition: background var(--sp-transition-fast);
+}
+
+.gen-switch::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--sp-text-secondary);
+    transition: transform var(--sp-transition-fast), background var(--sp-transition-fast);
+}
+
+.gen-type:has(input:checked) .gen-switch {
+    background: var(--sp-primary);
+}
+
+.gen-type:has(input:checked) .gen-switch::after {
+    transform: translateX(14px);
+    background: #fff;
+}
+
+.gen-type:has(input:not(:checked)) .gen-type-sample {
+    opacity: 0.4;
+}
+
+.gen-type:has(input:focus-visible) {
+    outline: 2px solid var(--sp-primary);
+    outline-offset: 2px;
+}
+
+/* Generate */
+.gen-submit {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.gen-generate {
+    width: 100%;
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-weight: 600;
+}
+
+.gen-generate svg {
+    transition: transform 0.45s ease;
+}
+
+.gen-generate.is-busy svg {
+    transform: rotate(-360deg);
+}
+
+.gen-generate:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.gen-limit-note {
+    margin: 0;
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--sp-text-muted);
+}
+
+/* ── Tips (Lokki) ────────────────────────────────────────── */
+
+.gen-tips {
+    grid-area: tips;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    min-width: 0;
+}
+
+.gen-tips-head {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+}
+
+.gen-tips-head .lokki {
+    width: 76px;
+    height: 76px;
+    flex: 0 0 76px;
+}
+
+/* Speech bubble with a tail pointing at Lokki */
+.gen-bubble {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    padding: 0.75rem 0.95rem;
+    border-radius: var(--sp-radius-lg);
+    background: var(--sp-primary-soft);
+    border: 1px solid var(--sp-border-active);
+}
+
+.gen-bubble::before {
+    content: '';
+    position: absolute;
+    left: -7px;
+    top: 50%;
+    width: 12px;
+    height: 12px;
+    border-left: 1px solid var(--sp-border-active);
+    border-bottom: 1px solid var(--sp-border-active);
+    transform: translateY(-50%) rotate(45deg);
+    /* the bubble is translucent: paint the tail over the card colour first */
+    background: linear-gradient(var(--sp-primary-soft), var(--sp-primary-soft)), var(--sp-bg-card);
+}
+
+.gen-bubble h2 {
+    font-family: 'Saira Semi Condensed', 'Arial Narrow', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--sp-text-heading);
+    margin: 0 0 0.25rem;
+}
+
+.gen-bubble p {
+    margin: 0;
+    font-size: 0.85rem;
+    line-height: 1.45;
+    color: var(--sp-text-secondary);
+}
+
+/* Tabs */
+.gen-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 4px;
+    padding: 4px;
+    border-radius: var(--sp-radius-md);
+    background: var(--sp-bg-input);
+    border: 1px solid var(--sp-border);
+}
+
+.gen-tabs button {
+    min-height: 36px;
+    padding: 0.35rem 0.5rem;
+    border: 0;
+    border-radius: var(--sp-radius-sm);
+    background: transparent;
+    color: var(--sp-text-secondary);
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    line-height: 1.2;
+    cursor: pointer;
+    transition: background var(--sp-transition-fast), color var(--sp-transition-fast);
+}
+
+.gen-tabs button:hover {
+    color: var(--sp-text-primary);
+}
+
+.gen-tabs button[aria-selected="true"] {
+    background: var(--sp-primary);
+    color: #fff;
+}
+
+.gen-tabs button:focus-visible {
+    outline: 2px solid var(--sp-primary);
+    outline-offset: 2px;
+}
+
+/* Tip rows fill the rest of the panel */
+.gen-tip-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.gen-tip-list[hidden] {
+    display: none;
+}
+
+.gen-tip-list li {
+    position: relative;
+    padding: 0.7rem 0.875rem 0.7rem 2.25rem;
+    border-radius: var(--sp-radius-md);
+    background: var(--sp-bg-input);
+    border: 1px solid var(--sp-border-light);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--sp-text-primary);
+}
+
+/* Small check mark in front of each tip */
+.gen-tip-list li::before {
+    content: '';
+    position: absolute;
+    left: 0.875rem;
+    top: 0.95rem;
+    width: 0.7rem;
+    height: 0.4rem;
+    border-left: 2px solid var(--sp-primary);
+    border-bottom: 2px solid var(--sp-primary);
+    transform: rotate(-45deg);
+}
+
+/* Pinned to the bottom so short tabs don't leave an empty panel */
+.gen-tips-footer {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.75rem 0.875rem;
+    border-radius: var(--sp-radius-md);
+    border: 1px dashed var(--sp-border-active);
+    color: var(--sp-text-secondary);
+    font-size: 0.85rem;
+    line-height: 1.4;
+    text-decoration: none;
+    transition: color var(--sp-transition-fast), background var(--sp-transition-fast);
+}
+
+.gen-tips-footer svg {
+    flex: 0 0 18px;
+    color: var(--sp-primary);
+}
+
+.gen-tips-footer:hover {
+    color: var(--sp-text-heading);
+    background: var(--sp-primary-soft);
+}
+
+.gen-tips-footer:focus-visible {
+    outline: 2px solid var(--sp-primary);
+    outline-offset: 2px;
+}
+
+.gen-tip-list {
+    flex: 0 1 auto;
+}
+
+.gen-tip-list.is-entering li {
+    animation: gen-tip-in 0.35s ease-out both;
+}
+
+.gen-tip-list.is-entering li:nth-child(2) { animation-delay: 0.04s; }
+.gen-tip-list.is-entering li:nth-child(3) { animation-delay: 0.08s; }
+.gen-tip-list.is-entering li:nth-child(4) { animation-delay: 0.12s; }
+.gen-tip-list.is-entering li:nth-child(5) { animation-delay: 0.16s; }
+
+@keyframes gen-tip-in {
+    from { opacity: 0; transform: translateX(-6px); }
+    to { opacity: 1; transform: none; }
+}
+
+/* Light theme: amber needs a darker tone to stay readable on white */
+[data-theme="light"] .gen-password .ch-symbol,
+[data-theme="light"] .gen-type-sample.is-symbol,
+[data-theme="light"] .gen-short-note {
+    color: #b45309;
+}
+
+/* ── Responsive ──────────────────────────────────────────── */
+
+@media (max-width: 1100px) {
+    .gen-layout {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas: "console" "tips";
+        max-width: 760px;
     }
 }
 
-@media (max-width: 1366px) {
-    .generator-container {
-        max-width: 650px;
+@media (max-width: 560px) {
+    /* Narrow screens: a smaller Lokki while empty; it steps aside so the password gets the full width */
+    .gen-result > .gen-slot-lokki {
+        width: 46px;
+        height: 46px;
     }
 
-    .generated-password-card,
-    .generator-controls {
-        padding: 1.5rem;
+    .gen-result:not(.is-empty) {
+        grid-template-columns: minmax(0, 1fr);
     }
 
-    .password-display {
-        font-size: 1.1rem;
+    .gen-result:not(.is-empty) > .gen-slot-lokki {
+        display: none;
+    }
+
+    .gen-result:not(.is-empty) .gen-result-filled {
+        grid-column: 1;
+    }
+
+    .gen-console,
+    .gen-tips {
+        padding: 1.125rem;
+    }
+
+    .gen-lengths {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .gen-types {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .gen-result-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .gen-result-actions {
+        justify-content: flex-end;
+    }
+
+    .gen-entropy {
+        margin-left: 0;
     }
 }
 
-@media (max-width: 1024px) {
-    .generator-container {
-        max-width: 600px;
+@media (prefers-reduced-motion: reduce) {
+    .gen-meter span,
+    .gen-generate svg {
+        transition: none;
     }
 }

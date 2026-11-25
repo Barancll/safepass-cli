@@ -1,0 +1,259 @@
+<header class="sp-topbar">
+    <div class="sp-topbar-left">
+        <nav class="sp-breadcrumb" aria-label="breadcrumb">
+            <a href="/dashboard" data-i18n-title="breadcrumb.home" title="Ana Sayfa">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 10.5L12 3l9 7.5"></path>
+                    <path d="M5 10v10h14V10"></path>
+                </svg>
+            </a>
+            <span class="sp-breadcrumb-sep">/</span>
+            <span class="sp-breadcrumb-current" id="spCurrentPageLabel">Gösterge Paneli</span>
+        </nav>
+        {% if page_subtitle_key %}<p class="sp-topbar-subtitle" data-i18n="{{ page_subtitle_key }}">{{ page_subtitle }}</p>{% endif %}
+    </div>
+
+    <div class="sp-topbar-actions">
+        <div class="sp-lang-dropdown" id="spTopbarLang">
+            <button type="button" class="sp-topbar-btn sp-lang-trigger" id="spTopbarLangToggle"
+                aria-haspopup="listbox" aria-expanded="false" aria-controls="spTopbarLangMenu"
+                data-i18n-title="settings.language" data-i18n-aria-label="settings.language" title="Dil" aria-label="Dil">
+                <span class="sp-lang-trigger-flag" id="spTopbarLangFlag">{% include "partials/flag.html" with code="tr" %}</span>
+                <span class="sp-lang-trigger-code" id="spTopbarLangLabel">TR</span>
+                <svg class="sp-lang-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+            </button>
+            <div class="sp-lang-menu" id="spTopbarLangMenu" role="listbox" aria-label="Language" hidden>
+                <button type="button" role="option" data-lang-option="tr" aria-selected="true" aria-label="Türkçe" title="Türkçe">
+                    {% include "partials/flag.html" with code="tr" %}<span class="sp-lang-code">TR</span>
+                </button>
+                <button type="button" role="option" data-lang-option="en" aria-selected="false" aria-label="English" title="English">
+                    {% include "partials/flag.html" with code="en" %}<span class="sp-lang-code">EN</span>
+                </button>
+                <button type="button" role="option" data-lang-option="es" aria-selected="false" aria-label="Español" title="Español">
+                    {% include "partials/flag.html" with code="es" %}<span class="sp-lang-code">ES</span>
+                </button>
+                <button type="button" role="option" data-lang-option="de" aria-selected="false" aria-label="Deutsch" title="Deutsch">
+                    {% include "partials/flag.html" with code="de" %}<span class="sp-lang-code">DE</span>
+                </button>
+                <button type="button" role="option" data-lang-option="ru" aria-selected="false" aria-label="Русский" title="Русский">
+                    {% include "partials/flag.html" with code="ru" %}<span class="sp-lang-code">RU</span>
+                </button>
+            </div>
+        </div>
+        <button type="button" class="sp-topbar-btn" id="spTopbarAboutBtn" aria-haspopup="dialog" title="Geliştirici" aria-label="Geliştirici" data-i18n-title="about.button" data-i18n-aria-label="about.button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
+        </button>
+        <button type="button" class="sp-topbar-btn" id="spTopbarThemeToggle" data-i18n-title="settings.theme" title="Tema">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z"></path>
+            </svg>
+        </button>
+        <div class="sp-topbar-notification" id="spTopbarNotification">
+            <button type="button" class="sp-topbar-btn" id="spTopbarNotifBtn" title="Bildirimler" aria-label="Bildirimler" data-i18n-title="notif.title" data-i18n-aria-label="notif.title"
+                    aria-haspopup="dialog" aria-expanded="false" aria-controls="spNotifDropdown">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
+                <span class="sp-notif-count" id="spNotifCount" aria-hidden="true" {% if not SP_NOTIF_UNREAD %}hidden{% endif %}>{% if SP_NOTIF_UNREAD > 9 %}9+{% else %}{{ SP_NOTIF_UNREAD }}{% endif %}</span>
+            </button>
+            <div class="sp-notification-dropdown" id="spNotifDropdown" role="dialog" aria-labelledby="spNotifTitle">
+                <div class="sp-notif-head">
+                    <div class="sp-notif-heading">
+                        <h2 id="spNotifTitle" data-i18n="notif.title">Bildirimler</h2>
+                        <span class="sp-notif-new" id="spNotifNew" hidden></span>
+                    </div>
+                    <button type="button" class="sp-notif-icon" data-notif-action="read-all" title="Tümünü okundu say" aria-label="Tümünü okundu say"
+                            data-i18n-title="notif.read_all" data-i18n-aria-label="notif.read_all">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 7 17l-5-5"/><path d="m22 10-7.5 7.5L13 16"/></svg>
+                    </button>
+                    <button type="button" class="sp-notif-icon is-danger" data-notif-action="delete-all" title="Tümünü sil" aria-label="Tümünü sil"
+                            data-i18n-title="notif.delete_all" data-i18n-aria-label="notif.delete_all">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                    </button>
+                </div>
+                <div class="sp-notif-list" id="spNotifList" role="list" aria-busy="true"></div>
+                <div class="sp-notif-foot">
+                    <a href="/notifications" class="sp-notif-all">
+                        <span data-i18n="notif.view_all">Tüm bildirimler</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                    </a>
+                    <a href="/settings" class="sp-notif-icon" title="Hatırlatma ayarları" aria-label="Hatırlatma ayarları" data-i18n-title="notif.settings_link" data-i18n-aria-label="notif.settings_link">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="sp-profile-trigger" id="spProfileTrigger">
+            <div class="sp-avatar">
+                {% if SP_USER %}
+                {{ SP_USER.username|slice:":1"|upper }}
+                {% elif user %}
+                {{ user.username|slice:":1"|upper }}
+                {% else %}
+                U
+                {% endif %}
+                <span class="sp-avatar-status"></span>
+            </div>
+            <div class="sp-profile-dropdown" id="spProfileDropdown">
+                <div class="sp-profile-card-header">
+                    <div class="sp-profile-card-avatar">
+                        {% if SP_USER %}
+                        {{ SP_USER.username|slice:":1"|upper }}
+                        {% elif user %}
+                        {{ user.username|slice:":1"|upper }}
+                        {% else %}
+                        U
+                        {% endif %}
+                    </div>
+                    <div class="sp-profile-card-info">
+                        <div class="sp-profile-card-name">
+                            {% if SP_USER %}
+                            {{ SP_USER.username }}
+                            {% elif user %}
+                            {{ user.username }}
+                            {% else %}
+                            User
+                            {% endif %}
+                        </div>
+                        <div class="sp-profile-card-role" data-i18n="profile.card.role">Yönetici</div>
+                    </div>
+                </div>
+                <div class="sp-profile-card-menu">
+                    <a href="/profile" class="sp-profile-card-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        <span data-i18n="profile.card.view_profile">Profilim</span>
+                    </a>
+                    <a href="/settings" class="sp-profile-card-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09A1.65 1.65 0 0 0 15 4.6a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.69 0 1.31.39 1.61 1H21a2 2 0 1 1 0 4h-.09c-.3.61-.92 1-1.61 1z"></path>
+                        </svg>
+                        <span data-i18n="profile.card.settings">Ayarlar</span>
+                    </a>
+                    <a href="/auth/login" data-logout class="sp-profile-card-item danger">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg>
+                        <span data-i18n="profile.card.logout">Çıkış Yap</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<button type="button" class="sp-layout-edge-toggle" id="spLayoutEdgeToggle" data-i18n-title="profile.card.settings" title="Layout">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="3"></circle>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09A1.65 1.65 0 0 0 15 4.6a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.69 0 1.31.39 1.61 1H21a2 2 0 1 1 0 4h-.09c-.3.61-.92 1-1.61 1z"></path>
+    </svg>
+</button>
+
+<div class="sp-settings-panel-overlay" id="spSettingsOverlay"></div>
+<aside class="sp-settings-panel" id="spSettingsPanel">
+    <div class="sp-settings-header">
+        <h3 class="sp-settings-title" data-i18n="settings.layout_title">YERLEŞİM AYARLARI</h3>
+        <button type="button" class="sp-settings-close" id="spSettingsClose" data-i18n-title="common.close" data-i18n-aria-label="common.close" title="Kapat" aria-label="Kapat">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+    </div>
+    <div class="sp-settings-body">
+        <div class="sp-settings-section">
+            <span class="sp-settings-label" id="spSetTheme" data-i18n="settings.theme">Tema</span>
+            <div class="sp-theme-toggle-group sp-seg-3" role="radiogroup" aria-labelledby="spSetTheme">
+                <button type="button" class="sp-theme-toggle-btn" data-theme-option="light" role="radio"><span data-i18n="settings.theme_light">Açık</span></button>
+                <button type="button" class="sp-theme-toggle-btn" data-theme-option="dark" role="radio"><span data-i18n="settings.theme_dark">Koyu</span></button>
+                <button type="button" class="sp-theme-toggle-btn" data-theme-option="system" role="radio"><span data-i18n="settings.theme_system">Sistem</span></button>
+            </div>
+        </div>
+
+        <div class="sp-settings-section">
+            <span class="sp-settings-label" id="spSetAccent"><span data-i18n="settings.primary_color">Ana Renk</span>
+                <small class="sp-settings-value" id="spAccentName"></small></span>
+            <div class="sp-color-palette" role="radiogroup" aria-labelledby="spSetAccent">
+                <button type="button" class="sp-color-swatch" data-appearance="accent" data-value="purple" role="radio" style="--swatch:#a855f7" data-i18n-title="settings.color_purple" data-i18n-aria-label="settings.color_purple" title="Mor" aria-label="Mor"></button>
+                <button type="button" class="sp-color-swatch" data-appearance="accent" data-value="emerald" role="radio" style="--swatch:#059669" data-i18n-title="settings.color_emerald" data-i18n-aria-label="settings.color_emerald" title="Zümrüt" aria-label="Zümrüt"></button>
+                <button type="button" class="sp-color-swatch" data-appearance="accent" data-value="indigo" role="radio" style="--swatch:#6366f1" data-i18n-title="settings.color_indigo" data-i18n-aria-label="settings.color_indigo" title="Çivit" aria-label="Çivit"></button>
+                <button type="button" class="sp-color-swatch" data-appearance="accent" data-value="pink" role="radio" style="--swatch:#db2777" data-i18n-title="settings.color_pink" data-i18n-aria-label="settings.color_pink" title="Pembe" aria-label="Pembe"></button>
+                <button type="button" class="sp-color-swatch" data-appearance="accent" data-value="amber" role="radio" style="--swatch:#d97706" data-i18n-title="settings.color_amber" data-i18n-aria-label="settings.color_amber" title="Kehribar" aria-label="Kehribar"></button>
+            </div>
+        </div>
+
+        <div class="sp-settings-section">
+            <span class="sp-settings-label" id="spSetSidebar" data-i18n="settings.sidebar">Kenar Çubuğu</span>
+            <div class="sp-theme-toggle-group" role="radiogroup" aria-labelledby="spSetSidebar">
+                <button type="button" class="sp-theme-toggle-btn" data-appearance="sidebar" data-value="expanded" role="radio"><span data-i18n="settings.sidebar_expanded">Geniş</span></button>
+                <button type="button" class="sp-theme-toggle-btn" data-appearance="sidebar" data-value="compact" role="radio"><span data-i18n="settings.sidebar_compact">Simgeler</span></button>
+            </div>
+        </div>
+
+        <div class="sp-settings-section">
+            <span class="sp-settings-label" id="spSetFont" data-i18n="settings.font_size">Yazı Boyutu</span>
+            <div class="sp-theme-toggle-group sp-seg-3" role="radiogroup" aria-labelledby="spSetFont">
+                <button type="button" class="sp-theme-toggle-btn" data-appearance="fontSize" data-value="sm" role="radio"><span class="sp-font-sample sm" aria-hidden="true">A</span><span data-i18n="settings.font_sm">Küçük</span></button>
+                <button type="button" class="sp-theme-toggle-btn" data-appearance="fontSize" data-value="md" role="radio"><span class="sp-font-sample" aria-hidden="true">A</span><span data-i18n="settings.font_md">Normal</span></button>
+                <button type="button" class="sp-theme-toggle-btn" data-appearance="fontSize" data-value="lg" role="radio"><span class="sp-font-sample lg" aria-hidden="true">A</span><span data-i18n="settings.font_lg">Büyük</span></button>
+            </div>
+        </div>
+
+        <div class="sp-settings-section">
+            <span class="sp-settings-label" id="spSetRadius" data-i18n="settings.radius">Köşeler</span>
+            <div class="sp-theme-toggle-group sp-seg-3" role="radiogroup" aria-labelledby="spSetRadius">
+                <button type="button" class="sp-theme-toggle-btn" data-appearance="radius" data-value="sharp" role="radio"><span class="sp-radius-sample sharp" aria-hidden="true"></span><span data-i18n="settings.radius_sharp">Keskin</span></button>
+                <button type="button" class="sp-theme-toggle-btn" data-appearance="radius" data-value="soft" role="radio"><span class="sp-radius-sample" aria-hidden="true"></span><span data-i18n="settings.radius_soft">Yumuşak</span></button>
+                <button type="button" class="sp-theme-toggle-btn" data-appearance="radius" data-value="round" role="radio"><span class="sp-radius-sample round" aria-hidden="true"></span><span data-i18n="settings.radius_round">Yuvarlak</span></button>
+            </div>
+        </div>
+
+        <div class="sp-settings-section sp-settings-list">
+            <label class="sp-settings-switch-row">
+                <span class="sp-settings-switch-label" data-i18n="settings.glass">Cam Efekti</span>
+                <span class="sp-toggle"><input type="checkbox" data-appearance="glass"><span class="sp-toggle-slider"></span></span>
+            </label>
+            <label class="sp-settings-switch-row">
+                <span class="sp-settings-switch-label" data-i18n="settings.view_boxed">Dar Görünüm</span>
+                <span class="sp-toggle"><input type="checkbox" data-appearance="boxed"><span class="sp-toggle-slider"></span></span>
+            </label>
+            <label class="sp-settings-switch-row sp-settings-switch-hinted">
+                <span class="sp-settings-switch-text">
+                    <span class="sp-settings-switch-label" data-i18n="settings.privacy">Gizlilik Modu</span>
+                    <small class="sp-settings-hint" data-i18n="settings.privacy_hint">Kullanıcı adları ve notlar üzerine gelene kadar bulanık görünür.</small>
+                </span>
+                <span class="sp-toggle"><input type="checkbox" data-appearance="privacy"><span class="sp-toggle-slider"></span></span>
+            </label>
+        </div>
+
+        <div class="sp-settings-section">
+            <span class="sp-settings-label" id="spSetTransition" data-i18n="settings.router_transition">Sayfa Geçişi</span>
+            <div class="sp-listbox" id="spTransitionListbox">
+                <button type="button" class="sp-listbox-trigger" id="spTransitionTrigger" aria-haspopup="listbox" aria-expanded="false"
+                        aria-controls="spTransitionMenu" aria-labelledby="spSetTransition spTransitionValue">
+                    <span class="sp-listbox-value" id="spTransitionValue"></span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </button>
+                <div class="sp-listbox-menu" id="spTransitionMenu" role="listbox" aria-labelledby="spSetTransition" hidden>
+                    <button type="button" class="sp-listbox-option" role="option" data-appearance="transition" data-value="fadeUp"><span data-i18n="settings.transition_fadeUp">Yukarı kayma</span></button>
+                    <button type="button" class="sp-listbox-option" role="option" data-appearance="transition" data-value="fade"><span data-i18n="settings.transition_fade">Solma</span></button>
+                    <button type="button" class="sp-listbox-option" role="option" data-appearance="transition" data-value="zoom"><span data-i18n="settings.transition_zoom">Yakınlaşma</span></button>
+                    <button type="button" class="sp-listbox-option" role="option" data-appearance="transition" data-value="none"><span data-i18n="settings.transition_none">Kapalı (animasyon yok)</span></button>
+                </div>
+            </div>
+        </div>
+
+        <button type="button" class="sp-restore-btn" id="spAppearanceReset" data-i18n="settings.restore_default">Varsayılana Dön</button>
+    </div>
+</aside>

@@ -1,0 +1,270 @@
+/* ============================================================
+   SafePass - Notifications page (item styles live in topbar.css)
+   ============================================================ */
+
+.notif-page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.notif-settings-link {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 0.45rem;
+    text-decoration: none;
+}
+
+.btn.btn-sm {
+    padding: 0.5rem 0.9rem;
+    border-radius: var(--sp-radius-md);
+    font-size: 0.82rem;
+}
+
+.btn.btn-danger-outline {
+    border: 1px solid rgba(239, 68, 68, 0.45);
+    background: transparent;
+    color: var(--sp-danger);
+}
+
+.btn.btn-danger-outline:hover {
+    border-color: var(--sp-danger);
+    background: var(--sp-danger-light);
+}
+
+.notif-panel {
+    border: 1px solid var(--sp-border);
+    border-radius: var(--sp-radius-lg);
+    background: var(--sp-bg-card);
+    overflow: hidden;
+}
+
+/* ── Toolbar: filter tabs + actions on everything ───────────── */
+.notif-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.9rem 1.25rem;
+    border-bottom: 1px solid var(--sp-border);
+}
+
+.notif-tabs {
+    display: inline-flex;
+    gap: 0.25rem;
+    padding: 0.25rem;
+    border-radius: var(--sp-radius-full);
+    background: var(--sp-bg-input);
+}
+
+.notif-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.95rem;
+    border: 0;
+    border-radius: var(--sp-radius-full);
+    background: transparent;
+    color: var(--sp-text-secondary);
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background var(--sp-transition-fast), color var(--sp-transition-fast);
+}
+
+.notif-tab em {
+    min-width: 20px;
+    padding: 0.05rem 0.4rem;
+    border-radius: var(--sp-radius-full);
+    background: rgba(148, 163, 184, 0.18);
+    font-size: 0.7rem;
+    font-style: normal;
+    font-weight: 800;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+.notif-tab.is-active {
+    background: var(--sp-primary);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(var(--sp-primary-rgb), 0.3);
+}
+
+.notif-tab.is-active em {
+    background: rgba(255, 255, 255, 0.22);
+}
+
+.notif-tab:focus-visible {
+    outline: 2px solid var(--sp-primary);
+    outline-offset: 2px;
+}
+
+.notif-toolbar-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* ── Selection bar ──────────────────────────────────────────── */
+.notif-selectbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1rem;
+    min-height: 52px;
+    padding: 0.5rem 1.25rem;
+    border-bottom: 1px solid var(--sp-border);
+    background: rgba(var(--sp-primary-rgb), 0.03);
+}
+
+.notif-selectbar[hidden] {
+    display: none;
+}
+
+.notif-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: var(--sp-text-secondary);
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* Themed checkbox (same look as the login page one) */
+.notif-check input,
+.notif-item-check {
+    display: grid;
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    place-content: center;
+    border: 1.5px solid rgba(var(--sp-primary-rgb), 0.5);
+    border-radius: 5px;
+    background: var(--sp-bg-input);
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    transition: background var(--sp-transition-fast), border-color var(--sp-transition-fast);
+}
+
+.notif-check input::after,
+.notif-item-check::after {
+    width: 9px;
+    height: 5px;
+    border: solid #fff;
+    border-width: 0 0 2px 2px;
+    content: '';
+    transform: translateY(-1px) rotate(-45deg) scale(0);
+    transition: transform 0.15s ease;
+}
+
+.notif-check input:checked,
+.notif-item-check:checked,
+.notif-check input:indeterminate {
+    border-color: var(--sp-primary);
+    background: var(--sp-primary);
+}
+
+.notif-check input:checked::after,
+.notif-item-check:checked::after {
+    transform: translateY(-1px) rotate(-45deg) scale(1);
+}
+
+/* Some selected: a dash */
+.notif-check input:indeterminate::after {
+    width: 9px;
+    height: 0;
+    border-width: 0 0 2px;
+    transform: none;
+}
+
+.notif-check input:focus-visible,
+.notif-item-check:focus-visible {
+    outline: 3px solid rgba(var(--sp-primary-rgb), 0.35);
+    outline-offset: 2px;
+}
+
+.notif-bulk {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: auto;
+    animation: notif-bulk-in 0.18s ease-out;
+}
+
+.notif-bulk[hidden] {
+    display: none;
+}
+
+@keyframes notif-bulk-in {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: none; }
+}
+
+.notif-bulk-count {
+    margin-right: 0.25rem;
+    color: var(--sp-primary);
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+/* ── List ───────────────────────────────────────────────────── */
+.notif-page-list .sp-notif-item {
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1rem 1rem 1.25rem;
+}
+
+.notif-page-list .sp-notif-item.is-selected {
+    background: rgba(var(--sp-primary-rgb), 0.11);
+}
+
+.notif-page-list .sp-notif-kind {
+    flex-basis: 42px;
+    width: 42px;
+    height: 42px;
+}
+
+.notif-page-list .sp-notif-title {
+    font-size: 0.92rem;
+}
+
+.notif-page-list .sp-notif-text {
+    font-size: 0.84rem;
+}
+
+.notif-page-list .sp-notif-actions {
+    gap: 0.25rem;
+}
+
+@media (max-width: 768px) {
+    .notif-page-header {
+        flex-direction: column;
+    }
+    .notif-toolbar,
+    .notif-selectbar {
+        padding-right: 1rem;
+        padding-left: 1rem;
+    }
+    .notif-toolbar-actions {
+        width: 100%;
+    }
+    .notif-toolbar-actions .btn {
+        flex: 1;
+    }
+    .notif-bulk {
+        width: 100%;
+        margin-left: 0;
+    }
+    .notif-page-list .sp-notif-item {
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 0.9rem 0.75rem 0.9rem 1rem;
+    }
+}

@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title_key %}siber.title{% endblock %}
+{% block title %}Siber Test - SafePass{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/components/sidebar.css' %}?v={{ APP_VERSION }}-act1">
+<link rel="stylesheet" href="{% static 'css/components/layout.css' %}?v={{ APP_VERSION }}-act1">
+<link rel="stylesheet" href="{% static 'css/components/buttons.css' %}?v={{ APP_VERSION }}-act1">
+<link rel="stylesheet" href="{% static 'css/components/siber_test.css' %}?v={{ APP_VERSION }}-sim5">
+{% endblock %}
+
+{% block body_class %}with-sidebar{% endblock %}
+
+{% block content %}
+{% include "partials/sidebar.html" with page_subtitle_key="siber.subtitle" page_subtitle="Ürettiğin şifreye karşı bir saldırıyı canlandır; gerçek bir saldırı yapılmaz." %}
+
+<div class="main-content">
+<div class="sim-layout">
+
+    {# Target: the password the attack runs against. It stays in this tab; nothing is sent or saved. #}
+    <section class="sim-panel sim-target" aria-labelledby="simTargetTitle">
+        <div class="sim-target-head">
+            <h2 id="simTargetTitle" data-i18n="siber.target_title">Hedef</h2>
+            <span class="sim-summary" id="simSummary" hidden></span>
+        </div>
+
+        <label class="sim-input-label" for="simPassword" id="simPasswordLabel" data-i18n="siber.input_label">Şifre gir</label>
+        <input type="text" class="sim-input" id="simPassword" maxlength="64"
+            autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
+            data-i18n-placeholder="siber.input_placeholder" placeholder="Test etmek istediğin şifreyi yaz">
+        <p class="sim-input-note" data-i18n="siber.input_note">Sonuçlar örnek olması içindir, kesinlik belirtmez.</p>
+    </section>
+
+    {# Arena: Lokki attacks on the left, the defence layers (= the five tests) hold or fall on the right #}
+    <section class="sim-panel sim-arena" aria-labelledby="simArenaTitle" id="simArena" data-state="ready">
+        <h2 class="visually-hidden" id="simArenaTitle" data-i18n="siber.title">Siber Test</h2>
+
+        <div class="sim-attacker">
+            <div class="sim-attacker-head">
+                <div class="sim-lokki lokki-host">
+                    {% include "partials/mascot.html" with uid="sim" lokki_class="sim-lokki-svg" mood="idle" %}
+                    <svg class="sim-hood" viewBox="0 0 100 100" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M10 74C8 30 28 2 50 2s42 28 40 72h-9c1-26-10-40-31-40S18 48 19 74z"/>
+                        <path class="sim-hood-edge" d="M19 74c-1-26 10-40 31-40s32 14 31 40" fill="none"/>
+                    </svg>
+                </div>
+                <div class="sim-bubble">
+                    <span class="sim-role" data-i18n="siber.attacker">Saldırgan rolünde Lokki</span>
+                    <p id="simSay" aria-live="polite" data-i18n="siber.say.ready">Hazırım. Bir şifre yaz, beş testle sınayayım.</p>
+                </div>
+            </div>
+            <div class="sim-terminal" role="log" aria-live="off" id="simTerminal"></div>
+            <div class="sim-counter"><span id="simCounter"></span></div>
+        </div>
+
+        <div class="sim-defense">
+            <div class="sim-shield-wrap">
+                <svg class="sim-shield" viewBox="0 0 100 112" aria-hidden="true">
+                    <defs>
+                        <linearGradient id="simShieldFill" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0" stop-color="#c084fc"/>
+                            <stop offset="1" stop-color="#5b21b6"/>
+                        </linearGradient>
+                    </defs>
+                    <path class="sim-shield-body" d="M50 4l40 14v30c0 28-17 50-40 60C27 98 10 76 10 48V18z"/>
+                    <path class="sim-shield-crack" d="M50 6l-6 22 10 12-12 16 9 14-6 18 5 18" fill="none"/>
+                    <g class="sim-shield-lock">
+                        <rect x="36" y="50" width="28" height="22" rx="5"/>
+                        <path class="sim-shield-shackle" d="M41 50v-7a9 9 0 0 1 18 0v7" fill="none"/>
+                    </g>
+                </svg>
+                <span class="sim-shield-state" id="simShieldState" data-i18n="siber.defense">Savunma katmanları</span>
+            </div>
+
+            <ol class="sim-tests" id="simTests">
+                {% for n in sim_tests %}
+                <li class="sim-test" data-test="{{ n }}" data-status="waiting">
+                    <span class="sim-test-num" aria-hidden="true">{{ n }}</span>
+                    <span class="sim-test-body">
+                        <strong data-i18n="siber.test.{{ n }}.name"></strong>
+                        <small class="sim-test-desc" data-i18n="siber.test.{{ n }}.desc"></small>
+                        <small class="sim-test-log"></small>
+                    </span>
+                    <span class="sim-test-status" data-i18n="siber.status.waiting">bekliyor</span>
+                </li>
+                {% endfor %}
+            </ol>
+            <p class="sim-budget" data-i18n="siber.budget">Saldırganın sabrı: 1 yıl, 8 GPU'luk kırma makinesi.</p>
+        </div>
+
+        {# Verdict and the four scenarios: shown when the run ends #}
+        <div class="sim-outcome" id="simOutcome" hidden>
+            <div class="sim-verdict" id="simVerdict">
+                <strong id="simVerdictTitle"></strong>
+                <span id="simVerdictTime"></span>
+                <a class="sim-tip" id="simTip" href="/generator"></a>
+            </div>
+            <h3 class="sim-scn-title" data-i18n="siber.scn.title">Saldırı senaryoları</h3>
+            <div class="sim-scenarios">
+                {% for s in sim_scenarios %}
+                <div class="sim-scn" data-scn="{{ s }}">
+                    <strong data-i18n="siber.scn.{{ s }}.name"></strong>
+                    <small data-i18n="siber.scn.{{ s }}.desc"></small>
+                    <span class="sim-scn-verdict"></span>
+                </div>
+                {% endfor %}
+            </div>
+            <p class="sim-note" data-i18n="siber.scn_note">Hızlar kamuya açık hashcat ölçümlerinden yuvarlanmıştır.</p>
+        </div>
+
+        <p class="sim-disclaimer" data-i18n="siber.disclaimer">Bu bir görsel simülasyondur. Gerçek şifre denenmez, hiçbir şey kaydedilmez veya gönderilmez. Süreler tahminidir, gerçek kırılma süresi değildir.</p>
+    </section>
+</div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/modules/attack_sim.js' %}?v={{ APP_VERSION }}-sim1"></script>
+<script src="{% static 'js/modules/siber_test.js' %}?v={{ APP_VERSION }}-sim5"></script>
+{% endblock %}
